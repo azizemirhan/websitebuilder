@@ -8,7 +8,10 @@ import { useResponsiveStore } from '@builder/core';
 import { Toolbar } from './Toolbar';
 import { ToastContainer } from './ToastContainer';
 import { BreakpointBar } from './BreakpointBar';
+import { ErrorBoundary } from './ErrorBoundary';
 import { CreateComponentModal } from './CreateComponentModal';
+import { ExportModal } from './ExportModal';
+import { ImportModal } from './ImportModal';
 import { 
   LayersPanel, 
   PropertiesPanel, 
@@ -36,6 +39,9 @@ import {
   ComponentDiffPanel,
   ComponentUsagePanel,
   ComponentExportPanel,
+  CodeViewerPanel,
+  PreviewPanel,
+  TemplateBrowserPanel,
 } from '../panels';
 import { useKeyboardShortcuts } from '../hooks';
 
@@ -49,7 +55,9 @@ export const EditorLayout = memo(function EditorLayout() {
   
   // Modal state
   const [showComponentModal, setShowComponentModal] = useState(false);
-  const [leftPanelTab, setLeftPanelTab] = useState<'layers' | 'components'>('layers');
+  const [showExportModal, setShowExportModal] = useState(false);
+  const [showImportModal, setShowImportModal] = useState(false);
+  const [leftPanelTab, setLeftPanelTab] = useState<'layers' | 'components' | 'templates'>('layers');
 
   const tabStyle = (active: boolean): React.CSSProperties => ({
     flex: 1,
@@ -72,7 +80,11 @@ export const EditorLayout = memo(function EditorLayout() {
       fontFamily: 'Inter, system-ui, -apple-system, sans-serif',
     }}>
       {/* Top Toolbar */}
-      <Toolbar onCreateComponent={() => setShowComponentModal(true)} />
+      <Toolbar 
+        onCreateComponent={() => setShowComponentModal(true)} 
+        onExport={() => setShowExportModal(true)}
+        onImport={() => setShowImportModal(true)}
+      />
       
       {/* Breakpoint Bar */}
       <BreakpointBar />
@@ -83,7 +95,7 @@ export const EditorLayout = memo(function EditorLayout() {
         flex: 1,
         overflow: 'hidden',
       }}>
-        {/* Left Panel - Layers / Components */}
+        {/* Left Panel - Layers / Components / Templates */}
         <div style={{ 
           width: 300, 
           flexShrink: 0, 
@@ -100,20 +112,29 @@ export const EditorLayout = memo(function EditorLayout() {
             <button style={tabStyle(leftPanelTab === 'components')} onClick={() => setLeftPanelTab('components')}>
               🧩 Bileşenler
             </button>
+            <button style={tabStyle(leftPanelTab === 'templates')} onClick={() => setLeftPanelTab('templates')}>
+              📁 Şablonlar
+            </button>
           </div>
           
           {/* Panel Content */}
           <div style={{ flex: 1, overflow: 'auto' }}>
-            {leftPanelTab === 'layers' ? (
+            {leftPanelTab === 'layers' && (
               <>
                 <LayersPanel />
                 <DesignTokensPanel />
               </>
-            ) : (
+            )}
+            {leftPanelTab === 'components' && (
               <>
                 <ComponentLibraryPanel />
                 <ComponentExportPanel />
               </>
+            )}
+            {leftPanelTab === 'templates' && (
+              <ErrorBoundary>
+                <TemplateBrowserPanel />
+              </ErrorBoundary>
             )}
           </div>
         </div>
@@ -141,6 +162,10 @@ export const EditorLayout = memo(function EditorLayout() {
           backgroundColor: '#ffffff',
           borderLeft: '1px solid #e5e7eb',
         }}>
+          {/* Export & Preview */}
+          <PreviewPanel />
+          <CodeViewerPanel />
+          
           {/* Component Panels (conditional) */}
           <ComponentInstancePanel />
           <ComponentDiffPanel />
@@ -178,10 +203,18 @@ export const EditorLayout = memo(function EditorLayout() {
       {/* Toast Notifications */}
       <ToastContainer />
       
-      {/* Create Component Modal */}
+      {/* Modals */}
       <CreateComponentModal 
         isOpen={showComponentModal} 
         onClose={() => setShowComponentModal(false)} 
+      />
+      <ExportModal 
+        isOpen={showExportModal} 
+        onClose={() => setShowExportModal(false)} 
+      />
+      <ImportModal 
+        isOpen={showImportModal} 
+        onClose={() => setShowImportModal(false)} 
       />
     </div>
   );

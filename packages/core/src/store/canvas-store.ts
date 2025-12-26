@@ -33,6 +33,9 @@ interface CanvasStore extends CanvasState {
   getElementById: (id: string) => Element | undefined;
   getSelectedElements: () => Element[];
   clearCanvas: () => void;
+  
+  // Import
+  importElements: (elements: Record<string, Element>, rootIds: string[]) => void;
 }
 
 const createDefaultElement = (
@@ -256,8 +259,9 @@ export const useCanvasStore = create<CanvasStore>()(
           children: [],
           style: {
             ...el.style,
-            left: (el.style.left || 0) + 20,
-            top: (el.style.top || 0) + 20,
+            // Type guard: only add offset for numeric values
+            left: typeof el.style.left === 'number' ? el.style.left + 20 : el.style.left,
+            top: typeof el.style.top === 'number' ? el.style.top + 20 : el.style.top,
           },
         };
 
@@ -412,6 +416,23 @@ export const useCanvasStore = create<CanvasStore>()(
         state.rootElementIds = [];
         state.selectedElementIds = [];
         state.hoveredElementId = null;
+      });
+    },
+
+    // Import Elements (for HTML import)
+    importElements: (elements, rootIds) => {
+      set((state) => {
+        // Merge imported elements with existing elements
+        Object.entries(elements).forEach(([id, element]) => {
+          state.elements[id] = element;
+        });
+        
+        // Add root IDs to canvas root
+        rootIds.forEach((id) => {
+          if (!state.rootElementIds.includes(id)) {
+            state.rootElementIds.push(id);
+          }
+        });
       });
     },
   }))

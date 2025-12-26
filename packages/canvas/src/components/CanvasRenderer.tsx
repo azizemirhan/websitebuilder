@@ -12,6 +12,14 @@ import { ContextMenu } from './ContextMenu';
 import { MarqueeSelection } from './MarqueeSelection';
 import { Rulers } from './Rulers';
 
+// Helper to safely get numeric value from string | number | undefined
+const getNumericStyleValue = (value: number | string | undefined, fallback = 0): number => {
+  if (value === undefined) return fallback;
+  if (typeof value === 'number') return value;
+  const num = parseFloat(value);
+  return isNaN(num) ? fallback : num;
+};
+
 interface CanvasRendererProps {
   width?: number;
   height?: number;
@@ -210,8 +218,8 @@ export const CanvasRenderer = memo(function CanvasRenderer({
       elementId,
       startX: e.clientX,
       startY: e.clientY,
-      initialLeft: element.style.left || 0,
-      initialTop: element.style.top || 0,
+      initialLeft: getNumericStyleValue(element.style.left),
+      initialTop: getNumericStyleValue(element.style.top),
     });
     
     e.preventDefault();
@@ -232,10 +240,10 @@ export const CanvasRenderer = memo(function CanvasRenderer({
       direction,
       startX: e.clientX,
       startY: e.clientY,
-      initialX: element.style.left || 0,
-      initialY: element.style.top || 0,
-      initialW: element.style.width || 100,
-      initialH: element.style.height || 100,
+      initialX: getNumericStyleValue(element.style.left),
+      initialY: getNumericStyleValue(element.style.top),
+      initialW: getNumericStyleValue(element.style.width, 100),
+      initialH: getNumericStyleValue(element.style.height, 100),
     });
     
     e.preventDefault();
@@ -331,10 +339,10 @@ export const CanvasRenderer = memo(function CanvasRenderer({
       if (right - left > 5 || bottom - top > 5) {
         const selectedIds: string[] = [];
         Object.values(elements).forEach((el) => {
-          const elLeft = el.style.left || 0;
-          const elTop = el.style.top || 0;
-          const elRight = elLeft + (el.style.width || 0);
-          const elBottom = elTop + (el.style.height || 0);
+          const elLeft = getNumericStyleValue(el.style.left);
+          const elTop = getNumericStyleValue(el.style.top);
+          const elRight = elLeft + getNumericStyleValue(el.style.width);
+          const elBottom = elTop + getNumericStyleValue(el.style.height);
           
           // Check intersection
           if (elLeft < right && elRight > left && elTop < bottom && elBottom > top) {

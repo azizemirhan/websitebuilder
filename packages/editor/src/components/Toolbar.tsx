@@ -7,9 +7,11 @@ import { useCanvasStore, useHistoryStore, useSettingsStore, CanvasState } from '
 
 interface ToolbarProps {
   onCreateComponent?: () => void;
+  onExport?: () => void;
+  onImport?: () => void;
 }
 
-export const Toolbar = memo(function Toolbar({ onCreateComponent }: ToolbarProps) {
+export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onImport }: ToolbarProps) {
   const elements = useCanvasStore((state) => state.elements);
   const addElement = useCanvasStore((state) => state.addElement);
   const deleteElement = useCanvasStore((state) => state.deleteElement);
@@ -421,6 +423,54 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent }: ToolbarProps
           </svg>
         </button>
       </div>
+
+      {/* Import Button */}
+      {onImport && (
+        <button
+          style={{
+            marginLeft: 8,
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: 8,
+            backgroundColor: '#8b5cf6',
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+          onClick={onImport}
+          title="HTML Dosyası İçe Aktar"
+        >
+          📥 İçe Aktar
+        </button>
+      )}
+
+      {/* Export Button */}
+      {onExport && (
+        <button
+          style={{
+            marginLeft: 8,
+            padding: '8px 16px',
+            border: 'none',
+            borderRadius: 8,
+            backgroundColor: '#10b981',
+            color: '#fff',
+            fontSize: 12,
+            fontWeight: 600,
+            cursor: 'pointer',
+            display: 'flex',
+            alignItems: 'center',
+            gap: 6,
+          }}
+          onClick={onExport}
+          title="Kodu Dışa Aktar"
+        >
+          🚀 Dışa Aktar
+        </button>
+      )}
 
       {/* Selection Info */}
       <div style={{ marginLeft: 'auto', fontSize: 12, color: '#6b7280' }}>

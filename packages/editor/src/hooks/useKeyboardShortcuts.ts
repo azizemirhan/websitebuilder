@@ -100,8 +100,8 @@ export function useKeyboardShortcuts() {
         name: `${el.name} Copy`,
         style: {
           ...el.style,
-          left: (el.style.left || 0) + 20,
-          top: (el.style.top || 0) + 20,
+          left: typeof el.style.left === 'number' ? el.style.left + 20 : el.style.left,
+          top: typeof el.style.top === 'number' ? el.style.top + 20 : el.style.top,
         },
         props: el.props,
       } as Parameters<typeof addElement>[0]);
@@ -112,6 +112,14 @@ export function useKeyboardShortcuts() {
       selectMultiple(newIds);
     }
   }, [copiedElements, addElement, selectMultiple, saveHistory]);
+
+  // Helper for safe numeric style value
+  const getNumericValue = (value: number | string | undefined, fallback = 0): number => {
+    if (value === undefined) return fallback;
+    if (typeof value === 'number') return value;
+    const num = parseFloat(value);
+    return isNaN(num) ? fallback : num;
+  };
 
   // Handle arrow key nudge
   const handleNudge = useCallback((direction: 'up' | 'down' | 'left' | 'right', amount: number) => {
@@ -124,16 +132,16 @@ export function useKeyboardShortcuts() {
       
       switch (direction) {
         case 'up':
-          updateElementStyle(id, { top: (element.style.top || 0) - amount });
+          updateElementStyle(id, { top: getNumericValue(element.style.top) - amount });
           break;
         case 'down':
-          updateElementStyle(id, { top: (element.style.top || 0) + amount });
+          updateElementStyle(id, { top: getNumericValue(element.style.top) + amount });
           break;
         case 'left':
-          updateElementStyle(id, { left: (element.style.left || 0) - amount });
+          updateElementStyle(id, { left: getNumericValue(element.style.left) - amount });
           break;
         case 'right':
-          updateElementStyle(id, { left: (element.style.left || 0) + amount });
+          updateElementStyle(id, { left: getNumericValue(element.style.left) + amount });
           break;
       }
     });

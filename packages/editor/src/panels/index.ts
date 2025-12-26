@@ -35,6 +35,11 @@ export { ComponentDiffPanel } from './ComponentDiffPanel';
 export { ComponentUsagePanel } from './ComponentUsagePanel';
 export { ComponentExportPanel } from './ComponentExportPanel';
 
+// Export Panels
+export { CodeViewerPanel } from './CodeViewerPanel';
+export { PreviewPanel } from './PreviewPanel';
+export { TemplateBrowserPanel } from './TemplateBrowserPanel';
+
 // Other Panels
 export { DesignTokensPanel } from './DesignTokensPanel';
 export { PropertiesPanel } from './PropertiesPanel';

@@ -7,7 +7,7 @@ import { useCanvasStore, Element, StyleProperties } from '@builder/core';
 
 interface NumberInputProps {
   label: string;
-  value: number | undefined;
+  value: number | string | undefined;
   onChange: (value: number) => void;
   min?: number;
   max?: number;
@@ -22,11 +22,13 @@ const NumberInput = memo(function NumberInput({
   max,
   step = 1,
 }: NumberInputProps) {
-  const [localValue, setLocalValue] = useState(String(value ?? ''));
+  // Convert string | number | undefined to display string
+  const displayValue = value !== undefined ? String(value) : '';
+  const [localValue, setLocalValue] = useState(displayValue);
   
   useEffect(() => {
-    setLocalValue(String(value ?? ''));
-  }, [value]);
+    setLocalValue(displayValue);
+  }, [displayValue]);
   
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalValue(e.target.value);
@@ -37,7 +39,7 @@ const NumberInput = memo(function NumberInput({
     if (!isNaN(num)) {
       onChange(num);
     } else {
-      setLocalValue(String(value ?? ''));
+      setLocalValue(displayValue);
     }
   };
   

@@ -57,8 +57,8 @@ export const ContextMenu = memo(function ContextMenu({ x, y, onClose }: ContextM
         name: `${el.name} Copy`,
         style: {
           ...el.style,
-          left: (el.style.left || 0) + 20,
-          top: (el.style.top || 0) + 20,
+          left: typeof el.style.left === 'number' ? el.style.left + 20 : el.style.left,
+          top: typeof el.style.top === 'number' ? el.style.top + 20 : el.style.top,
         },
         props: el.props,
       } as Parameters<typeof addElement>[0]);

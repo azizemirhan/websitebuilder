@@ -5,6 +5,14 @@
 import React, { memo, useCallback } from 'react';
 import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
 
+// Helper to safely get numeric value from string | number | undefined
+const getNumericValue = (value: number | string | undefined, fallback = 0): number => {
+  if (value === undefined) return fallback;
+  if (typeof value === 'number') return value;
+  const num = parseFloat(value);
+  return isNaN(num) ? fallback : num;
+};
+
 export const AlignPanel = memo(function AlignPanel() {
   const elements = useCanvasStore((state) => state.elements);
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
@@ -30,7 +38,7 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 2) return;
     saveHistory();
-    const minLeft = Math.min(...els.map((el) => el.style.left || 0));
+    const minLeft = Math.min(...els.map((el) => getNumericValue(el.style.left)));
     els.forEach((el) => updateElementStyle(el.id, { left: minLeft }));
   }, [getSelectedElements, updateElementStyle, saveHistory]);
 
@@ -38,10 +46,10 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 2) return;
     saveHistory();
-    const centers = els.map((el) => (el.style.left || 0) + (el.style.width || 0) / 2);
+    const centers = els.map((el) => getNumericValue(el.style.left) + getNumericValue(el.style.width) / 2);
     const avgCenter = centers.reduce((a, b) => a + b, 0) / centers.length;
     els.forEach((el) => {
-      const newLeft = avgCenter - (el.style.width || 0) / 2;
+      const newLeft = avgCenter - getNumericValue(el.style.width) / 2;
       updateElementStyle(el.id, { left: newLeft });
     });
   }, [getSelectedElements, updateElementStyle, saveHistory]);
@@ -50,9 +58,9 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 2) return;
     saveHistory();
-    const maxRight = Math.max(...els.map((el) => (el.style.left || 0) + (el.style.width || 0)));
+    const maxRight = Math.max(...els.map((el) => getNumericValue(el.style.left) + getNumericValue(el.style.width)));
     els.forEach((el) => {
-      updateElementStyle(el.id, { left: maxRight - (el.style.width || 0) });
+      updateElementStyle(el.id, { left: maxRight - getNumericValue(el.style.width) });
     });
   }, [getSelectedElements, updateElementStyle, saveHistory]);
 
@@ -60,7 +68,7 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 2) return;
     saveHistory();
-    const minTop = Math.min(...els.map((el) => el.style.top || 0));
+    const minTop = Math.min(...els.map((el) => getNumericValue(el.style.top)));
     els.forEach((el) => updateElementStyle(el.id, { top: minTop }));
   }, [getSelectedElements, updateElementStyle, saveHistory]);
 
@@ -68,10 +76,10 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 2) return;
     saveHistory();
-    const middles = els.map((el) => (el.style.top || 0) + (el.style.height || 0) / 2);
+    const middles = els.map((el) => getNumericValue(el.style.top) + getNumericValue(el.style.height) / 2);
     const avgMiddle = middles.reduce((a, b) => a + b, 0) / middles.length;
     els.forEach((el) => {
-      const newTop = avgMiddle - (el.style.height || 0) / 2;
+      const newTop = avgMiddle - getNumericValue(el.style.height) / 2;
       updateElementStyle(el.id, { top: newTop });
     });
   }, [getSelectedElements, updateElementStyle, saveHistory]);
@@ -80,9 +88,9 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 2) return;
     saveHistory();
-    const maxBottom = Math.max(...els.map((el) => (el.style.top || 0) + (el.style.height || 0)));
+    const maxBottom = Math.max(...els.map((el) => getNumericValue(el.style.top) + getNumericValue(el.style.height)));
     els.forEach((el) => {
-      updateElementStyle(el.id, { top: maxBottom - (el.style.height || 0) });
+      updateElementStyle(el.id, { top: maxBottom - getNumericValue(el.style.height) });
     });
   }, [getSelectedElements, updateElementStyle, saveHistory]);
 
@@ -90,14 +98,14 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 3) return;
     saveHistory();
-    const sorted = [...els].sort((a, b) => (a.style.left || 0) - (b.style.left || 0));
+    const sorted = [...els].sort((a, b) => getNumericValue(a.style.left) - getNumericValue(b.style.left));
     const first = sorted[0];
     const last = sorted[sorted.length - 1];
-    const totalWidth = (last.style.left || 0) - (first.style.left || 0);
+    const totalWidth = getNumericValue(last.style.left) - getNumericValue(first.style.left);
     const spacing = totalWidth / (sorted.length - 1);
     sorted.forEach((el, i) => {
       if (i > 0 && i < sorted.length - 1) {
-        updateElementStyle(el.id, { left: (first.style.left || 0) + spacing * i });
+        updateElementStyle(el.id, { left: getNumericValue(first.style.left) + spacing * i });
       }
     });
   }, [getSelectedElements, updateElementStyle, saveHistory]);
@@ -106,14 +114,14 @@ export const AlignPanel = memo(function AlignPanel() {
     const els = getSelectedElements();
     if (els.length < 3) return;
     saveHistory();
-    const sorted = [...els].sort((a, b) => (a.style.top || 0) - (b.style.top || 0));
+    const sorted = [...els].sort((a, b) => getNumericValue(a.style.top) - getNumericValue(b.style.top));
     const first = sorted[0];
     const last = sorted[sorted.length - 1];
-    const totalHeight = (last.style.top || 0) - (first.style.top || 0);
+    const totalHeight = getNumericValue(last.style.top) - getNumericValue(first.style.top);
     const spacing = totalHeight / (sorted.length - 1);
     sorted.forEach((el, i) => {
       if (i > 0 && i < sorted.length - 1) {
-        updateElementStyle(el.id, { top: (first.style.top || 0) + spacing * i });
+        updateElementStyle(el.id, { top: getNumericValue(first.style.top) + spacing * i });
       }
     });
   }, [getSelectedElements, updateElementStyle, saveHistory]);

@@ -14,30 +14,30 @@ export type ElementType =
  * Faz 1'de temel properties, ilerleyen fazlarda genişletilecek
  */
 export interface StyleProperties {
-  // Position & Layout
+  // Position & Layout - support both pixel numbers and CSS strings (%, auto, calc)
   position?: 'absolute' | 'relative' | 'fixed' | 'static';
-  top?: number;
-  left?: number;
-  right?: number;
-  bottom?: number;
-  width?: number;
-  height?: number;
-  minWidth?: number;
-  maxWidth?: number;
-  minHeight?: number;
-  maxHeight?: number;
+  top?: number | string;
+  left?: number | string;
+  right?: number | string;
+  bottom?: number | string;
+  width?: number | string;
+  height?: number | string;
+  minWidth?: number | string;
+  maxWidth?: number | string;
+  minHeight?: number | string;
+  maxHeight?: number | string;
   
-  // Spacing
-  padding?: string;
-  paddingTop?: number;
-  paddingRight?: number;
-  paddingBottom?: number;
-  paddingLeft?: number;
-  margin?: string;
-  marginTop?: number;
-  marginRight?: number;
-  marginBottom?: number;
-  marginLeft?: number;
+  // Spacing - support both number and string
+  padding?: string | number;
+  paddingTop?: number | string;
+  paddingRight?: number | string;
+  paddingBottom?: number | string;
+  paddingLeft?: number | string;
+  margin?: string | number;
+  marginTop?: number | string;
+  marginRight?: number | string;
+  marginBottom?: number | string;
+  marginLeft?: number | string;
   
   // Visual
   backgroundColor?: string;

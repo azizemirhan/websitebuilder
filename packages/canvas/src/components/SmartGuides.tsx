@@ -10,6 +10,14 @@ interface GuideLines {
   horizontal: number[];
 }
 
+// Helper to safely get numeric value from string | number | undefined
+const getNumericValue = (value: number | string | undefined, fallback = 0): number => {
+  if (value === undefined) return fallback;
+  if (typeof value === 'number') return value;
+  const num = parseFloat(value);
+  return isNaN(num) ? fallback : num;
+};
+
 export const SmartGuides = memo(function SmartGuides() {
   const showSmartGuides = useSettingsStore((state) => state.showSmartGuides);
   const elements = useCanvasStore((state) => state.elements);
@@ -23,12 +31,14 @@ export const SmartGuides = memo(function SmartGuides() {
     const selectedElement = elements[selectedIds[0]];
     if (!selectedElement) return { vertical: [], horizontal: [] };
 
-    const selectedLeft = selectedElement.style.left || 0;
-    const selectedTop = selectedElement.style.top || 0;
-    const selectedRight = selectedLeft + (selectedElement.style.width || 0);
-    const selectedBottom = selectedTop + (selectedElement.style.height || 0);
-    const selectedCenterX = selectedLeft + (selectedElement.style.width || 0) / 2;
-    const selectedCenterY = selectedTop + (selectedElement.style.height || 0) / 2;
+    const selectedLeft = getNumericValue(selectedElement.style.left);
+    const selectedTop = getNumericValue(selectedElement.style.top);
+    const selectedWidth = getNumericValue(selectedElement.style.width);
+    const selectedHeight = getNumericValue(selectedElement.style.height);
+    const selectedRight = selectedLeft + selectedWidth;
+    const selectedBottom = selectedTop + selectedHeight;
+    const selectedCenterX = selectedLeft + selectedWidth / 2;
+    const selectedCenterY = selectedTop + selectedHeight / 2;
 
     const threshold = 3;
     const vertical: number[] = [];
@@ -37,12 +47,14 @@ export const SmartGuides = memo(function SmartGuides() {
     Object.values(elements).forEach((el) => {
       if (el.id === selectedIds[0]) return;
 
-      const left = el.style.left || 0;
-      const top = el.style.top || 0;
-      const right = left + (el.style.width || 0);
-      const bottom = top + (el.style.height || 0);
-      const centerX = left + (el.style.width || 0) / 2;
-      const centerY = top + (el.style.height || 0) / 2;
+      const left = getNumericValue(el.style.left);
+      const top = getNumericValue(el.style.top);
+      const width = getNumericValue(el.style.width);
+      const height = getNumericValue(el.style.height);
+      const right = left + width;
+      const bottom = top + height;
+      const centerX = left + width / 2;
+      const centerY = top + height / 2;
 
       // Vertical alignment (left, center, right)
       if (Math.abs(selectedLeft - left) < threshold) vertical.push(left);
