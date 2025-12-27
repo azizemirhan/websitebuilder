@@ -170,28 +170,28 @@ function shouldSkipElement(el: Element): boolean {
  * Get element type based on tag name and attributes
  */
 export function detectElementType(parsed: ParsedElement): 'container' | 'text' | 'button' | 'image' | 'input' | 'link' {
-  const { tagName, classNames } = parsed;
-  
+  const { tagName, classNames, children, textContent } = parsed;
+
   // Image
   if (tagName === 'img') {
     return 'image';
   }
-  
+
   // Input elements
   if (['input', 'textarea', 'select'].includes(tagName)) {
     return 'input';
   }
-  
+
   // Button (including button-like elements)
   if (tagName === 'button') {
     return 'button';
   }
-  
+
   // Links processing
   if (tagName === 'a') {
     // Check if link has complex content (images, divs, etc.)
     // If it has children that are NOT text-formatting tags, treat as container
-    const hasComplexChildren = parsed.children.some(child => 
+    const hasComplexChildren = children.some(child =>
       !['span', 'b', 'i', 'u', 'strong', 'em', 'small', 'br'].includes(child.tagName.toLowerCase())
     );
 
@@ -200,28 +200,41 @@ export function detectElementType(parsed: ParsedElement): 'container' | 'text' |
     }
 
     // Otherwise check for button classes
-    const hasButtonClass = classNames.some((cls) => 
+    const hasButtonClass = classNames.some((cls) =>
       cls.includes('btn') || cls.includes('button') || cls.includes('cta')
     );
     if (hasButtonClass) {
       return 'button';
     }
-    
+
     // Default links (nav items etc) - might be text or button
     return 'link';
   }
-  
+
   // Text elements
   const textTags = ['p', 'span', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'label', 'strong', 'em', 'small'];
+  const inlineTags = ['span', 'b', 'i', 'u', 'strong', 'em', 'small', 'br', 'a'];
+
   if (textTags.includes(tagName)) {
-    // If text element has block children, it must be a container
-    if (parsed.children.some(c => !textTags.includes(c.tagName) && c.tagName !== 'br')) {
+    // If text element has block children (non-inline elements), it must be a container
+    const hasBlockChildren = children.some(c =>
+      !inlineTags.includes(c.tagName.toLowerCase())
+    );
+
+    if (hasBlockChildren) {
       return 'container';
     }
+
     return 'text';
   }
-  
-  // Default to container
+
+  // Container heuristics for divs/sections/etc
+  // If element has no text content and has children, it's likely a layout container
+  if (['div', 'section', 'article', 'header', 'footer', 'nav', 'main', 'aside'].includes(tagName)) {
+    return 'container';
+  }
+
+  // Default to container for unknown elements
   return 'container';
 }
 

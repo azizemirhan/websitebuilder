@@ -237,15 +237,17 @@ function calculateSpecificity(selector: string): number {
 
 /**
  * Match CSS rules to an element based on selector
+ * Now supports parent chain for nested selectors
  */
 export function matchRulesToElement(
   element: { tagName: string; id: string; classNames: string[]; attributes?: Record<string, string> },
-  rules: CSSRule[]
+  rules: CSSRule[],
+  parentChain?: Array<{ tagName: string; id: string; classNames: string[]; attributes?: Record<string, string> }>
 ): CSSRule[] {
   const matched: CSSRule[] = [];
 
   rules.forEach(rule => {
-    if (selectorMatches(element, rule.selector)) {
+    if (selectorMatches(element, rule.selector, parentChain)) {
       matched.push(rule);
     }
   });
@@ -257,21 +259,77 @@ export function matchRulesToElement(
 }
 
 /**
- * Check if a simple selector matches an element
- * Supports: tag, .class, #id, [attr], tag.class, tag#id
+ * Check if a selector matches an element (with nested selector support)
+ * Supports: tag, .class, #id, [attr], tag.class, tag#id, and nested selectors (.parent .child)
  */
 function selectorMatches(
   element: { tagName: string; id: string; classNames: string[]; attributes?: Record<string, string> },
+  selector: string,
+  parentChain?: Array<{ tagName: string; id: string; classNames: string[]; attributes?: Record<string, string> }>
+): boolean {
+  // Split selector into parts (handle descendant, child, adjacent, sibling combinators)
+  // For now, we only support descendant combinator (space)
+  const parts = selector.split(/\s+/).filter(Boolean);
+
+  if (parts.length === 0) return false;
+
+  // If single selector, match directly
+  if (parts.length === 1) {
+    return matchSimpleSelector(element, parts[0]);
+  }
+
+  // For nested selectors, match from right to left
+  // Last part must match current element
+  const lastPart = parts[parts.length - 1];
+  if (!matchSimpleSelector(element, lastPart)) {
+    return false;
+  }
+
+  // If no parent chain provided, we can't validate nested selectors
+  // So we accept it as a partial match (this is a limitation)
+  if (!parentChain || parentChain.length === 0) {
+    // Without parent info, we match based on last selector only
+    // This maintains backward compatibility
+    return true;
+  }
+
+  // Match ancestor selectors from right to left
+  // We need to find each selector part in the ancestor chain
+  let parentIndex = 0; // Start from immediate parent
+
+  for (let i = parts.length - 2; i >= 0; i--) {
+    const selectorPart = parts[i];
+    let found = false;
+
+    // Look through remaining ancestors to find a match
+    while (parentIndex < parentChain.length) {
+      if (matchSimpleSelector(parentChain[parentIndex], selectorPart)) {
+        found = true;
+        parentIndex++; // Move to next ancestor for next selector part
+        break;
+      }
+      parentIndex++;
+    }
+
+    if (!found) {
+      return false; // Required ancestor not found
+    }
+  }
+
+  return true;
+}
+
+/**
+ * Match a simple (non-nested) selector to an element
+ */
+function matchSimpleSelector(
+  element: { tagName: string; id: string; classNames: string[]; attributes?: Record<string, string> },
   selector: string
 ): boolean {
-  // Simplify: only check the last part of complex selectors
-  const parts = selector.split(/[\s>+~]/).filter(Boolean);
-  const lastPart = parts[parts.length - 1] || '';
-
-  if (!lastPart) return false;
+  if (!selector) return false;
 
   // Check tag name - only if selector starts with a letter (not . or #)
-  const tagMatch = lastPart.match(/^([a-zA-Z][a-zA-Z0-9]*)/);
+  const tagMatch = selector.match(/^([a-zA-Z][a-zA-Z0-9]*)/);
   if (tagMatch) {
     // Selector specifies a tag, must match
     if (tagMatch[1].toLowerCase() !== element.tagName.toLowerCase()) {
@@ -280,7 +338,7 @@ function selectorMatches(
   }
 
   // Check ID
-  const idMatch = lastPart.match(/#([\w-]+)/);
+  const idMatch = selector.match(/#([\w-]+)/);
   if (idMatch) {
     if (idMatch[1] !== element.id) {
       return false;
@@ -288,7 +346,7 @@ function selectorMatches(
   }
 
   // Check classes - ALL specified classes must be present
-  const classMatches = lastPart.match(/\.([\w-]+)/g);
+  const classMatches = selector.match(/\.([\w-]+)/g);
   if (classMatches) {
     for (const classMatch of classMatches) {
       const className = classMatch.substring(1);
@@ -305,7 +363,7 @@ function selectorMatches(
   }
 
   // Check attributes
-  const attrMatches = lastPart.match(/\[([\w-]+)(?:="([^"]*)")?\]/g);
+  const attrMatches = selector.match(/\[([\w-]+)(?:="([^"]*)")?\]/g);
   if (attrMatches && element.attributes) {
     for (const attrMatch of attrMatches) {
       const attrParsed = attrMatch.match(/\[([\w-]+)(?:="([^"]*)")?\]/);
@@ -341,13 +399,15 @@ export function mergeStyles(...styleSets: Record<string, string>[]): Record<stri
 
 /**
  * Compute final styles for an element
+ * Now supports parent chain for accurate nested selector matching
  */
 export function computeElementStyles(
   element: { tagName: string; id: string; classNames: string[]; inlineStyles: Record<string, string> },
-  extractedStyles: ExtractedStyles
+  extractedStyles: ExtractedStyles,
+  parentChain?: Array<{ tagName: string; id: string; classNames: string[] }>
 ): Record<string, string> {
-  // Get matching rules sorted by specificity
-  const matchedRules = matchRulesToElement(element, extractedStyles.rules);
+  // Get matching rules sorted by specificity (with parent chain support)
+  const matchedRules = matchRulesToElement(element, extractedStyles.rules, parentChain);
 
   // Start with matched rules (lower specificity first)
   const baseStyles = matchedRules.reduce((acc, rule) => {

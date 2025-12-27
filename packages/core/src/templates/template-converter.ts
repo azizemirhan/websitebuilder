@@ -77,7 +77,7 @@ export function convertToTemplateKit(
       const rootIds: string[] = [];
 
       parsedDoc.elements.forEach((parsed) => {
-        const result = processElement(parsed, extractedStyles, null, allElements);
+        const result = processElement(parsed, extractedStyles, null, allElements, []);
         if (result) {
           rootIds.push(result);
         }
@@ -126,7 +126,7 @@ function processSection(
   index: number
 ): TemplateSection | null {
   const elements: Record<string, Element> = {};
-  const rootId = processElement(parsed, extractedStyles, null, elements);
+  const rootId = processElement(parsed, extractedStyles, null, elements, []);
 
   if (!rootId) return null;
 
@@ -162,9 +162,21 @@ function generateSectionName(parsed: ParsedElement, sectionType: string, index: 
 
 /**
  * Map element type from parsed HTML
+ * Enhanced with CSS-based detection for better accuracy
  */
-function mapElementType(parsed: ParsedElement): ElementType {
+function mapElementType(parsed: ParsedElement, computedStyles?: Record<string, string>): ElementType {
   const detected = detectElementType(parsed);
+
+  // Check CSS for layout hints
+  if (computedStyles) {
+    const display = computedStyles.display;
+    const hasLayoutDisplay = display === 'flex' || display === 'grid' || display === 'inline-flex' || display === 'inline-grid';
+
+    // If element has flex/grid display, it's definitely a container
+    if (hasLayoutDisplay && detected !== 'image' && detected !== 'input') {
+      return 'container';
+    }
+  }
 
   // If explicitly detected as 'link' (simple text link), map to 'text' for now.
   // Complex links (logos etc) are already detected as 'container' in the parser.
@@ -335,7 +347,8 @@ function processElement(
   parsed: ParsedElement,
   extractedStyles: ExtractedStyles,
   parentId: string | null,
-  elements: Record<string, Element>
+  elements: Record<string, Element>,
+  parentChain: Array<{ tagName: string; id: string; classNames: string[] }>
 ): string | null {
   // Skip certain elements
   if (['script', 'style', 'meta', 'link', 'head'].includes(parsed.tagName.toLowerCase())) {
@@ -343,9 +356,8 @@ function processElement(
   }
 
   const id = generateElementId();
-  const type = mapElementType(parsed);
 
-  // Compute styles from CSS rules
+  // Compute styles from CSS rules with parent chain support
   const computedCSS = computeElementStyles(
     {
       tagName: parsed.tagName,
@@ -353,24 +365,41 @@ function processElement(
       classNames: parsed.classNames,
       inlineStyles: parsed.inlineStyles,
     },
-    extractedStyles
+    extractedStyles,
+    parentChain
   );
+
+  // Determine element type with CSS-based hints
+  const type = mapElementType(parsed, computedCSS);
 
   // Convert to StyleProperties
   const style = cssToStyleProperties(computedCSS, extractedStyles.variables);
 
   // Build canvas style with flow layout defaults
+  // Set defaults BEFORE spreading style so CSS values take precedence
   const canvasStyle: StyleProperties = {
-    position: style.position || 'relative',
-    display: style.display || 'block',
-    boxSizing: 'border-box', // Ensure box-sizing is handled
+    // Defaults
+    position: 'relative',
+    display: 'block',
+    boxSizing: 'border-box',
+    // Spread actual styles - these will override defaults
     ...style,
   };
 
-  // Process children
+  // Create new parent chain for children (add current element)
+  const newParentChain = [
+    {
+      tagName: parsed.tagName,
+      id: parsed.id,
+      classNames: parsed.classNames,
+    },
+    ...parentChain,
+  ];
+
+  // Process children with updated parent chain
   const childIds: string[] = [];
   parsed.children.forEach((child) => {
-    const childId = processElement(child, extractedStyles, id, elements);
+    const childId = processElement(child, extractedStyles, id, elements, newParentChain);
     if (childId) {
       childIds.push(childId);
     }
