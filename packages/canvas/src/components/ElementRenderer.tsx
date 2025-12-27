@@ -10,14 +10,16 @@ import {
   ButtonRenderer,
   ImageRenderer,
   InputRenderer,
+  IconRenderer,
+  SliderRenderer,
 } from './renderers';
 
 interface ElementRendererProps {
   elementId: string;
 }
 
-export const ElementRenderer = memo(function ElementRenderer({ 
-  elementId 
+export const ElementRenderer = memo(function ElementRenderer({
+  elementId
 }: ElementRendererProps) {
   const element = useCanvasStore((state) => state.elements[elementId]);
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
@@ -76,6 +78,10 @@ export const ElementRenderer = memo(function ElementRenderer({
       return <ImageRenderer element={element} {...commonProps} />;
     case 'input':
       return <InputRenderer element={element} {...commonProps} />;
+    case 'icon':
+      return <IconRenderer element={element} {...commonProps} />;
+    case 'slider':
+      return <SliderRenderer element={element} {...commonProps} />;
     default:
       console.warn(`Unknown element type: ${(element as Element).type}`);
       return null;

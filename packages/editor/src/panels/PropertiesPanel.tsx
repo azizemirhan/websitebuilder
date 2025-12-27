@@ -3,7 +3,8 @@
  */
 
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { useCanvasStore, Element, StyleProperties } from '@builder/core';
+import { useCanvasStore, Element, StyleProperties, SlideData } from '@builder/core';
+import { SlideEditorModal } from '../components/SlideEditorModal';
 
 interface NumberInputProps {
   label: string;
@@ -14,26 +15,26 @@ interface NumberInputProps {
   step?: number;
 }
 
-const NumberInput = memo(function NumberInput({ 
-  label, 
-  value, 
-  onChange, 
-  min, 
+const NumberInput = memo(function NumberInput({
+  label,
+  value,
+  onChange,
+  min,
   max,
   step = 1,
 }: NumberInputProps) {
   // Convert string | number | undefined to display string
   const displayValue = value !== undefined ? String(value) : '';
   const [localValue, setLocalValue] = useState(displayValue);
-  
+
   useEffect(() => {
     setLocalValue(displayValue);
   }, [displayValue]);
-  
+
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setLocalValue(e.target.value);
   };
-  
+
   const handleBlur = () => {
     const num = parseFloat(localValue);
     if (!isNaN(num)) {
@@ -42,13 +43,13 @@ const NumberInput = memo(function NumberInput({
       setLocalValue(displayValue);
     }
   };
-  
+
   const handleKeyDown = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter') {
       handleBlur();
     }
   };
-  
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
       <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>{label}</label>
@@ -181,6 +182,9 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
 
+  // Slide editor modal state
+  const [isSlideEditorOpen, setIsSlideEditorOpen] = useState(false);
+
   const handleStyleChange = useCallback((property: keyof StyleProperties, value: any) => {
     if (selectedElement) {
       updateElementStyle(selectedElement.id, { [property]: value });
@@ -196,6 +200,12 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
   const handlePropsChange = useCallback((key: string, value: any) => {
     if (selectedElement) {
       updateElementProps(selectedElement.id, { [key]: value });
+    }
+  }, [selectedElement, updateElementProps]);
+
+  const handleSaveSlides = useCallback((slides: SlideData[]) => {
+    if (selectedElement) {
+      updateElementProps(selectedElement.id, { slides });
     }
   }, [selectedElement, updateElementProps]);
 
@@ -217,17 +227,17 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
         }}>
           Properties
         </div>
-        <div style={{ 
-          flex: 1, 
-          display: 'flex', 
-          alignItems: 'center', 
+        <div style={{
+          flex: 1,
+          display: 'flex',
+          alignItems: 'center',
           justifyContent: 'center',
           color: '#9ca3af',
           fontSize: 13,
           textAlign: 'center',
           padding: 16,
         }}>
-          {selectedIds.length > 1 
+          {selectedIds.length > 1
             ? 'Multiple elements selected'
             : 'Select an element to edit'
           }
@@ -255,10 +265,10 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
         alignItems: 'center',
         gap: 8,
       }}>
-        <span style={{ 
-          backgroundColor: '#e0e7ff', 
-          color: '#3b82f6', 
-          padding: '2px 6px', 
+        <span style={{
+          backgroundColor: '#e0e7ff',
+          color: '#3b82f6',
+          padding: '2px 6px',
           borderRadius: 4,
           fontSize: 11,
           textTransform: 'capitalize',
@@ -267,10 +277,10 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
         </span>
         Properties
       </div>
-      
+
       {/* Content */}
-      <div style={{ 
-        flex: 1, 
+      <div style={{
+        flex: 1,
         overflowY: 'auto',
         padding: 16,
         display: 'flex',
@@ -283,7 +293,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
           value={selectedElement.name}
           onChange={handleNameChange}
         />
-        
+
         {/* Position */}
         <SectionTitle title="Position" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -298,7 +308,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             onChange={(v) => handleStyleChange('top', v)}
           />
         </div>
-        
+
         {/* Size */}
         <SectionTitle title="Size" />
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
@@ -315,7 +325,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             min={0}
           />
         </div>
-        
+
         {/* Appearance */}
         <SectionTitle title="Appearance" />
         <ColorInput
@@ -323,7 +333,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
           value={selectedElement.style.backgroundColor}
           onChange={(v) => handleStyleChange('backgroundColor', v)}
         />
-        
+
         {selectedElement.type === 'text' && (
           <ColorInput
             label="Text Color"
@@ -331,14 +341,14 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             onChange={(v) => handleStyleChange('color', v)}
           />
         )}
-        
+
         <NumberInput
           label="Border Radius"
           value={selectedElement.style.borderRadius}
           onChange={(v) => handleStyleChange('borderRadius', v)}
           min={0}
         />
-        
+
         <NumberInput
           label="Opacity"
           value={selectedElement.style.opacity !== undefined ? selectedElement.style.opacity * 100 : 100}
@@ -347,7 +357,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
           max={100}
           step={5}
         />
-        
+
         {/* Element-specific props */}
         {selectedElement.type === 'text' && (
           <>
@@ -366,7 +376,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             />
           </>
         )}
-        
+
         {selectedElement.type === 'button' && (
           <>
             <SectionTitle title="Button" />
@@ -382,7 +392,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             />
           </>
         )}
-        
+
         {selectedElement.type === 'image' && (
           <>
             <SectionTitle title="Image" />
@@ -398,7 +408,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             />
           </>
         )}
-        
+
         {selectedElement.type === 'input' && (
           <>
             <SectionTitle title="Input" />
@@ -409,7 +419,127 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             />
           </>
         )}
+
+        {/* Slider specific section */}
+        {selectedElement.type === 'slider' && (
+          <>
+            <SectionTitle title="Slider" />
+
+            {/* Slide count display */}
+            <div style={{
+              padding: 12,
+              backgroundColor: '#f3f4f6',
+              borderRadius: 8,
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'space-between',
+            }}>
+              <div>
+                <div style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
+                  🖼️ {selectedElement.props?.slides?.length || 0} Slayt
+                </div>
+                <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
+                  Düzenlemek için butona tıklayın
+                </div>
+              </div>
+            </div>
+
+            {/* Edit Slides Button */}
+            <button
+              onClick={() => setIsSlideEditorOpen(true)}
+              style={{
+                width: '100%',
+                padding: '12px 16px',
+                backgroundColor: '#2563eb',
+                color: '#ffffff',
+                border: 'none',
+                borderRadius: 8,
+                fontWeight: 600,
+                fontSize: 13,
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                gap: 8,
+              }}
+            >
+              ✏️ Slaytları Düzenle
+            </button>
+
+            {/* Slider Settings */}
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>Auto-play</label>
+                <select
+                  value={selectedElement.props?.autoPlay ? 'true' : 'false'}
+                  onChange={(e) => handlePropsChange('autoPlay', e.target.value === 'true')}
+                  style={{
+                    padding: '6px 8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 4,
+                    fontSize: 13,
+                  }}
+                >
+                  <option value="true">Açık</option>
+                  <option value="false">Kapalı</option>
+                </select>
+              </div>
+              <NumberInput
+                label="Süre (ms)"
+                value={selectedElement.props?.interval || 6000}
+                onChange={(v) => handlePropsChange('interval', v)}
+                min={1000}
+                step={500}
+              />
+            </div>
+
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>Ok Göster</label>
+                <select
+                  value={selectedElement.props?.showArrows ? 'true' : 'false'}
+                  onChange={(e) => handlePropsChange('showArrows', e.target.value === 'true')}
+                  style={{
+                    padding: '6px 8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 4,
+                    fontSize: 13,
+                  }}
+                >
+                  <option value="true">Evet</option>
+                  <option value="false">Hayır</option>
+                </select>
+              </div>
+              <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
+                <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>Nokta Göster</label>
+                <select
+                  value={selectedElement.props?.showDots ? 'true' : 'false'}
+                  onChange={(e) => handlePropsChange('showDots', e.target.value === 'true')}
+                  style={{
+                    padding: '6px 8px',
+                    border: '1px solid #e5e7eb',
+                    borderRadius: 4,
+                    fontSize: 13,
+                  }}
+                >
+                  <option value="true">Evet</option>
+                  <option value="false">Hayır</option>
+                </select>
+              </div>
+            </div>
+          </>
+        )}
       </div>
+
+      {/* Slide Editor Modal */}
+      {isSlideEditorOpen && selectedElement.type === 'slider' && (
+        <SlideEditorModal
+          slides={selectedElement.props?.slides || []}
+          onSave={handleSaveSlides}
+          onClose={() => setIsSlideEditorOpen(false)}
+        />
+      )}
     </div>
   );
 });
+

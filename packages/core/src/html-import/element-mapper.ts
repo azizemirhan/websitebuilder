@@ -97,13 +97,13 @@ function cssToStyleProperties(
   variables: Record<string, string> = {}
 ): Partial<StyleProperties> {
   const style: Partial<StyleProperties> = {};
-  
+
   Object.entries(cssStyles).forEach(([cssProp, value]) => {
     const styleProp = cssToStyleMap[cssProp];
     if (styleProp && value) {
       // Resolve CSS variables
       const resolvedValue = resolveVariables(value, variables);
-      
+
       // Convert to appropriate type
       const converted = convertCSSValue(styleProp, resolvedValue);
       if (converted !== undefined) {
@@ -111,7 +111,7 @@ function cssToStyleProperties(
       }
     }
   });
-  
+
   return style;
 }
 
@@ -122,17 +122,17 @@ function convertCSSValue(property: keyof StyleProperties, value: string): string
   if (!value || value === 'initial' || value === 'inherit' || value === 'unset') {
     return undefined;
   }
-  
+
   // Properties that should be numbers
   const numericProperties = [
     'zIndex', 'opacity', 'flexGrow', 'flexShrink', 'order',
   ];
-  
+
   if (numericProperties.includes(property)) {
     const num = parseFloat(value);
     return isNaN(num) ? undefined : num;
   }
-  
+
   // Properties that might be px values but can be numbers
   const dimensionProperties = [
     'width', 'height', 'minWidth', 'maxWidth', 'minHeight', 'maxHeight',
@@ -142,28 +142,28 @@ function convertCSSValue(property: keyof StyleProperties, value: string): string
     'borderWidth', 'borderRadius', 'gap', 'columnGap', 'rowGap',
     'fontSize', 'lineHeight', 'letterSpacing',
   ];
-  
+
   if (dimensionProperties.includes(property)) {
     // Keep as string if it has units other than px, or is complex
-    if (value.includes('%') || value.includes('em') || value.includes('rem') || 
-        value.includes('vh') || value.includes('vw') || value.includes('calc') ||
-        value.includes('auto')) {
+    if (value.includes('%') || value.includes('em') || value.includes('rem') ||
+      value.includes('vh') || value.includes('vw') || value.includes('calc') ||
+      value.includes('auto')) {
       return value;
     }
-    
+
     // Convert px to number
     const pxMatch = value.match(/^(-?\d+(?:\.\d+)?)px$/);
     if (pxMatch) {
       return parseFloat(pxMatch[1]);
     }
-    
+
     // Plain number
     const num = parseFloat(value);
     if (!isNaN(num) && value === String(num)) {
       return num;
     }
   }
-  
+
   return value;
 }
 
@@ -172,7 +172,7 @@ function convertCSSValue(property: keyof StyleProperties, value: string): string
  */
 function mapElementType(parsed: ParsedElement): ElementType {
   const detected = detectElementType(parsed);
-  
+
   switch (detected) {
     case 'text':
       return 'text';
@@ -194,7 +194,7 @@ function mapElementType(parsed: ParsedElement): ElementType {
  */
 function extractElementProps(parsed: ParsedElement, type: ElementType): Record<string, unknown> {
   const props: Record<string, unknown> = {};
-  
+
   switch (type) {
     case 'text':
       props.content = parsed.textContent || 'Text';
@@ -212,7 +212,7 @@ function extractElementProps(parsed: ParsedElement, type: ElementType): Record<s
       props.placeholder = parsed.attributes.placeholder || '';
       break;
   }
-  
+
   return props;
 }
 
@@ -256,17 +256,17 @@ export function mapParsedToCanvas(
     byType: {} as Record<ElementType, number>,
     skipped: 0,
   };
-  
+
   function processElement(parsed: ParsedElement, depth: number): string | null {
     // Skip elements that are too deep or have no content
     if (depth > 20) {
       stats.skipped++;
       return null;
     }
-    
+
     const type = mapElementType(parsed);
     const id = generateElementId();
-    
+
     // Compute styles
     const computedCSS = computeElementStyles(
       {
@@ -277,10 +277,10 @@ export function mapParsedToCanvas(
       },
       extractedStyles
     );
-    
+
     // Convert to StyleProperties
     const style = cssToStyleProperties(computedCSS, extractedStyles.variables);
-    
+
     // Determine display mode from CSS - use 'relative' for flow elements
     // Imported HTML elements should use document flow (position: relative)
     // Unless explicitly set to absolute/fixed in CSS
@@ -290,7 +290,7 @@ export function mapParsedToCanvas(
       // Pass all CSS values directly - StyleProperties now supports string | number
       ...style,
     };
-    
+
     // Process children first
     const childIds: string[] = [];
     parsed.children.forEach((child) => {
@@ -299,10 +299,10 @@ export function mapParsedToCanvas(
         childIds.push(childId);
       }
     });
-    
+
     // Extract props
     const props = extractElementProps(parsed, type);
-    
+
     // Create canvas element
     const element = {
       id,
@@ -314,14 +314,14 @@ export function mapParsedToCanvas(
       parentId: null,
       locked: false,
     } as Element;
-    
+
     elements[id] = element;
     stats.totalImported++;
     stats.byType[type] = (stats.byType[type] || 0) + 1;
-    
+
     return id;
   }
-  
+
   // Process all root elements
   parsedElements.forEach((parsed) => {
     const id = processElement(parsed, 0);
@@ -329,7 +329,7 @@ export function mapParsedToCanvas(
       rootElementIds.push(id);
     }
   });
-  
+
   // Set parent IDs
   Object.values(elements).forEach((el) => {
     el.children.forEach((childId) => {
@@ -338,7 +338,7 @@ export function mapParsedToCanvas(
       }
     });
   });
-  
+
   return {
     elements,
     rootElementIds,
@@ -358,14 +358,14 @@ function getElementName(parsed: ParsedElement, type: ElementType): string {
       .replace(/\b\w/g, (c) => c.toUpperCase());
     return mainClass;
   }
-  
+
   // Use ID if available
   if (parsed.id) {
     return parsed.id
       .replace(/-/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase());
   }
-  
+
   // Use tag name
   const typeNames: Record<ElementType, string> = {
     container: 'Container',
@@ -373,8 +373,10 @@ function getElementName(parsed: ParsedElement, type: ElementType): string {
     button: 'Button',
     image: 'Image',
     input: 'Input',
+    icon: 'Icon',
+    slider: 'Slider',
   };
-  
+
   return typeNames[type] || 'Element';
 }
 
@@ -389,16 +391,16 @@ export function importHTML(
   // For now, return empty result - full implementation uses parseHTML + parseCSS
   const { parseHTML } = require('./html-parser');
   const { parseCSS } = require('./css-extractor');
-  
+
   const parsedDoc = parseHTML(html);
-  
+
   // Combine all CSS sources
   let allCSS = css;
   parsedDoc.styleTags.forEach((styleContent: string) => {
     allCSS += '\n' + styleContent;
   });
-  
+
   const extractedStyles = parseCSS(allCSS);
-  
+
   return mapParsedToCanvas(parsedDoc.elements, extractedStyles);
 }

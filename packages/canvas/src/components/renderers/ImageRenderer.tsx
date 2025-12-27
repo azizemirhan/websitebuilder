@@ -25,26 +25,35 @@ export const ImageRenderer = memo(function ImageRenderer({
   const { style, props } = element;
 
   const containerStyle: React.CSSProperties = {
-    position: style.position || 'absolute',
+    // Default to relative for imported elements (flow layout)
+    position: style.position || 'relative',
     top: style.top,
     left: style.left,
     width: style.width,
     height: style.height,
+    minWidth: style.minWidth,
+    maxWidth: style.maxWidth,
+    margin: style.margin,
+    marginTop: style.marginTop,
+    marginRight: style.marginRight,
+    marginBottom: style.marginBottom,
+    marginLeft: style.marginLeft,
     backgroundColor: style.backgroundColor || '#e5e7eb',
     borderRadius: style.borderRadius,
     border: style.border,
     opacity: style.opacity,
     overflow: 'hidden',
-    cursor: element.locked ? 'not-allowed' : 'default',
+    cursor: element.locked ? 'not-allowed' : style.cursor || 'default',
     visibility: element.hidden ? 'hidden' : 'visible',
     boxSizing: 'border-box',
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-    outline: isSelected 
-      ? '2px solid #2563eb' 
-      : isHovered 
-        ? '1px solid #60a5fa' 
+    display: style.display || 'flex',
+    alignItems: style.alignItems || 'center',
+    justifyContent: style.justifyContent || 'center',
+    objectFit: style.objectFit,
+    outline: isSelected
+      ? '2px solid #2563eb'
+      : isHovered
+        ? '1px solid #60a5fa'
         : 'none',
     outlineOffset: '-1px',
   };
@@ -66,8 +75,8 @@ export const ImageRenderer = memo(function ImageRenderer({
       {props.src ? (
         <img src={props.src} alt={props.alt || ''} style={imageStyle} />
       ) : (
-        <div style={{ 
-          color: '#9ca3af', 
+        <div style={{
+          color: '#9ca3af',
           fontSize: 14,
           display: 'flex',
           flexDirection: 'column',

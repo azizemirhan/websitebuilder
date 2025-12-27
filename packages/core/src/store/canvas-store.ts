@@ -16,24 +16,24 @@ interface CanvasStore extends CanvasState {
   updateElementProps: (id: string, props: Record<string, any>) => void;
   deleteElement: (id: string) => void;
   duplicateElement: (id: string) => string | null;
-  
+
   // Hierarchy Operations
   moveElement: (id: string, newParentId: string | null, index?: number) => void;
   reorderElement: (id: string, newIndex: number) => void;
-  
+
   // Selection Operations
   selectElement: (id: string, multiSelect?: boolean) => void;
   clearSelection: () => void;
   selectMultiple: (ids: string[]) => void;
-  
+
   // Hover State
   setHoveredElement: (id: string | null) => void;
-  
+
   // Utility
   getElementById: (id: string) => Element | undefined;
   getSelectedElements: () => Element[];
   clearCanvas: () => void;
-  
+
   // Import
   importElements: (elements: Record<string, Element>, rootIds: string[]) => void;
 }
@@ -132,6 +132,50 @@ const createDefaultElement = (
       props: {
         placeholder: 'Enter text...',
         inputType: 'text',
+      },
+    },
+    icon: {
+      type: 'icon',
+      name: name || 'Icon',
+      style: {
+        position: 'absolute',
+        top: 100,
+        left: 100,
+        width: 24,
+        height: 24,
+        color: '#000000',
+        ...style,
+      },
+      props: {
+        iconName: 'star',
+        strokeWidth: 2,
+      },
+    },
+    slider: {
+      type: 'slider',
+      name: name || 'Slider',
+      style: {
+        position: 'relative',
+        width: '100%',
+        height: 600,
+        ...style,
+      },
+      props: {
+        slides: [
+          {
+            id: 'slide-1',
+            backgroundColor: '#1a1a2e',
+            label: 'Yeni Koleksiyon',
+            title: 'Slider',
+            titleHighlight: 'Örneği',
+            description: 'Bu bir örnek slider içeriğidir.',
+            buttons: [{ text: 'Keşfet', variant: 'primary' }],
+          },
+        ],
+        autoPlay: true,
+        interval: 6000,
+        showDots: true,
+        showArrows: true,
       },
     },
   };
@@ -354,7 +398,7 @@ export const useCanvasStore = create<CanvasStore>()(
     reorderElement: (id, newIndex) => {
       const element = get().elements[id];
       if (!element) return;
-      
+
       get().moveElement(id, element.parentId, newIndex);
     },
 
@@ -426,7 +470,7 @@ export const useCanvasStore = create<CanvasStore>()(
         Object.entries(elements).forEach(([id, element]) => {
           state.elements[id] = element;
         });
-        
+
         // Add root IDs to canvas root
         rootIds.forEach((id) => {
           if (!state.rootElementIds.includes(id)) {

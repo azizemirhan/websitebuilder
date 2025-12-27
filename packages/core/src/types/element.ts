@@ -7,7 +7,9 @@ export type ElementType =
   | 'text'
   | 'button'
   | 'image'
-  | 'input';
+  | 'input'
+  | 'icon'
+  | 'slider';
 
 /**
  * CSS Style Properties
@@ -221,6 +223,51 @@ export interface InputElement extends BaseElement {
 }
 
 /**
+ * Icon Element - SVG icon element
+ */
+export interface IconElement extends BaseElement {
+  type: 'icon';
+  props: {
+    iconName: 'search' | 'user' | 'heart' | 'cart' | 'menu' | 'close' | 'plus' | 'minus' | 'check' | 'arrow-left' | 'arrow-right' | 'chevron-down' | 'chevron-up' | 'star' | 'trash' | 'edit' | 'eye' | 'share';
+    strokeWidth?: number;
+  };
+}
+
+/**
+ * Slide Data - Individual slide configuration
+ */
+export interface SlideData {
+  id: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  overlay?: string;  // e.g., "rgba(0,0,0,0.4)"
+  label?: string;
+  title?: string;
+  titleHighlight?: string;  // Italic/highlighted part
+  description?: string;
+  buttons?: {
+    text: string;
+    variant: 'primary' | 'outline';
+    href?: string;
+  }[];
+}
+
+/**
+ * Slider Element - Interactive slider/carousel
+ */
+export interface SliderElement extends BaseElement {
+  type: 'slider';
+  props: {
+    slides: SlideData[];
+    autoPlay?: boolean;
+    interval?: number;  // milliseconds, default 6000
+    showDots?: boolean;
+    showArrows?: boolean;
+    transition?: 'fade' | 'slide';  // animation type
+  };
+}
+
+/**
  * Union type - Tüm element türleri
  */
 export type Element =
@@ -228,7 +275,9 @@ export type Element =
   | TextElement
   | ButtonElement
   | ImageElement
-  | InputElement;
+  | InputElement
+  | IconElement
+  | SliderElement;
 
 /**
  * Canvas State - Canvas'ın tam state'i

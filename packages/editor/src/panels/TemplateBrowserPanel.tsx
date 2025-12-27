@@ -6,7 +6,7 @@ import React, { memo, useState, useRef } from 'react';
 import { useTemplateStore, useCanvasStore, importTemplateKitJSON, useToastStore, regenerateElementTree, type TemplateSection } from '@builder/core';
 
 export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
-  const templates = useTemplateStore((state) => state.templates);
+  const templates = useTemplateStore((state) => state.getAllTemplates());
   const addTemplate = useTemplateStore((state) => state.addTemplate);
   const removeTemplate = useTemplateStore((state) => state.removeTemplate);
 
