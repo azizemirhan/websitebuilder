@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useState, useCallback, useRef, useEffect } from 'react';
-import { useToastStore, convertToTemplateKit, exportTemplateKitJSON, type TemplateKit } from '@builder/core';
+import { useToastStore, convertToTemplateKit, exportTemplateKitJSON, useCanvasStore, regenerateElementTree, type TemplateKit } from '@builder/core';
 
 interface ImportModalProps {
   isOpen: boolean;
@@ -18,7 +18,8 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
   const [cssContent, setCssContent] = useState('');
   const [fileName, setFileName] = useState('');
   const [convertedTemplate, setConvertedTemplate] = useState<TemplateKit | null>(null);
-  
+  const importElements = useCanvasStore((state) => state.importElements);
+
   const reset = useCallback(() => {
     setStep('upload');
     setHtmlContent('');
@@ -35,7 +36,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
   const handleHTMLUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     setFileName(file.name);
     const reader = new FileReader();
     reader.onload = (event) => {
@@ -47,7 +48,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
   const handleCSSUpload = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       setCssContent(prev => prev + '\n' + (event.target?.result as string || ''));
@@ -60,12 +61,12 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
     if (!htmlContent) return;
 
     setStep('processing');
-    
+
     // Small delay to show processing state
     setTimeout(() => {
       const result = convertToTemplateKit(htmlContent, cssContent, {
         name: fileName.replace('.html', '') || 'New Template',
-        splitSections: true, 
+        splitSections: true,
       });
 
       if (result.success && result.templateKit) {
@@ -92,10 +93,26 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    
+
     useToastStore.getState().addToast('Template indirildi', 'success');
     handleClose();
+    handleClose();
   }, [convertedTemplate, handleClose]);
+
+  const handleAddToCanvas = useCallback(() => {
+    if (!convertedTemplate) return;
+
+    let addedCount = 0;
+
+    convertedTemplate.sections.forEach(section => {
+      const { elements, rootIds } = regenerateElementTree(section.elements, section.rootElementIds);
+      importElements(elements, rootIds);
+      addedCount++;
+    });
+
+    useToastStore.getState().addToast(`${addedCount} bölüm canvasa eklendi`, 'success');
+    handleClose();
+  }, [convertedTemplate, handleClose, importElements]);
 
   if (!isOpen) return null;
 
@@ -127,8 +144,8 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div style={{ 
-          padding: '24px 32px', 
+        <div style={{
+          padding: '24px 32px',
           borderBottom: '1px solid #f3f4f6',
           display: 'flex',
           alignItems: 'center',
@@ -168,7 +185,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
 
         {/* Content */}
         <div style={{ padding: 32, overflowY: 'auto' }}>
-          
+
           {step === 'upload' && (
             <div style={{ display: 'flex', flexDirection: 'column', gap: 24 }}>
               {/* HTML Upload */}
@@ -176,7 +193,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
                   1. HTML Dosyası
                 </label>
-                <div 
+                <div
                   style={{
                     border: '2px dashed #e5e7eb',
                     borderRadius: 12,
@@ -208,7 +225,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
                   </div>
                   {htmlContent && (
                     <div style={{ fontSize: 12, color: '#16a34a', marginTop: 4 }}>
-                       Yüklendi ({htmlContent.length} bytes)
+                      Yüklendi ({htmlContent.length} bytes)
                     </div>
                   )}
                 </div>
@@ -219,7 +236,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
                 <label style={{ display: 'block', fontSize: 14, fontWeight: 600, color: '#374151', marginBottom: 8 }}>
                   2. CSS Dosyaları (Opsiyonel)
                 </label>
-                <div 
+                <div
                   style={{
                     border: '2px dashed #e5e7eb',
                     borderRadius: 12,
@@ -275,9 +292,9 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
 
           {step === 'processing' && (
             <div style={{ textAlign: 'center', padding: '40px 0' }}>
-              <div style={{ 
-                width: 48, 
-                height: 48, 
+              <div style={{
+                width: 48,
+                height: 48,
                 border: '4px solid #e5e7eb',
                 borderTopColor: '#2563eb',
                 borderRadius: '50%',
@@ -298,10 +315,10 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
                 Template başarıyla oluşturuldu.
               </p>
 
-              <div style={{ 
-                backgroundColor: '#f3f4f6', 
-                borderRadius: 12, 
-                padding: 20, 
+              <div style={{
+                backgroundColor: '#f3f4f6',
+                borderRadius: 12,
+                padding: 20,
                 textAlign: 'left',
                 marginBottom: 32,
               }}>
@@ -318,6 +335,26 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
               </div>
 
               <div style={{ display: 'flex', gap: 12 }}>
+                <button
+                  onClick={handleAddToCanvas}
+                  style={{
+                    flex: 1,
+                    padding: '12px',
+                    backgroundColor: '#2563eb', // Blue
+                    border: 'none',
+                    borderRadius: 10,
+                    fontSize: 14,
+                    fontWeight: 600,
+                    color: '#fff',
+                    cursor: 'pointer',
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    gap: 8,
+                  }}
+                >
+                  <span>🎨</span> Tuvale Ekle
+                </button>
                 <button
                   onClick={reset}
                   style={{
@@ -363,6 +400,7 @@ export const ImportModal = memo(function ImportModal({ isOpen, onClose }: Import
   );
 });
 
+
 // Helper functions
 function countElements(elements: { children: unknown[] }[]): number {
   let count = 0;
@@ -374,16 +412,5 @@ function countElements(elements: { children: unknown[] }[]): number {
   }
   traverse(elements);
   return count;
-}
-
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function addElementRecursively(
-  element: any,
-  allElements: Record<string, any>,
-  addElement: (type: string, parentId?: string) => string
-) {
-  // Note: Canvas store needs direct element injection
-  // This is a placeholder - full implementation would use a different approach
-  console.log('Importing element:', element.id, element.type);
 }
 

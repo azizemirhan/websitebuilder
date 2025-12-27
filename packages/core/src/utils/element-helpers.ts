@@ -15,7 +15,7 @@ export const styleToCss = (style: StyleProperties): React.CSSProperties => {
 
     // Number values'a px ekle (bazı propertyler hariç)
     const numericPropertiesWithoutPx = ['opacity', 'zIndex', 'fontWeight', 'lineHeight'];
-    
+
     if (typeof value === 'number' && !numericPropertiesWithoutPx.includes(key)) {
       cssProps[key] = `${value}px`;
     } else {
@@ -58,7 +58,7 @@ export const getAncestors = (
   while (currentId) {
     const el: Element | undefined = elements[currentId];
     if (!el) break;
-    
+
     if (el.parentId) {
       const parent = elements[el.parentId];
       if (parent) {
@@ -79,7 +79,7 @@ export const getDescendants = (
   elementId: string
 ): Element[] => {
   const descendants: Element[] = [];
-  
+
   const collectDescendants = (id: string) => {
     const el = elements[id];
     if (!el) return;
@@ -133,6 +133,75 @@ export const deepCloneElement = (
     style: { ...element.style },
     props: element.props ? { ...element.props } : undefined,
   };
-  
+
   return cloned as Element;
+};
+
+/**
+ * Element ağacını yeni ID'lerle yeniden oluştur
+ * Bu işlem, şablonları import ederken ID çakışmalarını önler
+ */
+export const regenerateElementTree = (
+  elements: Record<string, Element>,
+  rootIds: string[]
+): { elements: Record<string, Element>; rootIds: string[] } => {
+  const newElements: Record<string, Element> = {};
+  const newRootIds: string[] = [];
+  const idMap: Record<string, string> = {};
+
+  // 1. Yeni ID'leri oluştur ve map'le
+  // Sadece ilgili root'ların altındaki elementleri işle
+  const processForIds = (id: string) => {
+    const oldEl = elements[id];
+    if (!oldEl) return;
+
+    // Basit bir ID üreticisi (nanoid dependency'si eklememek için)
+    // Core paketinde nanoid varsa o da kullanılabilir ama bu yeterli
+    const newId = `el_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+    idMap[id] = newId;
+
+    if (oldEl.children) {
+      oldEl.children.forEach(childId => processForIds(childId));
+    }
+  };
+
+  rootIds.forEach(id => processForIds(id));
+
+  // 2. Elementleri yeni ID'lerle oluştur ve parent/child ilişkilerini güncelle
+  const processForConstruction = (oldId: string, newParentId: string | null) => {
+    const oldEl = elements[oldId];
+    if (!oldEl) return;
+
+    const newId = idMap[oldId];
+    if (!newId) return; // Should not happen if step 1 worked
+
+    const newChildrenIds = (oldEl.children || [])
+      .map(childId => idMap[childId])
+      .filter(Boolean); // Filter out undefined if mapping failed somehow
+
+    const newEl: Element = {
+      ...oldEl,
+      id: newId,
+      parentId: newParentId,
+      children: newChildrenIds,
+      style: { ...oldEl.style },
+      props: oldEl.props ? { ...oldEl.props } : {},
+    } as unknown as Element;
+
+    newElements[newId] = newEl;
+
+    if (oldEl.children) {
+      oldEl.children.forEach(childId => processForConstruction(childId, newId));
+    }
+  };
+
+  rootIds.forEach(oldRootId => {
+    const newRootId = idMap[oldRootId];
+    if (newRootId) {
+      newRootIds.push(newRootId);
+      processForConstruction(oldRootId, null);
+    }
+  });
+
+  return { elements: newElements, rootIds: newRootIds };
 };

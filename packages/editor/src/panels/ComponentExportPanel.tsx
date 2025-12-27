@@ -8,12 +8,12 @@ import { useComponentStore, useCanvasStore, useToastStore } from '@builder/core'
 export const ComponentExportPanel = memo(function ComponentExportPanel() {
   const elements = useCanvasStore((state) => state.elements);
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
-  
+
   const instances = useComponentStore((state) => state.instances);
   const components = useComponentStore((state) => state.components);
   const createComponent = useComponentStore((state) => state.createComponent);
   const updateComponent = useComponentStore((state) => state.updateComponent);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
@@ -22,7 +22,7 @@ export const ComponentExportPanel = memo(function ComponentExportPanel() {
 
   const handleExportComponent = useCallback(() => {
     if (!component) return;
-    
+
     const exportData = {
       version: '1.0',
       type: 'component',
@@ -38,16 +38,16 @@ export const ComponentExportPanel = memo(function ComponentExportPanel() {
         props: component.props,
       },
     };
-    
+
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = `${component.name.toLowerCase().replace(/\s+/g, '-')}.component.json`;
     a.click();
-    
+
     URL.revokeObjectURL(url);
     useToastStore.getState().addToast(`"${component.name}" dışa aktarıldı`, 'success');
   }, [component]);
@@ -58,7 +58,7 @@ export const ComponentExportPanel = memo(function ComponentExportPanel() {
       useToastStore.getState().addToast('Dışa aktarılacak bileşen yok', 'warning');
       return;
     }
-    
+
     const exportData = {
       version: '1.0',
       type: 'component-library',
@@ -74,16 +74,16 @@ export const ComponentExportPanel = memo(function ComponentExportPanel() {
         props: comp.props,
       })),
     };
-    
+
     const json = JSON.stringify(exportData, null, 2);
     const blob = new Blob([json], { type: 'application/json' });
     const url = URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = 'component-library.json';
     a.click();
-    
+
     URL.revokeObjectURL(url);
     useToastStore.getState().addToast(`${allComponents.length} bileşen dışa aktarıldı`, 'success');
   }, [components]);
@@ -95,12 +95,19 @@ export const ComponentExportPanel = memo(function ComponentExportPanel() {
   const handleFileChange = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    
+
     const reader = new FileReader();
     reader.onload = (event) => {
       try {
         const data = JSON.parse(event.target?.result as string);
-        
+
+        // Check if it's a template kit
+        if (data.sections && data.elements === undefined && data.component === undefined) {
+          useToastStore.getState().addToast('Bu dosya bir Şablon (Template). Lütfen "Şablonlar" panelinden yükleyin.', 'warning', 5000);
+          e.target.value = '';
+          return;
+        }
+
         if (data.type === 'component') {
           // Import single component
           const comp = data.component;
@@ -132,7 +139,7 @@ export const ComponentExportPanel = memo(function ComponentExportPanel() {
       }
     };
     reader.readAsText(file);
-    
+
     // Reset input
     e.target.value = '';
   }, [createComponent, updateComponent]);

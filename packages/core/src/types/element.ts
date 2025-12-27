@@ -2,11 +2,11 @@
  * Element Types - Canvas'ta kullanılacak tüm element türleri
  */
 
-export type ElementType = 
-  | 'container' 
-  | 'text' 
-  | 'button' 
-  | 'image' 
+export type ElementType =
+  | 'container'
+  | 'text'
+  | 'button'
+  | 'image'
   | 'input';
 
 /**
@@ -26,7 +26,8 @@ export interface StyleProperties {
   maxWidth?: number | string;
   minHeight?: number | string;
   maxHeight?: number | string;
-  
+  boxSizing?: 'content-box' | 'border-box' | 'inherit' | 'initial' | 'unset';
+
   // Spacing - support both number and string
   padding?: string | number;
   paddingTop?: number | string;
@@ -38,7 +39,7 @@ export interface StyleProperties {
   marginRight?: number | string;
   marginBottom?: number | string;
   marginLeft?: number | string;
-  
+
   // Visual
   backgroundColor?: string;
   color?: string;
@@ -47,7 +48,7 @@ export interface StyleProperties {
   fontWeight?: number | string;
   lineHeight?: number | string;
   textAlign?: 'left' | 'center' | 'right' | 'justify';
-  
+
   // Border
   borderRadius?: number;
   borderTopLeftRadius?: number;
@@ -66,31 +67,32 @@ export interface StyleProperties {
   borderBottomColor?: string;
   borderLeftColor?: string;
   borderStyle?: 'solid' | 'dashed' | 'dotted' | 'none';
-  
+
   // Box Shadow (CSS string format)
   boxShadow?: string;
-  
+
   // Background & Gradients
   background?: string;
   backgroundImage?: string;
   backgroundSize?: 'cover' | 'contain' | 'auto' | string;
   backgroundPosition?: string;
   backgroundRepeat?: 'repeat' | 'no-repeat' | 'repeat-x' | 'repeat-y';
-  
+
   // Filters & Effects
   filter?: string;
   backdropFilter?: string;
   mixBlendMode?: 'normal' | 'multiply' | 'screen' | 'overlay' | 'darken' | 'lighten' | 'color-dodge' | 'color-burn' | 'difference' | 'exclusion';
-  
+
   // Other
   opacity?: number;
   cursor?: string;
+  objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
   overflow?: 'visible' | 'hidden' | 'scroll' | 'auto';
   zIndex?: number;
   transform?: string;
   transformOrigin?: string;
   transition?: string;
-  
+
   // Typography
   letterSpacing?: number;
   wordSpacing?: number;
@@ -98,10 +100,10 @@ export interface StyleProperties {
   textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
   textShadow?: string;
   whiteSpace?: 'normal' | 'nowrap' | 'pre' | 'pre-wrap' | 'pre-line';
-  
+
   // Display
   display?: 'block' | 'flex' | 'grid' | 'inline-block' | 'inline-flex' | 'inline-grid' | 'inline' | 'none';
-  
+
   // Flexbox Container
   flexDirection?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
   flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
@@ -111,21 +113,23 @@ export interface StyleProperties {
   gap?: number;
   rowGap?: number;
   columnGap?: number;
-  
-  // Flexbox Item
+
+
+  flex?: string | number; // shorthand
   flexGrow?: number;
   flexShrink?: number;
   flexBasis?: number | 'auto';
   alignSelf?: 'auto' | 'flex-start' | 'flex-end' | 'center' | 'stretch' | 'baseline';
+  justifySelf?: 'auto' | 'normal' | 'stretch' | 'center' | 'start' | 'end' | 'flex-start' | 'flex-end' | 'self-start' | 'self-end' | 'left' | 'right' | 'baseline';
   order?: number;
-  
+
   // Grid Container
   gridTemplateColumns?: string;
   gridTemplateRows?: string;
   gridAutoColumns?: string;
   gridAutoRows?: string;
   gridAutoFlow?: 'row' | 'column' | 'dense' | 'row dense' | 'column dense';
-  
+
   // Grid Item
   gridColumn?: string;
   gridRow?: string;
@@ -185,8 +189,10 @@ export interface TextElement extends BaseElement {
 export interface ButtonElement extends BaseElement {
   type: 'button';
   props: {
+
     text: string;
     onClick?: string;
+    variant?: 'solid' | 'outline' | 'ghost' | 'link';
   };
 }
 
@@ -217,11 +223,11 @@ export interface InputElement extends BaseElement {
 /**
  * Union type - Tüm element türleri
  */
-export type Element = 
-  | ContainerElement 
-  | TextElement 
-  | ButtonElement 
-  | ImageElement 
+export type Element =
+  | ContainerElement
+  | TextElement
+  | ButtonElement
+  | ImageElement
   | InputElement;
 
 /**

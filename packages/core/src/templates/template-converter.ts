@@ -36,7 +36,7 @@ export function convertToTemplateKit(
   const warnings: string[] = [];
   let totalElements = 0;
   let skippedElements = 0;
-  
+
   try {
     // Parse HTML - returns ParsedDocument
     const parsedDoc = parseHTML(html);
@@ -48,19 +48,19 @@ export function convertToTemplateKit(
         stats: { totalElements: 0, sections: 0, skipped: 0 },
       };
     }
-    
+
     // Combine CSS from parsed doc and provided CSS
     let fullCSS = css;
     if (parsedDoc.styleTags.length > 0) {
       fullCSS = parsedDoc.styleTags.join('\n') + '\n' + css;
     }
-    
+
     // Extract CSS rules
     const extractedStyles = parseCSS(fullCSS);
-    
+
     // Create template kit
     const templateKit = createEmptyTemplateKit(options.name, options.category || 'other');
-    
+
     // Process elements into sections
     if (options.splitSections) {
       // Each top-level element becomes a section
@@ -75,7 +75,7 @@ export function convertToTemplateKit(
       // All elements in one section
       const allElements: Record<string, Element> = {};
       const rootIds: string[] = [];
-      
+
       parsedDoc.elements.forEach((parsed) => {
         const result = processElement(parsed, extractedStyles, null, allElements);
         if (result) {
@@ -83,7 +83,7 @@ export function convertToTemplateKit(
         }
       });
       totalElements = Object.keys(allElements).length;
-      
+
       if (rootIds.length > 0) {
         templateKit.sections.push({
           id: generateSectionId(),
@@ -94,7 +94,7 @@ export function convertToTemplateKit(
         });
       }
     }
-    
+
     return {
       success: true,
       templateKit,
@@ -106,7 +106,7 @@ export function convertToTemplateKit(
         skipped: skippedElements,
       },
     };
-    
+
   } catch (error) {
     return {
       success: false,
@@ -127,12 +127,12 @@ function processSection(
 ): TemplateSection | null {
   const elements: Record<string, Element> = {};
   const rootId = processElement(parsed, extractedStyles, null, elements);
-  
+
   if (!rootId) return null;
-  
+
   const sectionType = detectSectionType(parsed.tagName, parsed.classNames);
   const name = generateSectionName(parsed, sectionType, index);
-  
+
   return {
     id: generateSectionId(),
     name,
@@ -152,11 +152,11 @@ function generateSectionName(parsed: ParsedElement, sectionType: string, index: 
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase());
   }
-  
+
   if (sectionType !== 'custom') {
     return sectionType.charAt(0).toUpperCase() + sectionType.slice(1);
   }
-  
+
   return `Section ${index + 1}`;
 }
 
@@ -165,14 +165,14 @@ function generateSectionName(parsed: ParsedElement, sectionType: string, index: 
  */
 function mapElementType(parsed: ParsedElement): ElementType {
   const detected = detectElementType(parsed);
-  
+
   // If explicitly detected as 'link' (simple text link), map to 'text' for now.
   // Complex links (logos etc) are already detected as 'container' in the parser.
   if (detected === 'link') {
     // Better to map simple links to text than buttons, to avoid "Button" box styling
-    return 'text'; 
+    return 'text';
   }
-  
+
   return detected as ElementType;
 }
 
@@ -190,7 +190,7 @@ function cssToStyleProperties(
   variables: Record<string, string>
 ): StyleProperties {
   const style: StyleProperties = {};
-  
+
   // CSS property mappings
   const mappings: Record<string, keyof StyleProperties> = {
     'width': 'width',
@@ -240,12 +240,21 @@ function cssToStyleProperties(
     'text-align': 'textAlign',
     'transform': 'transform',
     'transition': 'transition',
+    'flex': 'flex',
+    'flex-wrap': 'flexWrap',
+    'align-self': 'alignSelf',
+    'justify-self': 'justifySelf',
+    'object-fit': 'objectFit',
+    'cursor': 'cursor',
+    'white-space': 'whiteSpace',
+    'text-transform': 'textTransform',
+    'text-decoration': 'textDecoration',
   };
-  
+
   Object.entries(cssProps).forEach(([prop, value]) => {
     // Resolve CSS variables using the robust resolver from css-extractor
     const resolvedValue = resolveVariables(value, variables);
-    
+
     const styleKey = mappings[prop];
     if (styleKey) {
       // Parse numeric values
@@ -266,7 +275,7 @@ function cssToStyleProperties(
       }
     }
   });
-  
+
   return style;
 }
 
@@ -275,7 +284,7 @@ function cssToStyleProperties(
  */
 function getDeepTextContent(parsed: ParsedElement): string {
   if (parsed.textContent) return parsed.textContent;
-  
+
   let text = '';
   // Traverse children to find text
   parsed.children.forEach(child => {
@@ -284,7 +293,7 @@ function getDeepTextContent(parsed: ParsedElement): string {
     // We need to recursively extract text from children elements (like span, b, i)
     text += getDeepTextContent(child) + ' ';
   });
-  
+
   return text.trim();
 }
 
@@ -302,6 +311,7 @@ function extractElementProps(parsed: ParsedElement, type: ElementType): Record<s
       // For buttons (and links mapped to buttons), get the full text content including children
       return {
         text: getDeepTextContent(parsed) || 'Button',
+        variant: 'solid', // Default variant
       };
     case 'image':
       return {
@@ -331,10 +341,10 @@ function processElement(
   if (['script', 'style', 'meta', 'link', 'head'].includes(parsed.tagName.toLowerCase())) {
     return null;
   }
-  
+
   const id = generateElementId();
   const type = mapElementType(parsed);
-  
+
   // Compute styles from CSS rules
   const computedCSS = computeElementStyles(
     {
@@ -345,17 +355,18 @@ function processElement(
     },
     extractedStyles
   );
-  
+
   // Convert to StyleProperties
   const style = cssToStyleProperties(computedCSS, extractedStyles.variables);
-  
+
   // Build canvas style with flow layout defaults
   const canvasStyle: StyleProperties = {
     position: style.position || 'relative',
     display: style.display || 'block',
+    boxSizing: 'border-box', // Ensure box-sizing is handled
     ...style,
   };
-  
+
   // Process children
   const childIds: string[] = [];
   parsed.children.forEach((child) => {
@@ -364,13 +375,13 @@ function processElement(
       childIds.push(childId);
     }
   });
-  
+
   // Extract props
   const props = extractElementProps(parsed, type);
-  
+
   // Create element name
   const name = getElementName(parsed, type);
-  
+
   // Create element
   const element: Element = {
     id,
@@ -381,7 +392,7 @@ function processElement(
     children: childIds,
     parentId,
   } as Element;
-  
+
   elements[id] = element;
   return id;
 }
@@ -393,14 +404,14 @@ function getElementName(parsed: ParsedElement, type: string): string {
   if (parsed.id) {
     return parsed.id.replace(/[-_]/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase());
   }
-  
+
   if (parsed.classNames.length > 0) {
     const name = parsed.classNames[0]
       .replace(/[-_]/g, ' ')
       .replace(/\b\w/g, (c) => c.toUpperCase());
     return name.substring(0, 30);
   }
-  
+
   return type.charAt(0).toUpperCase() + type.slice(1);
 }
 

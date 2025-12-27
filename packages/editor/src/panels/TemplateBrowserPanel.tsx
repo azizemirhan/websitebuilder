@@ -3,19 +3,19 @@
  */
 
 import React, { memo, useState, useRef } from 'react';
-import { useTemplateStore, useCanvasStore, importTemplateKitJSON, useToastStore, type TemplateSection } from '@builder/core';
+import { useTemplateStore, useCanvasStore, importTemplateKitJSON, useToastStore, regenerateElementTree, type TemplateSection } from '@builder/core';
 
 export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
   const templates = useTemplateStore((state) => state.templates);
   const addTemplate = useTemplateStore((state) => state.addTemplate);
   const removeTemplate = useTemplateStore((state) => state.removeTemplate);
-  
+
   const importElements = useCanvasStore((state) => state.importElements);
-  
+
   const [activeTab, setActiveTab] = useState<'all' | 'sections'>('all');
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedTemplateId, setExpandedTemplateId] = useState<string | null>(null);
-  
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -26,7 +26,7 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
     reader.onload = (event) => {
       const content = event.target?.result as string;
       const template = importTemplateKitJSON(content);
-      
+
       if (template) {
         addTemplate(template);
         useToastStore.getState().addToast(`Template yüklendi: ${template.name}`, 'success');
@@ -35,14 +35,16 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
       }
     };
     reader.readAsText(file);
-    
+
     // Reset input
     e.target.value = '';
   };
 
   const handleAddSection = (section: TemplateSection) => {
-    // Import logic
-    importElements(section.elements, section.rootElementIds);
+    // Import logic with ID regeneration
+    const { elements, rootIds } = regenerateElementTree(section.elements, section.rootElementIds);
+
+    importElements(elements, rootIds);
     useToastStore.getState().addToast('Bölüm canvasa eklendi', 'success');
   };
 
@@ -54,7 +56,7 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
   };
 
   // Filter logic
-  const filteredTemplates = templates.filter(t => 
+  const filteredTemplates = templates.filter(t =>
     t.name.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
@@ -113,9 +115,9 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
       {/* Content */}
       <div style={{ flex: 1, overflow: 'auto', padding: 8 }}>
         {filteredTemplates.length === 0 ? (
-          <div style={{ 
-            padding: 32, 
-            textAlign: 'center', 
+          <div style={{
+            padding: 32,
+            textAlign: 'center',
             color: '#9ca3af',
             fontSize: 13,
           }}>
@@ -158,14 +160,14 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
-                    <div style={{ 
-                      width: 32, 
-                      height: 32, 
-                      borderRadius: 6, 
+                    <div style={{
+                      width: 32,
+                      height: 32,
+                      borderRadius: 6,
                       backgroundColor: '#e0e7ff',
                       color: '#4f46e5',
-                      display: 'flex', 
-                      alignItems: 'center', 
+                      display: 'flex',
+                      alignItems: 'center',
                       justifyContent: 'center',
                       fontSize: 16,
                       fontWeight: 600,
@@ -181,7 +183,7 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
                       </div>
                     </div>
                   </div>
-                  
+
                   <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
                     <button
                       onClick={(e) => handleDeleteTemplate(e, template.id)}
@@ -196,7 +198,7 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
                     >
                       🗑️
                     </button>
-                    <div style={{ 
+                    <div style={{
                       transform: expandedTemplateId === template.id ? 'rotate(180deg)' : 'rotate(0deg)',
                       transition: 'transform 0.2s',
                       fontSize: 12,
