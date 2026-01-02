@@ -4,6 +4,7 @@
 
 import React, { memo, useCallback } from 'react';
 import type { Element } from '@builder/core';
+import { useSettingsStore } from '@builder/core';
 
 export type ResizeDirection = 
   | 'nw' | 'n' | 'ne' 
@@ -35,33 +36,37 @@ export const ResizeHandles = memo(function ResizeHandles({
   onResizeStart,
 }: ResizeHandlesProps) {
   const [domRect, setDomRect] = React.useState<DOMRect | null>(null);
+  const zoom = useSettingsStore((state) => state.zoom);
+  const panX = useSettingsStore((state) => state.panX);
+  const panY = useSettingsStore((state) => state.panY);
 
   // Measure DOM element on mounting and changes
   React.useEffect(() => {
     const el = document.querySelector(`[data-element-id="${element.id}"]`);
-    if (el) {
+    const canvasRoot = document.querySelector('.editor-canvas-root');
+
+    if (el && canvasRoot) {
       const updateRect = () => {
-        const rect = el.getBoundingClientRect();
-        // Canvas container offset might be needed if canvas is relative
-        // Assuming ResizeHandles are rendered inside the Canvas which is 'relative'
-        // We need dragging offset logic. For now let's try measuring nearest offset parent or just use offsetTop/Left if possible
-        const htmlEl = el as HTMLElement;
+        const elRect = el.getBoundingClientRect();
+        const canvasRect = canvasRoot.getBoundingClientRect();
+
+        // Calculate position relative to canvas root
+        // Divide by zoom and account for pan offset
         setDomRect({
-          top: htmlEl.offsetTop,
-          left: htmlEl.offsetLeft,
-          width: htmlEl.offsetWidth,
-          height: htmlEl.offsetHeight,
+          top: (elRect.top - canvasRect.top) / zoom - panY / zoom,
+          left: (elRect.left - canvasRect.left) / zoom - panX / zoom,
+          width: elRect.width / zoom,
+          height: elRect.height / zoom,
         } as DOMRect);
       };
-      
+
       updateRect();
-      // Observer for size changes? For now, just initial render and element updates
-      
+
       const observer = new ResizeObserver(updateRect);
       observer.observe(el);
       return () => observer.disconnect();
     }
-  }, [element.id, element.style, element.props]); // Re-run if style/props change
+  }, [element.id, element.style, element.props, zoom, panX, panY]); // Re-run if style/props/zoom/pan change
 
   // Grid Cell'lerin boyutu parent tarafından yönetilir, handle'ları gizle
   if (element.props?.isGridCell) {

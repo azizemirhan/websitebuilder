@@ -18,11 +18,15 @@ import {
 interface ElementRendererProps {
   elementId: string;
   isPreview?: boolean;
+  highlightedDropTargetId?: string | null;
+  isDragging?: boolean;
 }
 
 export const ElementRenderer = memo(function ElementRenderer({
   elementId,
   isPreview = false,
+  highlightedDropTargetId = null,
+  isDragging = false,
 }: ElementRendererProps) {
   const element = useCanvasStore((state) => state.elements[elementId]);
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
@@ -65,14 +69,25 @@ export const ElementRenderer = memo(function ElementRenderer({
   const renderChildren = () => {
     if (element.children.length === 0) return null;
     return element.children.map((childId) => (
-      <ElementRenderer key={childId} elementId={childId} isPreview={isPreview} />
+      <ElementRenderer
+        key={childId}
+        elementId={childId}
+        isPreview={isPreview}
+        highlightedDropTargetId={highlightedDropTargetId}
+        isDragging={false} // Only the dragged element itself should have isDragging=true
+      />
     ));
   };
 
   switch (element.type) {
     case 'container':
       return (
-        <ContainerRenderer element={element} {...commonProps}>
+        <ContainerRenderer
+          element={element}
+          {...commonProps}
+          isHighlighted={highlightedDropTargetId === elementId}
+          isDragging={isDragging}
+        >
           {renderChildren()}
         </ContainerRenderer>
       );

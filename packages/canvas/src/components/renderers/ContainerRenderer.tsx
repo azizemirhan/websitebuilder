@@ -15,6 +15,8 @@ interface ContainerRendererProps {
   onMouseDown: (e: React.MouseEvent) => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
+  isHighlighted?: boolean; // Drop target highlight
+  isDragging?: boolean; // Currently being dragged
 }
 
 export const ContainerRenderer = memo(function ContainerRenderer({
@@ -25,6 +27,8 @@ export const ContainerRenderer = memo(function ContainerRenderer({
   onMouseDown,
   onMouseEnter,
   onMouseLeave,
+  isHighlighted = false,
+  isDragging = false,
 }: ContainerRendererProps) {
   // Get active breakpoint for responsive styling
   const activeBreakpoint = useResponsiveStore((state) => state.activeBreakpoint);
@@ -223,28 +227,20 @@ export const ContainerRenderer = memo(function ContainerRenderer({
     cursor: element.locked ? "not-allowed" : style.cursor || "default",
     visibility: element.hidden ? "hidden" : "visible",
 
+    // Drop target highlight (replaces direct DOM manipulation)
+    ...(isHighlighted ? {
+      outline: '4px dashed #3b82f6',
+      outlineOffset: '4px',
+    } : {}),
+
+    // Drag state opacity (replaces direct DOM manipulation)
+    ...(isDragging ? {
+      opacity: 0.5,
+    } : {}),
+
     // Selection indicator removed - now handled by ElementControls overlay
     // This prevents z-index conflicts with control buttons
   };
-
-  // DEBUG LOG
-  if (isGridContainer) {
-    console.log(`[Grid Container] ${element.name}`, {
-      display: containerStyle.display,
-      cols: containerStyle.gridTemplateColumns,
-      rows: containerStyle.gridTemplateRows,
-      gap: containerStyle.gap
-    });
-  }
-  if (isGridCell) {
-    console.log(`[Grid Cell] ${element.name}`, {
-      gridColumn: containerStyle.gridColumn,
-      gridRow: containerStyle.gridRow,
-      width: containerStyle.width,
-      height: containerStyle.height,
-      minWidth: containerStyle.minWidth
-    });
-  }
 
   // Handle combined mouse down (selection + behavior)
   const handleMouseDown = useCallback((e: React.MouseEvent) => {
