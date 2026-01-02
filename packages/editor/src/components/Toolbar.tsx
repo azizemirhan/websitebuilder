@@ -3,15 +3,25 @@
  */
 
 import React, { memo, useCallback } from 'react';
-import { useCanvasStore, useHistoryStore, useSettingsStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, useSettingsStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 interface ToolbarProps {
   onCreateComponent?: () => void;
   onExport?: () => void;
   onImport?: () => void;
+  pageId?: string;
+  pageTitle?: string;
+  onBackToDashboard?: () => void;
 }
 
-export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onImport }: ToolbarProps) {
+export const Toolbar = memo(function Toolbar({ 
+  onCreateComponent, 
+  onExport, 
+  onImport, 
+  pageId, 
+  pageTitle, 
+  onBackToDashboard 
+}: ToolbarProps) {
   const elements = useCanvasStore((state) => state.elements);
   const addElement = useCanvasStore((state) => state.addElement);
   const deleteElement = useCanvasStore((state) => state.deleteElement);
@@ -36,6 +46,10 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
   const toggleSnapToGrid = useSettingsStore((state) => state.toggleSnapToGrid);
   const showRulers = useSettingsStore((state) => state.showRulers);
   const toggleRulers = useSettingsStore((state) => state.toggleRulers);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const toggleTheme = useThemeStore((state) => state.toggleTheme);
 
   const saveHistory = useCallback(() => {
     const state = useCanvasStore.getState();
@@ -153,50 +167,68 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
     redo(getCurrentState, applyState);
   }, [redo]);
 
+  // Theme-aware colors
+  const colors = themeColors[resolvedTheme];
+
   const buttonStyle: React.CSSProperties = {
     display: 'flex',
     alignItems: 'center',
     gap: 6,
     padding: '8px 12px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 6,
-    backgroundColor: '#ffffff',
-    color: '#374151',
+    backgroundColor: colors.surface,
+    color: colors.text,
     fontSize: 13,
     fontWeight: 500,
     cursor: 'pointer',
     transition: 'all 0.15s ease',
   };
 
+  const themedButtonStyle: React.CSSProperties = {
+    padding: '8px 12px',
+    border: `1px solid ${colors.border}`,
+    borderRadius: 6,
+    backgroundColor: colors.surface,
+    color: colors.text,
+    fontSize: 12,
+    fontWeight: 500,
+    cursor: 'pointer',
+    transition: 'all 0.15s ease',
+    display: 'flex',
+    alignItems: 'center',
+    gap: 4,
+  };
+
   const disabledStyle: React.CSSProperties = {
-    ...buttonStyle,
+    ...themedButtonStyle,
     opacity: 0.5,
     cursor: 'not-allowed',
   };
 
   const primaryButtonStyle: React.CSSProperties = {
-    ...buttonStyle,
-    backgroundColor: '#3b82f6',
+    ...themedButtonStyle,
+    backgroundColor: colors.primary,
     color: '#ffffff',
-    border: '1px solid #2563eb',
+    border: `1px solid ${colors.primaryHover}`,
   };
 
   const dangerButtonStyle: React.CSSProperties = {
-    ...buttonStyle,
-    backgroundColor: '#ef4444',
+    ...themedButtonStyle,
+    backgroundColor: colors.danger,
     color: '#ffffff',
-    border: '1px solid #dc2626',
+    border: `1px solid ${colors.dangerHover}`,
   };
 
   const toggleButtonStyle = (active: boolean): React.CSSProperties => ({
-    ...buttonStyle,
-    backgroundColor: active ? '#dbeafe' : '#ffffff',
-    color: active ? '#1d4ed8' : '#374151',
-    border: active ? '1px solid #3b82f6' : '1px solid #e5e7eb',
+    ...themedButtonStyle,
+    backgroundColor: active ? colors.primary : colors.surface,
+    color: active ? '#ffffff' : colors.text,
+    border: active ? `1px solid ${colors.primaryHover}` : `1px solid ${colors.border}`,
   });
 
   const smallButtonStyle: React.CSSProperties = {
-    ...buttonStyle,
+    ...themedButtonStyle,
     padding: '6px 8px',
     minWidth: 32,
   };
@@ -210,34 +242,42 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
       alignItems: 'center',
       gap: 8,
       padding: '12px 16px',
-      backgroundColor: '#f9fafb',
-      borderBottom: '1px solid #e5e7eb',
+      backgroundColor: colors.surface,
+      borderBottom: `1px solid ${colors.border}`,
       flexWrap: 'wrap',
     }}>
-      {/* Add Elements Section */}
-      <div style={{ display: 'flex', gap: 4, borderRight: '1px solid #e5e7eb', paddingRight: 12 }}>
-        <button style={primaryButtonStyle} onClick={() => handleAddElement('container')} title="Add Container">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="3" y="3" width="18" height="18" rx="2" />
+      {/* Back to Dashboard Button */}
+      {onBackToDashboard && (
+        <button
+          onClick={onBackToDashboard}
+          style={{
+            ...themedButtonStyle,
+            marginRight: 12,
+          }}
+          title="Panele Dön"
+        >
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 12H5M12 19l-7-7 7-7" />
           </svg>
-          Container
+          Panele Dön
         </button>
-        <button style={buttonStyle} onClick={() => handleAddElement('text')} title="Add Text">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <path d="M4 7V4h16v3M9 20h6M12 4v16" />
-          </svg>
-          Text
-        </button>
-        <button style={buttonStyle} onClick={() => handleAddElement('button')} title="Add Button">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-            <rect x="2" y="6" width="20" height="12" rx="2" />
-          </svg>
-          Button
-        </button>
-      </div>
+      )}
+      
+      {/* Page Title */}
+      {pageTitle && (
+        <div style={{
+          fontSize: 14,
+          fontWeight: 600,
+          color: colors.text,
+          marginRight: 12,
+          padding: '8px 0',
+        }}>
+          {pageTitle}
+        </div>
+      )}
 
       {/* Undo/Redo Section */}
-      <div style={{ display: 'flex', gap: 4, borderRight: '1px solid #e5e7eb', paddingRight: 12 }}>
+      <div style={{ display: 'flex', gap: 4, borderRight: `1px solid ${colors.border}`, paddingRight: 12 }}>
         <button 
           style={canUndo() ? buttonStyle : disabledStyle} 
           onClick={handleUndo}
@@ -261,7 +301,7 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
       </div>
 
       {/* Element Actions Section */}
-      <div style={{ display: 'flex', gap: 4, borderRight: '1px solid #e5e7eb', paddingRight: 12 }}>
+      <div style={{ display: 'flex', gap: 4, borderRight: `1px solid ${colors.border}`, paddingRight: 12 }}>
         <button 
           style={hasSelection ? buttonStyle : disabledStyle} 
           onClick={handleDuplicateSelected}
@@ -296,13 +336,18 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
             disabled={!hasSelection}
             title="Create Component (Ctrl+Alt+K)"
           >
-            🧩
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="3" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="3" width="7" height="7" rx="1" />
+              <rect x="14" y="14" width="7" height="7" rx="1" />
+              <rect x="3" y="14" width="7" height="7" rx="1" />
+            </svg>
           </button>
         )}
       </div>
 
       {/* Z-Index Controls */}
-      <div style={{ display: 'flex', gap: 4, borderRight: '1px solid #e5e7eb', paddingRight: 12 }}>
+      <div style={{ display: 'flex', gap: 4, borderRight: `1px solid ${colors.border}`, paddingRight: 12 }}>
         <button 
           style={hasSingleSelection ? smallButtonStyle : disabledStyle} 
           onClick={handleBringToFront}
@@ -347,8 +392,99 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
         </button>
       </div>
 
+      {/* Quick Layout Controls - NEW */}
+      {hasSingleSelection && elements[selectedElementIds[0]]?.type === 'container' && (
+        <div style={{ display: 'flex', gap: 4, borderRight: `1px solid ${colors.border}`, paddingRight: 12, alignItems: 'center' }}>
+          {/* Direction Toggle */}
+          <button 
+            style={toggleButtonStyle((elements[selectedElementIds[0]]?.props as any)?.direction === 'row')} 
+            onClick={() => {
+              saveHistory();
+              useCanvasStore.getState().updateElementProps(selectedElementIds[0], { direction: 'row' });
+            }}
+            title="Row Direction"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M5 12h14M12 5l7 7-7 7" />
+            </svg>
+          </button>
+          <button 
+            style={toggleButtonStyle((elements[selectedElementIds[0]]?.props as any)?.direction === 'column')} 
+            onClick={() => {
+              saveHistory();
+              useCanvasStore.getState().updateElementProps(selectedElementIds[0], { direction: 'column' });
+            }}
+            title="Column Direction"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M12 5v14M5 12l7 7 7-7" />
+            </svg>
+          </button>
+          
+          {/* Divider */}
+          <div style={{ width: 1, height: 20, backgroundColor: colors.border, margin: '0 4px' }} />
+          
+          {/* Justify Content */}
+          <button 
+            style={toggleButtonStyle((elements[selectedElementIds[0]]?.props as any)?.justifyContent === 'flex-start')} 
+            onClick={() => {
+              saveHistory();
+              useCanvasStore.getState().updateElementProps(selectedElementIds[0], { justifyContent: 'flex-start' });
+            }}
+            title="Justify Start"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="4" y="4" width="4" height="16" rx="1" />
+              <rect x="10" y="7" width="4" height="10" rx="1" />
+              <rect x="16" y="10" width="4" height="4" rx="1" />
+            </svg>
+          </button>
+          <button 
+            style={toggleButtonStyle((elements[selectedElementIds[0]]?.props as any)?.justifyContent === 'center')} 
+            onClick={() => {
+              saveHistory();
+              useCanvasStore.getState().updateElementProps(selectedElementIds[0], { justifyContent: 'center' });
+            }}
+            title="Justify Center"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="4" y="7" width="4" height="10" rx="1" />
+              <rect x="10" y="4" width="4" height="16" rx="1" />
+              <rect x="16" y="7" width="4" height="10" rx="1" />
+            </svg>
+          </button>
+          <button 
+            style={toggleButtonStyle((elements[selectedElementIds[0]]?.props as any)?.justifyContent === 'flex-end')} 
+            onClick={() => {
+              saveHistory();
+              useCanvasStore.getState().updateElementProps(selectedElementIds[0], { justifyContent: 'flex-end' });
+            }}
+            title="Justify End"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="4" y="10" width="4" height="4" rx="1" />
+              <rect x="10" y="7" width="4" height="10" rx="1" />
+              <rect x="16" y="4" width="4" height="16" rx="1" />
+            </svg>
+          </button>
+          <button 
+            style={toggleButtonStyle((elements[selectedElementIds[0]]?.props as any)?.justifyContent === 'space-between')} 
+            onClick={() => {
+              saveHistory();
+              useCanvasStore.getState().updateElementProps(selectedElementIds[0], { justifyContent: 'space-between' });
+            }}
+            title="Space Between"
+          >
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <rect x="4" y="4" width="4" height="16" rx="1" />
+              <rect x="16" y="4" width="4" height="16" rx="1" />
+            </svg>
+          </button>
+        </div>
+      )}
+
       {/* Grid & Snap Toggles */}
-      <div style={{ display: 'flex', gap: 4, borderRight: '1px solid #e5e7eb', paddingRight: 12 }}>
+      <div style={{ display: 'flex', gap: 4, borderRight: `1px solid ${colors.border}`, paddingRight: 12 }}>
         <button 
           style={toggleButtonStyle(showGrid)} 
           onClick={toggleGrid}
@@ -395,7 +531,7 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
         </button>
         <span style={{ 
           fontSize: 12, 
-          color: '#374151', 
+          color: colors.text, 
           minWidth: 50, 
           textAlign: 'center',
           fontWeight: 500,
@@ -444,7 +580,10 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
           onClick={onImport}
           title="HTML Dosyası İçe Aktar"
         >
-          📥 İçe Aktar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M17 8l-5-5-5 5M12 3v12" />
+          </svg>
+          İçe Aktar
         </button>
       )}
 
@@ -468,17 +607,118 @@ export const Toolbar = memo(function Toolbar({ onCreateComponent, onExport, onIm
           onClick={onExport}
           title="Kodu Dışa Aktar"
         >
-          🚀 Dışa Aktar
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4M7 10l5 5 5-5M12 15V3" />
+          </svg>
+          Dışa Aktar
         </button>
       )}
 
+      {/* Dark Mode Toggle */}
+      <button
+        style={{
+          marginLeft: 8,
+          padding: '8px 12px',
+          border: `1px solid ${colors.border}`,
+          borderRadius: 8,
+          backgroundColor: colors.surface,
+          color: colors.text,
+          fontSize: 14,
+          fontWeight: 600,
+          cursor: 'pointer',
+          display: 'flex',
+          alignItems: 'center',
+          gap: 6,
+        }}
+        onClick={toggleTheme}
+        title={resolvedTheme === 'dark' ? 'Light Mode' : 'Dark Mode'}
+      >
+        {resolvedTheme === 'dark' ? (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="5" />
+            <path d="M12 1v2M12 21v2M4.22 4.22l1.42 1.42M18.36 18.36l1.42 1.42M1 12h2M21 12h2M4.22 19.78l1.42-1.42M18.36 5.64l1.42-1.42" />
+          </svg>
+        ) : (
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z" />
+          </svg>
+        )}
+      </button>
+
       {/* Selection Info */}
-      <div style={{ marginLeft: 'auto', fontSize: 12, color: '#6b7280' }}>
-        {hasSelection 
-          ? `${selectedElementIds.length} element${selectedElementIds.length > 1 ? 's' : ''} selected`
-          : 'No selection'
-        }
+      <div style={{ marginLeft: 'auto', display: 'flex', alignItems: 'center', gap: 12 }}>
+         <div style={{ fontSize: 12, color: colors.textMuted }}>
+           {hasSelection 
+             ? `${selectedElementIds.length} element${selectedElementIds.length > 1 ? 's' : ''} selected`
+             : 'No selection'
+           }
+         </div>
+
+         {/* Save Button (API Test) */}
+         <SaveButton pageId={pageId} />
       </div>
     </div>
   );
 });
+
+// Simple internal component for Save logic
+function SaveButton({ pageId }: { pageId?: string }) {
+  const [loading, setLoading] = React.useState(false);
+  const importCmsService = async () => {
+      // Import from core package entry point
+      const { cmsService } = await import('@builder/core');
+      return cmsService;
+  };
+
+  const handleSave = async () => {
+    if (!pageId) {
+      alert('Sayfa ID bulunamadı');
+      return;
+    }
+    
+    setLoading(true);
+    try {
+      const service = await importCmsService();
+      const result = await service.savePage(pageId);
+      console.log('Save Result:', result);
+      alert('Sayfa kaydedildi! (Detaylar için konsolu kontrol edin)');
+    } catch (err) {
+      console.error(err);
+      alert('Kaydetme başarısız');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  return (
+    <button
+      onClick={handleSave}
+      disabled={loading}
+      style={{
+        padding: '8px 16px',
+        border: 'none',
+        borderRadius: 8,
+        backgroundColor: loading ? '#93c5fd' : '#2563eb',
+        color: '#fff',
+        fontSize: 12,
+        fontWeight: 600,
+        cursor: loading ? 'wait' : 'pointer',
+        display: 'flex',
+        alignItems: 'center',
+        gap: 6,
+      }}
+      title="Save to CMS (Mock)"
+    >
+      {loading ? 'Saving...' : (
+        <>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M19 21H5a2 2 0 01-2-2V5a2 2 0 012-2h11l5 5v11a2 2 0 01-2 2z" />
+            <polyline points="17 21 17 13 7 13 7 21" />
+            <polyline points="7 3 7 8 15 8" />
+          </svg>
+          Kaydet
+        </>
+      )}
+    </button>
+  );
+}

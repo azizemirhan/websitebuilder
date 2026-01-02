@@ -30,12 +30,7 @@ export const InputRenderer = memo(function InputRenderer({
     left: style.left,
     width: style.width,
     height: style.height,
-    outline: isSelected 
-      ? '2px solid #2563eb' 
-      : isHovered 
-        ? '1px solid #60a5fa' 
-        : 'none',
-    outlineOffset: '-1px',
+    // Selection indicator removed - handled by ElementControls overlay
     visibility: element.hidden ? 'hidden' : 'visible',
   };
 

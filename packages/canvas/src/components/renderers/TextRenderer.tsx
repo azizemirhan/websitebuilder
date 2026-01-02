@@ -4,6 +4,7 @@
 
 import React, { memo } from 'react';
 import type { TextElement } from '@builder/core';
+import { useResponsiveStore, getResponsiveStyles } from '@builder/core';
 
 interface TextRendererProps {
   element: TextElement;
@@ -22,28 +23,50 @@ export const TextRenderer = memo(function TextRenderer({
   onMouseEnter,
   onMouseLeave,
 }: TextRendererProps) {
-  const { style, props } = element;
+  const { props } = element;
+  
+  // Get active breakpoint for responsive styling
+  const activeBreakpoint = useResponsiveStore((state) => state.activeBreakpoint);
+  
+  // Compute responsive styles based on active breakpoint
+  const style = getResponsiveStyles(
+    element.style,
+    element.responsiveStyles,
+    activeBreakpoint
+  );
+
+  const position = style.position || 'relative';
 
   const textStyle: React.CSSProperties = {
-    // Default to relative for imported elements (flow layout)
-    position: style.position || 'relative',
-    top: style.top,
-    left: style.left,
+    // Position
+    position,
+    // Only apply positioning for absolute/fixed
+    ...(position === 'absolute' || position === 'fixed' ? {
+      top: style.top,
+      left: style.left,
+      right: style.right,
+      bottom: style.bottom,
+    } : {}),
+    // Dimensions
     width: style.width,
     height: style.height,
     minWidth: style.minWidth,
     maxWidth: style.maxWidth,
+    // Typography
     color: style.color || '#000000',
     fontSize: style.fontSize,
     fontFamily: style.fontFamily,
     fontWeight: style.fontWeight,
+    fontStyle: style.fontStyle,
     lineHeight: style.lineHeight,
     letterSpacing: style.letterSpacing,
     textAlign: style.textAlign,
     textDecoration: style.textDecoration,
     textTransform: style.textTransform,
+    // Background
     backgroundColor: style.backgroundColor,
     background: style.background,
+    // Spacing
     padding: style.padding,
     paddingTop: style.paddingTop,
     paddingRight: style.paddingRight,
@@ -54,17 +77,20 @@ export const TextRenderer = memo(function TextRenderer({
     marginRight: style.marginRight,
     marginBottom: style.marginBottom,
     marginLeft: style.marginLeft,
+    // Layout
     display: style.display,
+    flexDirection: style.flexDirection,
+    justifyContent: style.justifyContent,
+    alignItems: style.alignItems,
+    gap: style.gap,
+    // Effects
     opacity: style.opacity,
+    zIndex: style.zIndex,
+    // Other
     cursor: element.locked ? 'not-allowed' : style.cursor || 'default',
     visibility: element.hidden ? 'hidden' : 'visible',
-    boxSizing: 'border-box',
-    outline: isSelected
-      ? '2px solid #2563eb'
-      : isHovered
-        ? '1px solid #60a5fa'
-        : 'none',
-    outlineOffset: '-1px',
+    boxSizing: style.boxSizing || 'border-box',
+    // Selection indicator removed - handled by ElementControls overlay
     whiteSpace: style.whiteSpace || 'pre-wrap',
     wordBreak: 'break-word',
   };
@@ -78,8 +104,7 @@ export const TextRenderer = memo(function TextRenderer({
       onMouseDown={onMouseDown}
       onMouseEnter={onMouseEnter}
       onMouseLeave={onMouseLeave}
-    >
-      {props.content}
-    </Tag>
+      dangerouslySetInnerHTML={{ __html: props.content }}
+    />
   );
 });

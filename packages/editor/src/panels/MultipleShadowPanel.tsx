@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 interface ShadowLayer {
   id: string;
@@ -58,6 +58,10 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
   const [expandedId, setExpandedId] = useState<string | null>(null);
@@ -118,25 +122,27 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '4px 6px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 4,
     fontSize: 11,
     textAlign: 'center',
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase' }}>
           Shadows ({shadows.length})
         </span>
         <button
           style={{
             padding: '4px 8px',
-            border: '1px solid #3b82f6',
+            border: `1px solid ${colors.primary}`,
             borderRadius: 4,
-            backgroundColor: '#eff6ff',
-            color: '#3b82f6',
+            backgroundColor: colors.primary + '20',
+            color: colors.primary,
             fontSize: 10,
             cursor: 'pointer',
           }}
@@ -151,7 +157,7 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
         style={{
           width: '100%',
           height: 60,
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.surface,
           borderRadius: 12,
           boxShadow: style.boxShadow || 'none',
           marginBottom: 12,
@@ -159,7 +165,8 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 11,
-          color: '#9ca3af',
+          color: colors.textMuted,
+          border: `1px solid ${colors.border}`,
         }}
       >
         Preview
@@ -170,7 +177,7 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
         <div
           key={shadow.id}
           style={{
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 8,
             marginBottom: 8,
             overflow: 'hidden',
@@ -183,7 +190,7 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
               alignItems: 'center',
               justifyContent: 'space-between',
               padding: '8px 12px',
-              backgroundColor: expandedId === shadow.id ? '#f9fafb' : '#fff',
+              backgroundColor: expandedId === shadow.id ? colors.surface : colors.surface,
               cursor: 'pointer',
             }}
             onClick={() => setExpandedId(expandedId === shadow.id ? null : shadow.id)}
@@ -198,38 +205,45 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
                   border: '1px solid rgba(0,0,0,0.1)',
                 }}
               />
-              <span style={{ fontSize: 11, color: '#374151' }}>
+              <span style={{ fontSize: 11, color: colors.text }}>
                 {shadow.inset ? 'Inset' : 'Drop'} Shadow {index + 1}
               </span>
             </div>
             <div style={{ display: 'flex', gap: 4 }}>
               <button
-                style={{ padding: 2, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: 10 }}
+                style={{ padding: 2, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: 10, color: colors.textMuted }}
                 onClick={(e) => { e.stopPropagation(); moveShadow(shadow.id, 'up'); }}
               >
-                ↑
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M18 15l-6-6-6 6" />
+                </svg>
               </button>
               <button
-                style={{ padding: 2, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: 10 }}
+                style={{ padding: 2, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: 10, color: colors.textMuted }}
                 onClick={(e) => { e.stopPropagation(); moveShadow(shadow.id, 'down'); }}
               >
-                ↓
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <path d="M6 9l6 6 6-6" />
+                </svg>
               </button>
               <button
-                style={{ padding: 2, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: 10, color: '#dc2626' }}
+                style={{ padding: 2, border: 'none', backgroundColor: 'transparent', cursor: 'pointer', fontSize: 10, color: colors.danger }}
                 onClick={(e) => { e.stopPropagation(); removeShadow(shadow.id); }}
               >
-                ✕
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                  <line x1="18" y1="6" x2="6" y2="18" />
+                  <line x1="6" y1="6" x2="18" y2="18" />
+                </svg>
               </button>
             </div>
           </div>
 
           {/* Expanded Controls */}
           {expandedId === shadow.id && (
-            <div style={{ padding: 12, borderTop: '1px solid #e5e7eb' }}>
+            <div style={{ padding: 12, borderTop: `1px solid ${colors.border}` }}>
               <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 8 }}>
                 <div>
-                  <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2 }}>X</div>
+                  <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2 }}>X</div>
                   <input
                     type="number"
                     style={inputStyle}
@@ -238,7 +252,7 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
                   />
                 </div>
                 <div>
-                  <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2 }}>Y</div>
+                  <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2 }}>Y</div>
                   <input
                     type="number"
                     style={inputStyle}
@@ -247,7 +261,7 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
                   />
                 </div>
                 <div>
-                  <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2 }}>Blur</div>
+                  <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2 }}>Blur</div>
                   <input
                     type="number"
                     style={inputStyle}
@@ -256,7 +270,7 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
                   />
                 </div>
                 <div>
-                  <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2 }}>Spread</div>
+                  <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2 }}>Spread</div>
                   <input
                     type="number"
                     style={inputStyle}
@@ -277,11 +291,12 @@ export const MultipleShadowPanel = memo(function MultipleShadowPanel() {
                   style={{
                     padding: '4px 8px',
                     border: '1px solid',
-                    borderColor: shadow.inset ? '#3b82f6' : '#e5e7eb',
-                    backgroundColor: shadow.inset ? '#dbeafe' : '#fff',
+                    borderColor: shadow.inset ? colors.primary : colors.border,
+                    backgroundColor: shadow.inset ? colors.primary + '20' : colors.surface,
                     borderRadius: 4,
                     fontSize: 10,
                     cursor: 'pointer',
+                    color: shadow.inset ? colors.primary : colors.textMuted,
                   }}
                   onClick={() => updateShadow(shadow.id, { inset: !shadow.inset })}
                 >

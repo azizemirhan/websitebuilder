@@ -3,7 +3,9 @@
  */
 
 import React, { memo, useState, useMemo } from 'react';
+
 import { useCanvasStore, useResponsiveStore } from '@builder/core';
+import { CanvasRenderer } from '@builder/canvas';
 import { generateHTMLDocument } from '@builder/core';
 
 export const PreviewPanel = memo(function PreviewPanel() {
@@ -25,7 +27,20 @@ export const PreviewPanel = memo(function PreviewPanel() {
   const previewHTML = useMemo(() => {
     if (rootElementIds.length === 0) return '';
     
-    const { html, css } = generateHTMLDocument(elements, rootElementIds, {
+    // Filter out mega menu containers
+    const filteredRootIds = rootElementIds.filter((id) => {
+      const megaMenuContainerIds = new Set<string>();
+      Object.values(elements).forEach((el) => {
+        if (el.type === 'menu' && el.props?.megaMenuBindings) {
+          Object.values(el.props.megaMenuBindings as Record<number, string>).forEach((containerId) => {
+            megaMenuContainerIds.add(containerId);
+          });
+        }
+      });
+      return !megaMenuContainerIds.has(id);
+    });
+
+    const { html, css } = generateHTMLDocument(elements, filteredRootIds, {
       title: 'Önizleme',
       useClasses: true,
     });
@@ -104,18 +119,15 @@ export const PreviewPanel = memo(function PreviewPanel() {
           backgroundColor: '#f9fafb',
         }}
       >
-        <iframe
-          srcDoc={previewHTML}
-          style={{
-            width: '400%',
-            height: '400%',
-            border: 'none',
-            transform: 'scale(0.25)',
-            transformOrigin: 'top left',
-            pointerEvents: 'none',
-          }}
-          title="Mini Preview"
-        />
+        <div style={{ 
+          width: '1280px', // Fixed width for scaling
+          height: '100%',
+          transform: 'scale(0.25)', 
+          transformOrigin: 'top left',
+          pointerEvents: 'none'
+        }}>
+          <CanvasRenderer width={1280} isPreview={true} />
+        </div>
       </div>
 
       {/* Full Preview Modal */}
@@ -217,14 +229,9 @@ export const PreviewPanel = memo(function PreviewPanel() {
                 transition: 'width 0.3s ease',
               }}
             >
-              <iframe
-                srcDoc={previewHTML}
-                style={{
-                  width: '100%',
-                  height: '100%',
-                  border: 'none',
-                }}
-                title="Full Preview"
+              <CanvasRenderer 
+                width={deviceWidths[previewDevice]} 
+                isPreview={true} 
               />
             </div>
           </div>

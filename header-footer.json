@@ -1,0 +1,1853 @@
+{
+  "id": "tpl_ecommerce_header_footer",
+  "name": "E-Ticaret Header & Footer",
+  "description": "Profesyonel e-ticaret sitesi için modern header ve footer şablonu. Üst bilgi barı, arama, sepet, kullanıcı menüsü ve kapsamlı footer içerir.",
+  "version": "1.0.0",
+  "author": "Website Builder",
+  "category": "ecommerce",
+  "tags": ["ecommerce", "header", "footer", "professional", "modern", "mega-menu"],
+  "createdAt": "2024-12-30T12:00:00.000Z",
+  "updatedAt": "2024-12-30T12:00:00.000Z",
+  "sections": [
+    {
+      "id": "sec_header",
+      "name": "E-Ticaret Header",
+      "description": "Üst bilgi barı, logo, arama, navigasyon ve kullanıcı aksiyonları içeren profesyonel header",
+      "sectionType": "header",
+      "rootElementIds": ["header_wrapper"],
+      "elements": {
+        "header_wrapper": {
+          "id": "header_wrapper",
+          "type": "container",
+          "name": "Header Wrapper",
+          "children": ["top_bar", "main_header", "nav_bar"],
+          "style": {
+            "width": "100%",
+            "display": "flex",
+            "flexDirection": "column",
+            "position": "relative",
+            "zIndex": 1000
+          },
+          "props": {
+            "tag": "header"
+          }
+        },
+
+        "top_bar": {
+          "id": "top_bar",
+          "type": "container",
+          "name": "Top Bar",
+          "children": ["top_bar_inner"],
+          "style": {
+            "width": "100%",
+            "backgroundColor": "#1a1a2e",
+            "padding": "8px 0"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "top_bar_inner": {
+          "id": "top_bar_inner",
+          "type": "container",
+          "name": "Top Bar Inner",
+          "children": ["top_bar_left", "top_bar_right"],
+          "style": {
+            "width": "100%",
+            "maxWidth": 1280,
+            "margin": "0 auto",
+            "padding": "0 24px",
+            "display": "flex",
+            "justifyContent": "space-between",
+            "alignItems": "center"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "top_bar_left": {
+          "id": "top_bar_left",
+          "type": "container",
+          "name": "Top Bar Left",
+          "children": ["top_bar_shipping", "top_bar_divider_1", "top_bar_support"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 16
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "top_bar_shipping": {
+          "id": "top_bar_shipping",
+          "type": "container",
+          "name": "Shipping Info",
+          "children": ["shipping_icon", "shipping_text"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 6
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "shipping_icon": {
+          "id": "shipping_icon",
+          "type": "icon",
+          "name": "Shipping Icon",
+          "children": [],
+          "style": {
+            "width": 16,
+            "height": 16,
+            "color": "#e94560"
+          },
+          "props": {
+            "iconName": "truck",
+            "strokeWidth": 2
+          }
+        },
+        "shipping_text": {
+          "id": "shipping_text",
+          "type": "text",
+          "name": "Shipping Text",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "#ffffff",
+            "fontWeight": 400
+          },
+          "props": {
+            "content": "150₺ üzeri <strong>ücretsiz kargo</strong>",
+            "tag": "span"
+          }
+        },
+        "top_bar_divider_1": {
+          "id": "top_bar_divider_1",
+          "type": "container",
+          "name": "Divider",
+          "children": [],
+          "style": {
+            "width": 1,
+            "height": 14,
+            "backgroundColor": "rgba(255,255,255,0.3)"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "top_bar_support": {
+          "id": "top_bar_support",
+          "type": "container",
+          "name": "Support Info",
+          "children": ["support_icon", "support_text"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 6
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "support_icon": {
+          "id": "support_icon",
+          "type": "icon",
+          "name": "Support Icon",
+          "children": [],
+          "style": {
+            "width": 16,
+            "height": 16,
+            "color": "#e94560"
+          },
+          "props": {
+            "iconName": "headphones",
+            "strokeWidth": 2
+          }
+        },
+        "support_text": {
+          "id": "support_text",
+          "type": "text",
+          "name": "Support Text",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "#ffffff",
+            "fontWeight": 400
+          },
+          "props": {
+            "content": "7/24 Destek: <strong>0850 123 45 67</strong>",
+            "tag": "span"
+          }
+        },
+        "top_bar_right": {
+          "id": "top_bar_right",
+          "type": "container",
+          "name": "Top Bar Right",
+          "children": ["top_bar_guarantee", "top_bar_divider_2", "top_bar_track"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 16
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "top_bar_guarantee": {
+          "id": "top_bar_guarantee",
+          "type": "container",
+          "name": "Guarantee Info",
+          "children": ["guarantee_icon", "guarantee_text"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 6
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "guarantee_icon": {
+          "id": "guarantee_icon",
+          "type": "icon",
+          "name": "Guarantee Icon",
+          "children": [],
+          "style": {
+            "width": 16,
+            "height": 16,
+            "color": "#e94560"
+          },
+          "props": {
+            "iconName": "shield-check",
+            "strokeWidth": 2
+          }
+        },
+        "guarantee_text": {
+          "id": "guarantee_text",
+          "type": "text",
+          "name": "Guarantee Text",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "#ffffff",
+            "fontWeight": 400
+          },
+          "props": {
+            "content": "14 Gün İade Garantisi",
+            "tag": "span"
+          }
+        },
+        "top_bar_divider_2": {
+          "id": "top_bar_divider_2",
+          "type": "container",
+          "name": "Divider",
+          "children": [],
+          "style": {
+            "width": 1,
+            "height": 14,
+            "backgroundColor": "rgba(255,255,255,0.3)"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "top_bar_track": {
+          "id": "top_bar_track",
+          "type": "text",
+          "name": "Track Order",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "#ffffff",
+            "fontWeight": 500,
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Sipariş Takibi",
+            "tag": "span"
+          }
+        },
+
+        "main_header": {
+          "id": "main_header",
+          "type": "container",
+          "name": "Main Header",
+          "children": ["main_header_inner"],
+          "style": {
+            "width": "100%",
+            "backgroundColor": "#ffffff",
+            "padding": "16px 0",
+            "borderBottom": "1px solid #e5e7eb"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "main_header_inner": {
+          "id": "main_header_inner",
+          "type": "container",
+          "name": "Main Header Inner",
+          "children": ["logo_container", "search_container", "header_actions"],
+          "style": {
+            "width": "100%",
+            "maxWidth": 1280,
+            "margin": "0 auto",
+            "padding": "0 24px",
+            "display": "flex",
+            "justifyContent": "space-between",
+            "alignItems": "center",
+            "gap": 32
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "logo_container": {
+          "id": "logo_container",
+          "type": "container",
+          "name": "Logo Container",
+          "children": ["logo_text"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "flexShrink": 0
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "logo_text": {
+          "id": "logo_text",
+          "type": "text",
+          "name": "Logo Text",
+          "children": [],
+          "style": {
+            "fontSize": 28,
+            "fontWeight": 700,
+            "color": "#1a1a2e",
+            "letterSpacing": -1
+          },
+          "props": {
+            "content": "MARKA<span style=\"color:#e94560\">.</span>",
+            "tag": "span"
+          }
+        },
+        "search_container": {
+          "id": "search_container",
+          "type": "container",
+          "name": "Search Container",
+          "children": ["search_input_wrapper"],
+          "style": {
+            "flex": 1,
+            "maxWidth": 600,
+            "display": "flex"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "search_input_wrapper": {
+          "id": "search_input_wrapper",
+          "type": "container",
+          "name": "Search Input Wrapper",
+          "children": ["search_input", "search_button"],
+          "style": {
+            "width": "100%",
+            "display": "flex",
+            "borderRadius": 8,
+            "overflow": "hidden",
+            "border": "2px solid #e5e7eb",
+            "transition": "border-color 0.2s ease"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "search_input": {
+          "id": "search_input",
+          "type": "input",
+          "name": "Search Input",
+          "children": [],
+          "style": {
+            "flex": 1,
+            "padding": "12px 16px",
+            "fontSize": 14,
+            "border": "none",
+            "outline": "none",
+            "backgroundColor": "#f9fafb"
+          },
+          "props": {
+            "inputType": "text",
+            "placeholder": "Ürün, kategori veya marka ara..."
+          }
+        },
+        "search_button": {
+          "id": "search_button",
+          "type": "container",
+          "name": "Search Button",
+          "children": ["search_icon"],
+          "style": {
+            "padding": "12px 20px",
+            "backgroundColor": "#e94560",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "button"
+          }
+        },
+        "search_icon": {
+          "id": "search_icon",
+          "type": "icon",
+          "name": "Search Icon",
+          "children": [],
+          "style": {
+            "width": 20,
+            "height": 20,
+            "color": "#ffffff"
+          },
+          "props": {
+            "iconName": "search",
+            "strokeWidth": 2
+          }
+        },
+        "header_actions": {
+          "id": "header_actions",
+          "type": "container",
+          "name": "Header Actions",
+          "children": ["action_account", "action_favorites", "action_cart"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 8,
+            "flexShrink": 0
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "action_account": {
+          "id": "action_account",
+          "type": "container",
+          "name": "Account Action",
+          "children": ["account_icon", "account_text"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "alignItems": "center",
+            "padding": "8px 16px",
+            "borderRadius": 8,
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "account_icon": {
+          "id": "account_icon",
+          "type": "icon",
+          "name": "Account Icon",
+          "children": [],
+          "style": {
+            "width": 22,
+            "height": 22,
+            "color": "#1a1a2e"
+          },
+          "props": {
+            "iconName": "user",
+            "strokeWidth": 1.5
+          }
+        },
+        "account_text": {
+          "id": "account_text",
+          "type": "text",
+          "name": "Account Text",
+          "children": [],
+          "style": {
+            "fontSize": 12,
+            "color": "#6b7280",
+            "marginTop": 4,
+            "fontWeight": 500
+          },
+          "props": {
+            "content": "Hesabım",
+            "tag": "span"
+          }
+        },
+        "action_favorites": {
+          "id": "action_favorites",
+          "type": "container",
+          "name": "Favorites Action",
+          "children": ["favorites_icon", "favorites_text"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "alignItems": "center",
+            "padding": "8px 16px",
+            "borderRadius": 8,
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "favorites_icon": {
+          "id": "favorites_icon",
+          "type": "icon",
+          "name": "Favorites Icon",
+          "children": [],
+          "style": {
+            "width": 22,
+            "height": 22,
+            "color": "#1a1a2e"
+          },
+          "props": {
+            "iconName": "heart",
+            "strokeWidth": 1.5
+          }
+        },
+        "favorites_text": {
+          "id": "favorites_text",
+          "type": "text",
+          "name": "Favorites Text",
+          "children": [],
+          "style": {
+            "fontSize": 12,
+            "color": "#6b7280",
+            "marginTop": 4,
+            "fontWeight": 500
+          },
+          "props": {
+            "content": "Favorilerim",
+            "tag": "span"
+          }
+        },
+        "action_cart": {
+          "id": "action_cart",
+          "type": "container",
+          "name": "Cart Action",
+          "children": ["cart_icon_wrapper", "cart_info"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 8,
+            "padding": "8px 16px",
+            "backgroundColor": "#1a1a2e",
+            "borderRadius": 8,
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "cart_icon_wrapper": {
+          "id": "cart_icon_wrapper",
+          "type": "container",
+          "name": "Cart Icon Wrapper",
+          "children": ["cart_icon", "cart_badge"],
+          "style": {
+            "position": "relative"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "cart_icon": {
+          "id": "cart_icon",
+          "type": "icon",
+          "name": "Cart Icon",
+          "children": [],
+          "style": {
+            "width": 22,
+            "height": 22,
+            "color": "#ffffff"
+          },
+          "props": {
+            "iconName": "cart",
+            "strokeWidth": 1.5
+          }
+        },
+        "cart_badge": {
+          "id": "cart_badge",
+          "type": "text",
+          "name": "Cart Badge",
+          "children": [],
+          "style": {
+            "position": "absolute",
+            "top": -6,
+            "right": -8,
+            "backgroundColor": "#e94560",
+            "color": "#ffffff",
+            "fontSize": 10,
+            "fontWeight": 700,
+            "width": 18,
+            "height": 18,
+            "borderRadius": "50%",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center"
+          },
+          "props": {
+            "content": "3",
+            "tag": "span"
+          }
+        },
+        "cart_info": {
+          "id": "cart_info",
+          "type": "container",
+          "name": "Cart Info",
+          "children": ["cart_label", "cart_total"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "cart_label": {
+          "id": "cart_label",
+          "type": "text",
+          "name": "Cart Label",
+          "children": [],
+          "style": {
+            "fontSize": 11,
+            "color": "rgba(255,255,255,0.7)",
+            "fontWeight": 400
+          },
+          "props": {
+            "content": "Sepetim",
+            "tag": "span"
+          }
+        },
+        "cart_total": {
+          "id": "cart_total",
+          "type": "text",
+          "name": "Cart Total",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "#ffffff",
+            "fontWeight": 600
+          },
+          "props": {
+            "content": "₺1.250",
+            "tag": "span"
+          }
+        },
+
+        "nav_bar": {
+          "id": "nav_bar",
+          "type": "container",
+          "name": "Navigation Bar",
+          "children": ["nav_bar_inner"],
+          "style": {
+            "width": "100%",
+            "backgroundColor": "#ffffff",
+            "borderBottom": "1px solid #e5e7eb"
+          },
+          "props": {
+            "tag": "nav"
+          }
+        },
+        "nav_bar_inner": {
+          "id": "nav_bar_inner",
+          "type": "container",
+          "name": "Nav Bar Inner",
+          "children": ["nav_categories_btn", "nav_menu"],
+          "style": {
+            "width": "100%",
+            "maxWidth": 1280,
+            "margin": "0 auto",
+            "padding": "0 24px",
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 0
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "nav_categories_btn": {
+          "id": "nav_categories_btn",
+          "type": "container",
+          "name": "Categories Button",
+          "children": ["categories_icon", "categories_text", "categories_arrow"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 10,
+            "padding": "14px 20px",
+            "backgroundColor": "#e94560",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "button"
+          }
+        },
+        "categories_icon": {
+          "id": "categories_icon",
+          "type": "icon",
+          "name": "Categories Icon",
+          "children": [],
+          "style": {
+            "width": 20,
+            "height": 20,
+            "color": "#ffffff"
+          },
+          "props": {
+            "iconName": "menu",
+            "strokeWidth": 2
+          }
+        },
+        "categories_text": {
+          "id": "categories_text",
+          "type": "text",
+          "name": "Categories Text",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 600,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "TÜM KATEGORİLER",
+            "tag": "span"
+          }
+        },
+        "categories_arrow": {
+          "id": "categories_arrow",
+          "type": "icon",
+          "name": "Categories Arrow",
+          "children": [],
+          "style": {
+            "width": 16,
+            "height": 16,
+            "color": "#ffffff"
+          },
+          "props": {
+            "iconName": "arrow-right",
+            "strokeWidth": 2
+          }
+        },
+        "nav_menu": {
+          "id": "nav_menu",
+          "type": "container",
+          "name": "Nav Menu",
+          "children": ["nav_item_1", "nav_item_2", "nav_item_3", "nav_item_4", "nav_item_5", "nav_item_6"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 0,
+            "flex": 1
+          },
+          "props": {
+            "tag": "ul"
+          }
+        },
+        "nav_item_1": {
+          "id": "nav_item_1",
+          "type": "text",
+          "name": "Nav Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 500,
+            "color": "#1a1a2e",
+            "padding": "14px 20px",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Yeni Gelenler",
+            "tag": "a"
+          }
+        },
+        "nav_item_2": {
+          "id": "nav_item_2",
+          "type": "text",
+          "name": "Nav Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 500,
+            "color": "#1a1a2e",
+            "padding": "14px 20px",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Çok Satanlar",
+            "tag": "a"
+          }
+        },
+        "nav_item_3": {
+          "id": "nav_item_3",
+          "type": "text",
+          "name": "Nav Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 500,
+            "color": "#1a1a2e",
+            "padding": "14px 20px",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Kampanyalar",
+            "tag": "a"
+          }
+        },
+        "nav_item_4": {
+          "id": "nav_item_4",
+          "type": "text",
+          "name": "Nav Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 500,
+            "color": "#1a1a2e",
+            "padding": "14px 20px",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Markalar",
+            "tag": "a"
+          }
+        },
+        "nav_item_5": {
+          "id": "nav_item_5",
+          "type": "text",
+          "name": "Nav Item Sale",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 600,
+            "color": "#e94560",
+            "padding": "14px 20px",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "🔥 İndirimler",
+            "tag": "a"
+          }
+        },
+        "nav_item_6": {
+          "id": "nav_item_6",
+          "type": "text",
+          "name": "Nav Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 500,
+            "color": "#1a1a2e",
+            "padding": "14px 20px",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "İletişim",
+            "tag": "a"
+          }
+        }
+      }
+    },
+
+    {
+      "id": "sec_footer",
+      "name": "E-Ticaret Footer",
+      "description": "Newsletter, linkler, iletişim bilgileri ve sosyal medya içeren kapsamlı footer",
+      "sectionType": "footer",
+      "rootElementIds": ["footer_wrapper"],
+      "elements": {
+        "footer_wrapper": {
+          "id": "footer_wrapper",
+          "type": "container",
+          "name": "Footer Wrapper",
+          "children": ["footer_newsletter", "footer_main", "footer_bottom"],
+          "style": {
+            "width": "100%",
+            "display": "flex",
+            "flexDirection": "column"
+          },
+          "props": {
+            "tag": "footer"
+          }
+        },
+
+        "footer_newsletter": {
+          "id": "footer_newsletter",
+          "type": "container",
+          "name": "Newsletter Section",
+          "children": ["newsletter_inner"],
+          "style": {
+            "width": "100%",
+            "backgroundColor": "#e94560",
+            "padding": "40px 0"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "newsletter_inner": {
+          "id": "newsletter_inner",
+          "type": "container",
+          "name": "Newsletter Inner",
+          "children": ["newsletter_content", "newsletter_form"],
+          "style": {
+            "width": "100%",
+            "maxWidth": 1280,
+            "margin": "0 auto",
+            "padding": "0 24px",
+            "display": "flex",
+            "justifyContent": "space-between",
+            "alignItems": "center",
+            "gap": 40
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "newsletter_content": {
+          "id": "newsletter_content",
+          "type": "container",
+          "name": "Newsletter Content",
+          "children": ["newsletter_title", "newsletter_desc"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 8
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "newsletter_title": {
+          "id": "newsletter_title",
+          "type": "text",
+          "name": "Newsletter Title",
+          "children": [],
+          "style": {
+            "fontSize": 24,
+            "fontWeight": 700,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "Fırsatlardan haberdar olun!",
+            "tag": "h3"
+          }
+        },
+        "newsletter_desc": {
+          "id": "newsletter_desc",
+          "type": "text",
+          "name": "Newsletter Description",
+          "children": [],
+          "style": {
+            "fontSize": 15,
+            "color": "rgba(255,255,255,0.85)",
+            "fontWeight": 400
+          },
+          "props": {
+            "content": "Özel indirimler ve yeni ürünlerden ilk siz haberdar olun.",
+            "tag": "p"
+          }
+        },
+        "newsletter_form": {
+          "id": "newsletter_form",
+          "type": "container",
+          "name": "Newsletter Form",
+          "children": ["newsletter_input", "newsletter_btn"],
+          "style": {
+            "display": "flex",
+            "gap": 0,
+            "borderRadius": 8,
+            "overflow": "hidden",
+            "boxShadow": "0 4px 12px rgba(0,0,0,0.15)"
+          },
+          "props": {
+            "tag": "form"
+          }
+        },
+        "newsletter_input": {
+          "id": "newsletter_input",
+          "type": "input",
+          "name": "Newsletter Input",
+          "children": [],
+          "style": {
+            "width": 320,
+            "padding": "14px 20px",
+            "fontSize": 14,
+            "border": "none",
+            "outline": "none",
+            "backgroundColor": "#ffffff"
+          },
+          "props": {
+            "inputType": "email",
+            "placeholder": "E-posta adresinizi girin"
+          }
+        },
+        "newsletter_btn": {
+          "id": "newsletter_btn",
+          "type": "button",
+          "name": "Newsletter Button",
+          "children": [],
+          "style": {
+            "padding": "14px 28px",
+            "backgroundColor": "#1a1a2e",
+            "color": "#ffffff",
+            "fontSize": 14,
+            "fontWeight": 600,
+            "border": "none",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "text": "Abone Ol"
+          }
+        },
+
+        "footer_main": {
+          "id": "footer_main",
+          "type": "container",
+          "name": "Footer Main",
+          "children": ["footer_main_inner"],
+          "style": {
+            "width": "100%",
+            "backgroundColor": "#1a1a2e",
+            "padding": "60px 0 40px"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "footer_main_inner": {
+          "id": "footer_main_inner",
+          "type": "container",
+          "name": "Footer Main Inner",
+          "children": ["footer_brand", "footer_links_1", "footer_links_2", "footer_links_3", "footer_contact"],
+          "style": {
+            "width": "100%",
+            "maxWidth": 1280,
+            "margin": "0 auto",
+            "padding": "0 24px",
+            "display": "grid",
+            "gridTemplateColumns": "1.5fr 1fr 1fr 1fr 1.5fr",
+            "gap": 40
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+
+        "footer_brand": {
+          "id": "footer_brand",
+          "type": "container",
+          "name": "Footer Brand",
+          "children": ["footer_logo", "footer_description", "footer_social"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 20
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "footer_logo": {
+          "id": "footer_logo",
+          "type": "text",
+          "name": "Footer Logo",
+          "children": [],
+          "style": {
+            "fontSize": 28,
+            "fontWeight": 700,
+            "color": "#ffffff",
+            "letterSpacing": -1
+          },
+          "props": {
+            "content": "MARKA<span style=\"color:#e94560\">.</span>",
+            "tag": "span"
+          }
+        },
+        "footer_description": {
+          "id": "footer_description",
+          "type": "text",
+          "name": "Footer Description",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "lineHeight": 1.7
+          },
+          "props": {
+            "content": "Türkiye'nin en güvenilir online alışveriş platformu. Kaliteli ürünler, uygun fiyatlar ve hızlı teslimat garantisi.",
+            "tag": "p"
+          }
+        },
+        "footer_social": {
+          "id": "footer_social",
+          "type": "container",
+          "name": "Footer Social",
+          "children": ["social_title", "social_icons"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 12
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "social_title": {
+          "id": "social_title",
+          "type": "text",
+          "name": "Social Title",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "fontWeight": 600,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "Bizi Takip Edin",
+            "tag": "span"
+          }
+        },
+        "social_icons": {
+          "id": "social_icons",
+          "type": "container",
+          "name": "Social Icons",
+          "children": ["social_fb", "social_ig", "social_tw", "social_yt"],
+          "style": {
+            "display": "flex",
+            "gap": 12
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "social_fb": {
+          "id": "social_fb",
+          "type": "container",
+          "name": "Facebook",
+          "children": [],
+          "style": {
+            "width": 40,
+            "height": 40,
+            "borderRadius": 8,
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "social_ig": {
+          "id": "social_ig",
+          "type": "container",
+          "name": "Instagram",
+          "children": [],
+          "style": {
+            "width": 40,
+            "height": 40,
+            "borderRadius": 8,
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "social_tw": {
+          "id": "social_tw",
+          "type": "container",
+          "name": "Twitter",
+          "children": [],
+          "style": {
+            "width": 40,
+            "height": 40,
+            "borderRadius": 8,
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+        "social_yt": {
+          "id": "social_yt",
+          "type": "container",
+          "name": "YouTube",
+          "children": [],
+          "style": {
+            "width": 40,
+            "height": 40,
+            "borderRadius": 8,
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "display": "flex",
+            "alignItems": "center",
+            "justifyContent": "center",
+            "cursor": "pointer",
+            "transition": "background-color 0.2s ease"
+          },
+          "props": {
+            "tag": "a"
+          }
+        },
+
+        "footer_links_1": {
+          "id": "footer_links_1",
+          "type": "container",
+          "name": "Footer Links Column 1",
+          "children": ["links1_title", "links1_item1", "links1_item2", "links1_item3", "links1_item4"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 16
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "links1_title": {
+          "id": "links1_title",
+          "type": "text",
+          "name": "Links Title",
+          "children": [],
+          "style": {
+            "fontSize": 16,
+            "fontWeight": 600,
+            "color": "#ffffff",
+            "marginBottom": 8
+          },
+          "props": {
+            "content": "Kurumsal",
+            "tag": "h4"
+          }
+        },
+        "links1_item1": {
+          "id": "links1_item1",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Hakkımızda",
+            "tag": "a"
+          }
+        },
+        "links1_item2": {
+          "id": "links1_item2",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Kariyer",
+            "tag": "a"
+          }
+        },
+        "links1_item3": {
+          "id": "links1_item3",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Basın Odası",
+            "tag": "a"
+          }
+        },
+        "links1_item4": {
+          "id": "links1_item4",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Mağazalarımız",
+            "tag": "a"
+          }
+        },
+
+        "footer_links_2": {
+          "id": "footer_links_2",
+          "type": "container",
+          "name": "Footer Links Column 2",
+          "children": ["links2_title", "links2_item1", "links2_item2", "links2_item3", "links2_item4"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 16
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "links2_title": {
+          "id": "links2_title",
+          "type": "text",
+          "name": "Links Title",
+          "children": [],
+          "style": {
+            "fontSize": 16,
+            "fontWeight": 600,
+            "color": "#ffffff",
+            "marginBottom": 8
+          },
+          "props": {
+            "content": "Yardım",
+            "tag": "h4"
+          }
+        },
+        "links2_item1": {
+          "id": "links2_item1",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Sıkça Sorulan Sorular",
+            "tag": "a"
+          }
+        },
+        "links2_item2": {
+          "id": "links2_item2",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Kargo ve Teslimat",
+            "tag": "a"
+          }
+        },
+        "links2_item3": {
+          "id": "links2_item3",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "İade ve Değişim",
+            "tag": "a"
+          }
+        },
+        "links2_item4": {
+          "id": "links2_item4",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Sipariş Takibi",
+            "tag": "a"
+          }
+        },
+
+        "footer_links_3": {
+          "id": "footer_links_3",
+          "type": "container",
+          "name": "Footer Links Column 3",
+          "children": ["links3_title", "links3_item1", "links3_item2", "links3_item3", "links3_item4"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 16
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "links3_title": {
+          "id": "links3_title",
+          "type": "text",
+          "name": "Links Title",
+          "children": [],
+          "style": {
+            "fontSize": 16,
+            "fontWeight": 600,
+            "color": "#ffffff",
+            "marginBottom": 8
+          },
+          "props": {
+            "content": "Hesabım",
+            "tag": "h4"
+          }
+        },
+        "links3_item1": {
+          "id": "links3_item1",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Giriş Yap",
+            "tag": "a"
+          }
+        },
+        "links3_item2": {
+          "id": "links3_item2",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Üye Ol",
+            "tag": "a"
+          }
+        },
+        "links3_item3": {
+          "id": "links3_item3",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Siparişlerim",
+            "tag": "a"
+          }
+        },
+        "links3_item4": {
+          "id": "links3_item4",
+          "type": "text",
+          "name": "Link Item",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Favorilerim",
+            "tag": "a"
+          }
+        },
+
+        "footer_contact": {
+          "id": "footer_contact",
+          "type": "container",
+          "name": "Footer Contact",
+          "children": ["contact_title", "contact_phone", "contact_email", "contact_address"],
+          "style": {
+            "display": "flex",
+            "flexDirection": "column",
+            "gap": 16
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "contact_title": {
+          "id": "contact_title",
+          "type": "text",
+          "name": "Contact Title",
+          "children": [],
+          "style": {
+            "fontSize": 16,
+            "fontWeight": 600,
+            "color": "#ffffff",
+            "marginBottom": 8
+          },
+          "props": {
+            "content": "İletişim",
+            "tag": "h4"
+          }
+        },
+        "contact_phone": {
+          "id": "contact_phone",
+          "type": "container",
+          "name": "Contact Phone",
+          "children": ["phone_icon", "phone_text"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 10
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "phone_icon": {
+          "id": "phone_icon",
+          "type": "icon",
+          "name": "Phone Icon",
+          "children": [],
+          "style": {
+            "width": 18,
+            "height": 18,
+            "color": "#e94560"
+          },
+          "props": {
+            "iconName": "headphones",
+            "strokeWidth": 2
+          }
+        },
+        "phone_text": {
+          "id": "phone_text",
+          "type": "text",
+          "name": "Phone Text",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.9)",
+            "fontWeight": 500
+          },
+          "props": {
+            "content": "0850 123 45 67",
+            "tag": "span"
+          }
+        },
+        "contact_email": {
+          "id": "contact_email",
+          "type": "text",
+          "name": "Email",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)"
+          },
+          "props": {
+            "content": "destek@marka.com",
+            "tag": "a"
+          }
+        },
+        "contact_address": {
+          "id": "contact_address",
+          "type": "text",
+          "name": "Address",
+          "children": [],
+          "style": {
+            "fontSize": 14,
+            "color": "rgba(255,255,255,0.7)",
+            "lineHeight": 1.6
+          },
+          "props": {
+            "content": "Merkez Mah. Teknoloji Cad. No:123 <br/>Kadıköy, İstanbul",
+            "tag": "p"
+          }
+        },
+
+        "footer_bottom": {
+          "id": "footer_bottom",
+          "type": "container",
+          "name": "Footer Bottom",
+          "children": ["footer_bottom_inner"],
+          "style": {
+            "width": "100%",
+            "backgroundColor": "#13131f",
+            "padding": "20px 0"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "footer_bottom_inner": {
+          "id": "footer_bottom_inner",
+          "type": "container",
+          "name": "Footer Bottom Inner",
+          "children": ["copyright", "payment_methods", "legal_links"],
+          "style": {
+            "width": "100%",
+            "maxWidth": 1280,
+            "margin": "0 auto",
+            "padding": "0 24px",
+            "display": "flex",
+            "justifyContent": "space-between",
+            "alignItems": "center"
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "copyright": {
+          "id": "copyright",
+          "type": "text",
+          "name": "Copyright",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "rgba(255,255,255,0.5)"
+          },
+          "props": {
+            "content": "© 2024 Marka. Tüm hakları saklıdır.",
+            "tag": "span"
+          }
+        },
+        "payment_methods": {
+          "id": "payment_methods",
+          "type": "container",
+          "name": "Payment Methods",
+          "children": ["payment_visa", "payment_master", "payment_paypal", "payment_troy"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 12
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "payment_visa": {
+          "id": "payment_visa",
+          "type": "container",
+          "name": "Visa",
+          "children": ["visa_text"],
+          "style": {
+            "padding": "6px 12px",
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "borderRadius": 4
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "visa_text": {
+          "id": "visa_text",
+          "type": "text",
+          "name": "Visa Text",
+          "children": [],
+          "style": {
+            "fontSize": 12,
+            "fontWeight": 700,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "VISA",
+            "tag": "span"
+          }
+        },
+        "payment_master": {
+          "id": "payment_master",
+          "type": "container",
+          "name": "Mastercard",
+          "children": ["master_text"],
+          "style": {
+            "padding": "6px 12px",
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "borderRadius": 4
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "master_text": {
+          "id": "master_text",
+          "type": "text",
+          "name": "Mastercard Text",
+          "children": [],
+          "style": {
+            "fontSize": 12,
+            "fontWeight": 700,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "MC",
+            "tag": "span"
+          }
+        },
+        "payment_paypal": {
+          "id": "payment_paypal",
+          "type": "container",
+          "name": "PayPal",
+          "children": ["paypal_text"],
+          "style": {
+            "padding": "6px 12px",
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "borderRadius": 4
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "paypal_text": {
+          "id": "paypal_text",
+          "type": "text",
+          "name": "PayPal Text",
+          "children": [],
+          "style": {
+            "fontSize": 12,
+            "fontWeight": 700,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "PayPal",
+            "tag": "span"
+          }
+        },
+        "payment_troy": {
+          "id": "payment_troy",
+          "type": "container",
+          "name": "Troy",
+          "children": ["troy_text"],
+          "style": {
+            "padding": "6px 12px",
+            "backgroundColor": "rgba(255,255,255,0.1)",
+            "borderRadius": 4
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "troy_text": {
+          "id": "troy_text",
+          "type": "text",
+          "name": "Troy Text",
+          "children": [],
+          "style": {
+            "fontSize": 12,
+            "fontWeight": 700,
+            "color": "#ffffff"
+          },
+          "props": {
+            "content": "TROY",
+            "tag": "span"
+          }
+        },
+        "legal_links": {
+          "id": "legal_links",
+          "type": "container",
+          "name": "Legal Links",
+          "children": ["legal_privacy", "legal_terms", "legal_kvkk"],
+          "style": {
+            "display": "flex",
+            "alignItems": "center",
+            "gap": 24
+          },
+          "props": {
+            "tag": "div"
+          }
+        },
+        "legal_privacy": {
+          "id": "legal_privacy",
+          "type": "text",
+          "name": "Privacy Policy",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "rgba(255,255,255,0.5)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Gizlilik Politikası",
+            "tag": "a"
+          }
+        },
+        "legal_terms": {
+          "id": "legal_terms",
+          "type": "text",
+          "name": "Terms",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "rgba(255,255,255,0.5)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "Kullanım Koşulları",
+            "tag": "a"
+          }
+        },
+        "legal_kvkk": {
+          "id": "legal_kvkk",
+          "type": "text",
+          "name": "KVKK",
+          "children": [],
+          "style": {
+            "fontSize": 13,
+            "color": "rgba(255,255,255,0.5)",
+            "cursor": "pointer",
+            "transition": "color 0.2s ease"
+          },
+          "props": {
+            "content": "KVKK",
+            "tag": "a"
+          }
+        }
+      }
+    }
+  ]
+}

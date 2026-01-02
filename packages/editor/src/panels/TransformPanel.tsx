@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 interface TransformValues {
   rotate: number;
@@ -59,6 +59,10 @@ export const TransformPanel = memo(function TransformPanel() {
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
 
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
   const [linkScale, setLinkScale] = useState(true);
 
@@ -99,32 +103,35 @@ export const TransformPanel = memo(function TransformPanel() {
 
   const sliderStyle: React.CSSProperties = {
     width: '100%',
-    accentColor: '#3b82f6',
+    accentColor: colors.primary,
   };
 
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '6px 8px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 4,
     fontSize: 12,
     textAlign: 'center',
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase' }}>
           Transform
         </span>
         <button
           style={{
             padding: '4px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
-            backgroundColor: '#fff',
+            backgroundColor: colors.surface,
             fontSize: 10,
             cursor: 'pointer',
+            color: colors.textMuted,
           }}
           onClick={resetTransform}
         >
@@ -134,8 +141,14 @@ export const TransformPanel = memo(function TransformPanel() {
 
       {/* Rotate */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
-          <span>🔄 Rotate</span>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: colors.textMuted, marginBottom: 4 }}>
+          <span style={{ display: 'flex', alignItems: 'center', gap: 4 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M23 4v6h-6" />
+              <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10" />
+            </svg>
+            Rotate
+          </span>
           <span>{transform.rotate}°</span>
         </div>
         <input
@@ -151,25 +164,40 @@ export const TransformPanel = memo(function TransformPanel() {
       {/* Scale */}
       <div style={{ marginBottom: 12 }}>
         <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 4 }}>
-          <span style={{ fontSize: 11, color: '#6b7280' }}>📐 Scale</span>
+          <span style={{ fontSize: 11, color: colors.textMuted, display: 'flex', alignItems: 'center', gap: 4 }}>
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M15 3h6v6" />
+              <path d="M9 21H3v-6" />
+              <path d="M21 3l-7 7" />
+              <path d="M3 21l7-7" />
+            </svg>
+            Scale
+          </span>
           <button
             style={{
               padding: '2px 6px',
               border: 'none',
               borderRadius: 4,
-              backgroundColor: linkScale ? '#dbeafe' : 'transparent',
-              color: linkScale ? '#3b82f6' : '#9ca3af',
+              backgroundColor: linkScale ? colors.primary + '20' : 'transparent',
+              color: linkScale ? colors.primary : colors.textMuted,
               fontSize: 10,
               cursor: 'pointer',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
             }}
             onClick={() => setLinkScale(!linkScale)}
+            title={linkScale ? 'Unlink scale' : 'Link scale'}
           >
-            🔗
+            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71" />
+              <path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71" />
+            </svg>
           </button>
         </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div>
-            <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2, textAlign: 'center' }}>X</div>
+            <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2, textAlign: 'center' }}>X</div>
             <input
               type="number"
               step="0.1"
@@ -179,7 +207,7 @@ export const TransformPanel = memo(function TransformPanel() {
             />
           </div>
           <div>
-            <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2, textAlign: 'center' }}>Y</div>
+            <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2, textAlign: 'center' }}>Y</div>
             <input
               type="number"
               step="0.1"
@@ -193,10 +221,17 @@ export const TransformPanel = memo(function TransformPanel() {
 
       {/* Skew */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>↗️ Skew</div>
+        <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <polyline points="21 8 21 21 3 21 3 8" />
+            <line x1="21" y1="3" x2="3" y2="3" />
+            <line x1="10" y1="3" x2="4" y2="21" />
+          </svg>
+          Skew
+        </div>
         <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
           <div>
-            <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2, textAlign: 'center' }}>X°</div>
+            <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2, textAlign: 'center' }}>X°</div>
             <input
               type="range"
               min="-45"
@@ -207,7 +242,7 @@ export const TransformPanel = memo(function TransformPanel() {
             />
           </div>
           <div>
-            <div style={{ fontSize: 9, color: '#9ca3af', marginBottom: 2, textAlign: 'center' }}>Y°</div>
+            <div style={{ fontSize: 9, color: colors.textMuted, marginBottom: 2, textAlign: 'center' }}>Y°</div>
             <input
               type="range"
               min="-45"
@@ -222,7 +257,14 @@ export const TransformPanel = memo(function TransformPanel() {
 
       {/* Transform Origin */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>⊙ Origin</div>
+        <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <line x1="12" y1="8" x2="12" y2="16" />
+            <line x1="8" y1="12" x2="16" y2="12" />
+          </svg>
+          Origin
+        </div>
         <select
           style={{ ...inputStyle, cursor: 'pointer', textAlign: 'left' }}
           value={style.transformOrigin || 'center'}
@@ -245,7 +287,13 @@ export const TransformPanel = memo(function TransformPanel() {
 
       {/* Transition */}
       <div>
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>⏱️ Transition</div>
+        <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 4, display: 'flex', alignItems: 'center', gap: 4 }}>
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+          Transition
+        </div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {TRANSITION_PRESETS.map((preset) => (
             <button
@@ -253,10 +301,10 @@ export const TransformPanel = memo(function TransformPanel() {
               style={{
                 padding: '6px 10px',
                 border: '1px solid',
-                borderColor: style.transition === preset.value ? '#3b82f6' : '#e5e7eb',
+                borderColor: style.transition === preset.value ? colors.primary : colors.border,
                 borderRadius: 6,
-                backgroundColor: style.transition === preset.value ? '#dbeafe' : '#fff',
-                color: style.transition === preset.value ? '#1d4ed8' : '#374151',
+                backgroundColor: style.transition === preset.value ? colors.primary + '20' : colors.surface,
+                color: style.transition === preset.value ? colors.primary : colors.text,
                 fontSize: 10,
                 cursor: 'pointer',
               }}

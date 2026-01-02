@@ -34,15 +34,48 @@ export const ResizeHandles = memo(function ResizeHandles({
   element,
   onResizeStart,
 }: ResizeHandlesProps) {
-  const { style } = element;
+  const [domRect, setDomRect] = React.useState<DOMRect | null>(null);
+
+  // Measure DOM element on mounting and changes
+  React.useEffect(() => {
+    const el = document.querySelector(`[data-element-id="${element.id}"]`);
+    if (el) {
+      const updateRect = () => {
+        const rect = el.getBoundingClientRect();
+        // Canvas container offset might be needed if canvas is relative
+        // Assuming ResizeHandles are rendered inside the Canvas which is 'relative'
+        // We need dragging offset logic. For now let's try measuring nearest offset parent or just use offsetTop/Left if possible
+        const htmlEl = el as HTMLElement;
+        setDomRect({
+          top: htmlEl.offsetTop,
+          left: htmlEl.offsetLeft,
+          width: htmlEl.offsetWidth,
+          height: htmlEl.offsetHeight,
+        } as DOMRect);
+      };
+      
+      updateRect();
+      // Observer for size changes? For now, just initial render and element updates
+      
+      const observer = new ResizeObserver(updateRect);
+      observer.observe(el);
+      return () => observer.disconnect();
+    }
+  }, [element.id, element.style, element.props]); // Re-run if style/props change
+
+  // Grid Cell'lerin boyutu parent tarafından yönetilir, handle'ları gizle
+  if (element.props?.isGridCell) {
+    return null;
+  }
 
   const containerStyle: React.CSSProperties = {
     position: 'absolute',
-    top: style.top,
-    left: style.left,
-    width: style.width,
-    height: style.height,
+    top: domRect ? domRect.top : 0,
+    left: domRect ? domRect.left : 0,
+    width: domRect ? domRect.width : 0,
+    height: domRect ? domRect.height : 0,
     pointerEvents: 'none',
+    display: domRect ? 'block' : 'none', // Hide until measured
   };
 
   const handleStyle: React.CSSProperties = {

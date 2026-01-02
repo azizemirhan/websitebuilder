@@ -9,7 +9,8 @@ export type ElementType =
   | 'image'
   | 'input'
   | 'icon'
-  | 'slider';
+  | 'slider'
+  | 'menu';
 
 /**
  * CSS Style Properties
@@ -89,19 +90,29 @@ export interface StyleProperties {
   opacity?: number;
   cursor?: string;
   objectFit?: 'fill' | 'contain' | 'cover' | 'none' | 'scale-down';
+  objectPosition?: string;
   overflow?: 'visible' | 'hidden' | 'scroll' | 'auto';
+  overflowX?: 'visible' | 'hidden' | 'scroll' | 'auto';
+  overflowY?: 'visible' | 'hidden' | 'scroll' | 'auto';
   zIndex?: number;
   transform?: string;
   transformOrigin?: string;
   transition?: string;
 
   // Typography
-  letterSpacing?: number;
+  fontStyle?: 'normal' | 'italic' | 'oblique';
+  letterSpacing?: number | string;
   wordSpacing?: number;
-  textDecoration?: 'none' | 'underline' | 'line-through' | 'overline';
+  textDecoration?: 'none' | 'underline' | 'line-through' | 'overline' | string;
   textTransform?: 'none' | 'uppercase' | 'lowercase' | 'capitalize';
   textShadow?: string;
   whiteSpace?: 'normal' | 'nowrap' | 'pre' | 'pre-wrap' | 'pre-line';
+
+  // Individual border sides (shorthand)
+  borderTop?: string;
+  borderRight?: string;
+  borderBottom?: string;
+  borderLeft?: string;
 
   // Display
   display?: 'block' | 'flex' | 'grid' | 'inline-block' | 'inline-flex' | 'inline-grid' | 'inline' | 'none';
@@ -142,6 +153,25 @@ export interface StyleProperties {
 }
 
 /**
+ * Responsive Style Overrides - Breakpoint-specific style changes
+ */
+export interface ResponsiveStyleOverrides {
+  mobile?: Partial<StyleProperties>;
+  tablet?: Partial<StyleProperties>;
+  desktop?: Partial<StyleProperties>;
+}
+
+// Re-export behavior types for convenience
+export type { 
+  ElementBehavior, 
+  ElementBehaviors, 
+  VisibilityCondition,
+  BehaviorTrigger,
+  BehaviorAction,
+  BehaviorPreset 
+} from './behavior';
+
+/**
  * Base Element - Tüm elementlerin ortak özellikleri
  */
 export interface BaseElement {
@@ -149,11 +179,21 @@ export interface BaseElement {
   type: ElementType;
   name: string;
   style: StyleProperties;
+  responsiveStyles?: ResponsiveStyleOverrides;
   children: string[];
   parentId: string | null;
   locked?: boolean;
   hidden?: boolean;
   props?: Record<string, any>;
+  
+  /** Interactive behaviors for this element */
+  behaviors?: import('./behavior').ElementBehaviors;
+  
+  /** Visibility condition for this element */
+  visibility?: import('./behavior').VisibilityCondition;
+  
+  /** Behavior preset shortcut */
+  behaviorPreset?: import('./behavior').BehaviorPreset;
 }
 
 /**
@@ -163,6 +203,28 @@ export interface ContainerElement extends BaseElement {
   type: 'container';
   props?: {
     tag?: 'div' | 'section' | 'article' | 'header' | 'footer' | 'nav';
+    
+    // FLEXBOX/GRID KONTROLLERI (YENİ)
+    containerType?: 'flex' | 'grid';
+    direction?: 'row' | 'column' | 'row-reverse' | 'column-reverse';
+    justifyContent?: 'flex-start' | 'center' | 'flex-end' | 'space-between' | 'space-around' | 'space-evenly';
+    alignItems?: 'flex-start' | 'center' | 'flex-end' | 'stretch' | 'baseline';
+    flexWrap?: 'nowrap' | 'wrap' | 'wrap-reverse';
+    gap?: number | string;
+    
+    // GRID KONTROLLERI (YENİ)
+    gridTemplateColumns?: string;
+    gridTemplateRows?: string;
+    gridGap?: number | string;
+    
+    // GENİŞLİK MODU (YENİ)
+    widthMode?: 'full' | 'boxed' | 'custom';
+    maxWidth?: number | string;
+    
+    // GRID CELL PROPERTIES (YENİ)
+    isGridCell?: boolean;
+    gridPosition?: { row: number; column: number };
+    
     autoLayout?: {
       widthMode: 'fixed' | 'hug' | 'fill';
       heightMode: 'fixed' | 'hug' | 'fill';
@@ -268,6 +330,54 @@ export interface SliderElement extends BaseElement {
 }
 
 /**
+ * Menu Element - Navigation menu from CMS
+ */
+export interface MenuElement extends BaseElement {
+  type: 'menu';
+  props: {
+    menuId: number | null;  // Selected menu ID from backend
+    layout: 'horizontal' | 'vertical';
+    showSubmenuIndicator?: boolean;
+    dropdownOpenAs?: 'hover' | 'click';
+    submenuIndicatorStyle?: 'arrow' | 'chevron' | 'plus';
+    responsiveBreakpoint?: 'tablet' | 'mobile';
+    
+    // Submenu Styling
+    submenuStyle?: {
+      backgroundColor?: string;
+      borderRadius?: number;
+      borderColor?: string;
+      borderWidth?: number;
+      boxShadow?: string;
+      padding?: number;
+      minWidth?: number;
+      itemPadding?: string;
+      itemHoverBg?: string;
+      itemHoverColor?: string;
+      fontSize?: number;
+      fontWeight?: number;
+      animation?: 'fade' | 'slide' | 'none';
+    };
+    
+    // Menu Item Styling
+    itemStyle?: {
+      gap?: number;
+      padding?: string;
+      hoverBg?: string;
+      hoverColor?: string;
+      activeBg?: string;
+      activeColor?: string;
+      borderRadius?: number;
+    };
+    
+    // Mega Menu - Links menu items to container elements
+    megaMenuBindings?: { [menuItemId: number]: string };  // menuItemId -> containerId
+    megaMenuPosition?: 'below' | 'full-width';  // Positioning mode
+    showMegaMenuContainers?: boolean; // If true, linked containers are visible on canvas for editing
+  };
+}
+
+/**
  * Union type - Tüm element türleri
  */
 export type Element =
@@ -277,7 +387,8 @@ export type Element =
   | ImageElement
   | InputElement
   | IconElement
-  | SliderElement;
+  | SliderElement
+  | MenuElement;
 
 /**
  * Canvas State - Canvas'ın tam state'i

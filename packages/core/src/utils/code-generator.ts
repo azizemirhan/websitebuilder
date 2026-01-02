@@ -178,7 +178,7 @@ export const generateHTML = (
 ): string => {
   const { useClasses = false, indent = 0 } = options;
   const indentStr = '  '.repeat(indent);
-  const className = `element-${element.id.slice(0, 8)}`;
+  const className = `element-${element.id}`;
 
   let tag = 'div';
   let attributes = '';
@@ -218,6 +218,10 @@ export const generateHTML = (
   // Add class or inline style
   if (useClasses) {
     attributes += ` class="${className}"`;
+    // Store original display for runtime visibility toggling
+    if (element.style.display) {
+      attributes += ` data-original-display="${element.style.display}"`;
+    }
   } else {
     const inlineStyle = generateInlineCSS(element.style);
     if (inlineStyle) {
@@ -254,13 +258,200 @@ export const generateHTMLDocument = (
 ): { html: string; css: string } => {
   const { title = 'Exported Page', useClasses = true } = options;
 
+  // Runtime script for behaviors
+  const runtimeScript = `
+    <script>
+      (function() {
+        // Simple state store
+        const store = {
+          state: {
+            mobileMenuOpen: false,
+            searchOpen: false,
+            cartOpen: false,
+          },
+          listeners: [],
+          
+          subscribe(listener) {
+            this.listeners.push(listener);
+          },
+          
+          setState(key, value) {
+            this.state[key] = value;
+            this.notify();
+          },
+          
+          toggleState(key) {
+            this.state[key] = !this.state[key];
+            this.notify();
+          },
+          
+          notify() {
+            this.listeners.forEach(l => l(this.state));
+          }
+        };
+
+        // Behavior definitions
+        const behaviors = {
+          ${Object.values(elements).map(el => {
+            if (!el.behaviors || el.behaviors.length === 0) return '';
+            // Serialize behaviors object
+            return `'${el.id}': ${JSON.stringify(el.behaviors)},`;
+          }).join('\n')}
+        };
+
+        // Visibility definitions
+        const visibilityConditions = {
+          ${Object.values(elements).map(el => {
+            if (!el.visibility || el.visibility === 'visible') return '';
+            return `'${el.id}': ${JSON.stringify(el.visibility)},`;
+          }).join('\n')}
+        };
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', () => {
+          // 1. Attach Event Listeners
+          Object.keys(behaviors).forEach(id => {
+            const el = document.querySelector(\`.element-\${id}\`);
+            if (!el) return;
+            
+            const elementBehaviors = behaviors[id];
+            
+            // Handle Click
+            const clickBehaviors = elementBehaviors.filter(b => b.trigger === 'click');
+            if (clickBehaviors.length > 0) {
+              el.style.cursor = 'pointer';
+              el.addEventListener('click', (e) => {
+                // Determine if we should perform default action or not
+                let shouldPreventDefault = false;
+                
+                clickBehaviors.forEach(b => {
+                   // stopPropagation support
+                   if (b.stopPropagation) {
+                     e.stopPropagation();
+                   }
+                   
+                   // Action handling (check condition first)
+                   if (b.condition && !checkCondition(b.condition)) return;
+                   
+                   executeAction(b.action);
+                });
+              });
+            }
+          });
+
+          // 2. Initial Visibility Check
+          updateVisibility(store.state);
+          
+          // 3. Subscribe to state changes
+          store.subscribe((state) => {
+            updateVisibility(state);
+            updateClasses(state);
+          });
+        });
+
+        // Helper: Check visibility condition
+        function checkCondition(condition, state = store.state) {
+          if (!condition) return true;
+          
+          // Handle object-based conditions (Schema)
+          if (typeof condition === 'object') {
+            // Responsive checks
+            if (condition.minWidth !== undefined && window.innerWidth < condition.minWidth) return false;
+            if (condition.maxWidth !== undefined && window.innerWidth > condition.maxWidth) return false;
+            
+            // State checks
+            if (condition.state) {
+                const { key, value } = condition.state;
+                // If value is boolean
+                if (typeof value === 'boolean') {
+                    return !!state[key] === value;
+                }
+                return state[key] === value;
+            }
+            return true;
+          }
+
+          // Handle string conditions (legacy/simple)
+          // e.g. "mobileMenuOpen" or "!mobileMenuOpen"
+          const isNegated = condition.startsWith('!');
+          const key = isNegated ? condition.slice(1) : condition;
+          
+          // Special handling for minWidth/maxWidth (responsive) string format if any
+          if (key.startsWith('minWidth:')) {
+            const width = parseInt(key.split(':')[1]);
+            return window.innerWidth >= width;
+          }
+          if (key.startsWith('maxWidth:')) {
+            const width = parseInt(key.split(':')[1]);
+            return window.innerWidth <= width;
+          }
+
+          const value = state[key];
+          return isNegated ? !value : !!value;
+        }
+
+        // Helper: Update all visibility
+        function updateVisibility(state) {
+          Object.entries(visibilityConditions).forEach(([id, condition]) => {
+            const el = document.querySelector(\`.element-\${id}\`);
+            if (!el) return;
+            
+            // Store original display if not set
+            if (!el.dataset.originalDisplay) {
+               const style = window.getComputedStyle(el);
+               // If data-original-display is present in HTML (generated by us), it's already there.
+               // If not (e.g. from inspection), we fallback to computed style.
+               el.dataset.originalDisplay = el.getAttribute('data-original-display') || (style.display === 'none' ? 'block' : style.display);
+            }
+            
+            const isVisible = checkCondition(condition, state);
+            el.style.display = isVisible ? el.dataset.originalDisplay : 'none';
+          });
+        }
+        
+        // Helper: Update dynamic classes (simplified)
+        function updateClasses(state) {
+           // To be implemented for toggle-class actions
+        }
+
+        // Helper: Execute Action
+        function executeAction(action) {
+          switch(action.type) {
+            case 'toggle-state':
+              // Handle standard toggles
+              if (['mobileMenuOpen', 'searchOpen', 'cartOpen'].includes(action.key)) {
+                store.toggleState(action.key);
+              } else {
+                store.toggleState(action.key); 
+              }
+              break;
+            case 'set-state':
+              store.setState(action.key, action.value);
+              break;
+            case 'navigate':
+               if (action.newTab) window.open(action.url, '_blank');
+               else window.location.href = action.url;
+               break;
+            // Add more actions as needed
+          }
+        }
+
+        // Handle Window Resize for responsive visibility
+        window.addEventListener('resize', () => {
+          updateVisibility(store.state);
+        });
+
+      })();
+    </script>
+  `;
+
   // Generate CSS if using classes
   let css = '';
   if (useClasses) {
     const cssBlocks: string[] = [];
 
     const generateElementCSS = (element: Element) => {
-      const className = `element-${element.id.slice(0, 8)}`;
+      const className = `element-${element.id}`;
       cssBlocks.push(generateCSSClass(className, element.style));
       element.children.forEach(childId => {
         const child = elements[childId];
@@ -289,10 +480,15 @@ export const generateHTMLDocument = (
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>${title}</title>
+  <style>
+    * { box-sizing: border-box; }
+    body { margin: 0; padding: 0; }
+  </style>
   ${useClasses ? '<link rel="stylesheet" href="styles.css">' : ''}
 </head>
 <body>
 ${bodyContent}
+${runtimeScript}
 </body>
 </html>`;
 
@@ -310,7 +506,7 @@ export const generateReactComponent = (
   // Collect all unique class names
   const classNames = new Set<string>();
   const collectClassNames = (el: Element) => {
-    classNames.add(`element-${el.id.slice(0, 8)}`);
+    classNames.add(`element-${el.id}`);
     el.children.forEach(childId => {
       const child = elements[childId];
       if (child) collectClassNames(child);
@@ -321,7 +517,7 @@ export const generateReactComponent = (
   // Generate JSX
   const generateJSX = (el: Element, indentLevel: number): string => {
     const ind = indent.repeat(indentLevel);
-    const className = `element-${el.id.slice(0, 8)}`;
+    const className = `element-${el.id}`;
 
     let tag = 'div';
     let props = `className={styles.${className.replace(/-/g, '_')}}`;
@@ -374,7 +570,7 @@ export const generateReactComponent = (
   // Generate CSS module
   const cssModule: string[] = [];
   const generateCSSModule = (el: Element) => {
-    const className = `element-${el.id.slice(0, 8)}`.replace(/-/g, '_');
+    const className = `element-${el.id}`.replace(/-/g, '_');
     cssModule.push(generateCSSClass(className, el.style));
     el.children.forEach(childId => {
       const child = elements[childId];

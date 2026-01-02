@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties, useThemeStore, themeColors } from '@builder/core';
 
 const FONT_FAMILIES = [
   { name: 'System', value: 'system-ui, -apple-system, sans-serif' },
@@ -33,6 +33,10 @@ export const TypographyPanel = memo(function TypographyPanel() {
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
 
@@ -62,14 +66,16 @@ export const TypographyPanel = memo(function TypographyPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '8px 10px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 6,
     fontSize: 12,
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   const labelStyle: React.CSSProperties = {
     fontSize: 10,
-    color: '#9ca3af',
+    color: colors.textMuted,
     marginBottom: 4,
   };
 
@@ -77,18 +83,21 @@ export const TypographyPanel = memo(function TypographyPanel() {
     flex: 1,
     padding: '8px',
     border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e5e7eb',
-    backgroundColor: active ? '#dbeafe' : '#fff',
-    color: active ? '#1d4ed8' : '#374151',
+    borderColor: active ? colors.primary : colors.border,
+    backgroundColor: active ? colors.primary : colors.surface,
+    color: active ? '#ffffff' : colors.text,
     borderRadius: 6,
     fontSize: 12,
     fontWeight: active ? 600 : 400,
     cursor: 'pointer',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
   });
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, marginBottom: 12, textTransform: 'uppercase' }}>
         Typography
       </div>
 
@@ -168,11 +177,14 @@ export const TypographyPanel = memo(function TypographyPanel() {
               key={align}
               style={toggleStyle(style.textAlign === align)}
               onClick={() => updateStyle({ textAlign: align })}
+              title={align}
             >
-              {align === 'left' && '⬅'}
-              {align === 'center' && '⏺'}
-              {align === 'right' && '➡'}
-              {align === 'justify' && '☰'}
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                {align === 'left' && <path d="M17 10H3M21 6H3M21 14H3M17 18H3" />}
+                {align === 'center' && <path d="M21 10H3M21 6H3M21 14H3M21 18H3" />}
+                {align === 'right' && <path d="M21 10H7M21 6H3M21 14H3M21 18H7" />}
+                {align === 'justify' && <path d="M21 10H3M21 6H3M21 14H3M21 18H3" />}
+              </svg>
             </button>
           ))}
         </div>
@@ -188,10 +200,12 @@ export const TypographyPanel = memo(function TypographyPanel() {
               style={toggleStyle(style.textTransform === transform)}
               onClick={() => updateStyle({ textTransform: transform })}
             >
-              {transform === 'none' && 'Aa'}
-              {transform === 'uppercase' && 'AA'}
-              {transform === 'lowercase' && 'aa'}
-              {transform === 'capitalize' && 'Aa'}
+              <span style={{ fontSize: 13 }}>
+                {transform === 'none' && 'None'}
+                {transform === 'uppercase' && 'AA'}
+                {transform === 'lowercase' && 'aa'}
+                {transform === 'capitalize' && 'Aa'}
+              </span>
             </button>
           ))}
         </div>
@@ -210,9 +224,11 @@ export const TypographyPanel = memo(function TypographyPanel() {
               }}
               onClick={() => updateStyle({ textDecoration: decoration })}
             >
-              {decoration === 'none' && 'None'}
-              {decoration === 'underline' && 'U'}
-              {decoration === 'line-through' && 'S'}
+              <span style={{ fontSize: 13 }}>
+                {decoration === 'none' && 'None'}
+                {decoration === 'underline' && 'U'}
+                {decoration === 'line-through' && 'S'}
+              </span>
             </button>
           ))}
         </div>
@@ -226,7 +242,7 @@ export const TypographyPanel = memo(function TypographyPanel() {
             type="color"
             value={style.color || '#000000'}
             onChange={(e) => updateStyle({ color: e.target.value })}
-            style={{ width: 40, height: 36, padding: 2, border: '1px solid #e5e7eb', borderRadius: 4 }}
+            style={{ width: 40, height: 36, padding: 2, border: `1px solid ${colors.border}`, borderRadius: 4, backgroundColor: 'transparent', cursor: 'pointer' }}
           />
           <input
             type="text"

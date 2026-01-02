@@ -3,8 +3,9 @@
  */
 
 import React, { memo, useCallback, useState, useEffect } from 'react';
-import { useCanvasStore, Element, StyleProperties, SlideData } from '@builder/core';
+import { useCanvasStore, Element, StyleProperties, SlideData, useThemeStore, themeColors } from '@builder/core';
 import { SlideEditorModal } from '../components/SlideEditorModal';
+import { ContainerPropertiesPanel } from './ContainerPropertiesPanel';
 
 interface NumberInputProps {
   label: string;
@@ -23,6 +24,9 @@ const NumberInput = memo(function NumberInput({
   max,
   step = 1,
 }: NumberInputProps) {
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   // Convert string | number | undefined to display string
   const displayValue = value !== undefined ? String(value) : '';
   const [localValue, setLocalValue] = useState(displayValue);
@@ -52,7 +56,7 @@ const NumberInput = memo(function NumberInput({
 
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>{label}</label>
+      <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>{label}</label>
       <input
         type="number"
         value={localValue}
@@ -64,11 +68,13 @@ const NumberInput = memo(function NumberInput({
         step={step}
         style={{
           padding: '6px 8px',
-          border: '1px solid #e5e7eb',
+          border: `1px solid ${colors.border}`,
           borderRadius: 4,
           fontSize: 13,
           width: '100%',
           boxSizing: 'border-box',
+          backgroundColor: colors.surface,
+          color: colors.text,
         }}
       />
     </div>
@@ -82,9 +88,12 @@ interface ColorInputProps {
 }
 
 const ColorInput = memo(function ColorInput({ label, value, onChange }: ColorInputProps) {
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>{label}</label>
+      <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>{label}</label>
       <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
         <input
           type="color"
@@ -94,9 +103,10 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }: ColorInp
             width: 32,
             height: 32,
             padding: 0,
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
             cursor: 'pointer',
+            backgroundColor: 'transparent',
           }}
         />
         <input
@@ -107,9 +117,11 @@ const ColorInput = memo(function ColorInput({ label, value, onChange }: ColorInp
           style={{
             flex: 1,
             padding: '6px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
             fontSize: 13,
+            backgroundColor: colors.surface,
+            color: colors.text,
           }}
         />
       </div>
@@ -125,20 +137,25 @@ interface TextInputProps {
 }
 
 const TextInput = memo(function TextInput({ label, value, onChange, multiline }: TextInputProps) {
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-      <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>{label}</label>
+      <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>{label}</label>
       {multiline ? (
         <textarea
           value={value || ''}
           onChange={(e) => onChange(e.target.value)}
           style={{
             padding: '6px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
             fontSize: 13,
             minHeight: 60,
             resize: 'vertical',
+            backgroundColor: colors.surface,
+            color: colors.text,
           }}
         />
       ) : (
@@ -148,9 +165,11 @@ const TextInput = memo(function TextInput({ label, value, onChange, multiline }:
           onChange={(e) => onChange(e.target.value)}
           style={{
             padding: '6px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
             fontSize: 13,
+            backgroundColor: colors.surface,
+            color: colors.text,
           }}
         />
       )}
@@ -159,13 +178,16 @@ const TextInput = memo(function TextInput({ label, value, onChange, multiline }:
 });
 
 const SectionTitle = memo(function SectionTitle({ title }: { title: string }) {
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   return (
     <div style={{
       fontSize: 12,
       fontWeight: 600,
-      color: '#374151',
+      color: colors.text,
       padding: '12px 0 8px',
-      borderTop: '1px solid #e5e7eb',
+      borderTop: `1px solid ${colors.border}`,
       marginTop: 8,
     }}>
       {title}
@@ -209,21 +231,25 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
     }
   }, [selectedElement, updateElementProps]);
 
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   if (!selectedElement) {
     return (
       <div style={{
         display: 'flex',
         flexDirection: 'column',
         height: '100%',
-        backgroundColor: '#ffffff',
-        borderLeft: '1px solid #e5e7eb',
+        backgroundColor: colors.surface,
+        borderLeft: `1px solid ${colors.border}`,
       }}>
         <div style={{
           padding: '12px 16px',
-          borderBottom: '1px solid #e5e7eb',
+          borderBottom: `1px solid ${colors.border}`,
           fontWeight: 600,
           fontSize: 13,
-          color: '#1f2937',
+          color: colors.text,
         }}>
           Properties
         </div>
@@ -232,7 +258,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          color: '#9ca3af',
+          color: colors.textMuted,
           fontSize: 13,
           textAlign: 'center',
           padding: 16,
@@ -251,23 +277,23 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
       display: 'flex',
       flexDirection: 'column',
       height: '100%',
-      backgroundColor: '#ffffff',
-      borderLeft: '1px solid #e5e7eb',
+      backgroundColor: colors.surface,
+      borderLeft: `1px solid ${colors.border}`,
     }}>
       {/* Header */}
       <div style={{
         padding: '12px 16px',
-        borderBottom: '1px solid #e5e7eb',
+        borderBottom: `1px solid ${colors.border}`,
         fontWeight: 600,
         fontSize: 13,
-        color: '#1f2937',
+        color: colors.text,
         display: 'flex',
         alignItems: 'center',
         gap: 8,
       }}>
         <span style={{
-          backgroundColor: '#e0e7ff',
-          color: '#3b82f6',
+          backgroundColor: colors.primary + '20', // 20% opacity using hex
+          color: colors.primary,
           padding: '2px 6px',
           borderRadius: 4,
           fontSize: 11,
@@ -358,6 +384,14 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
           step={5}
         />
 
+        {/* Container-specific props */}
+        {selectedElement.type === 'container' && (
+          <>
+            <SectionTitle title="Container Layout" />
+            <ContainerPropertiesPanel element={selectedElement} />
+          </>
+        )}
+
         {/* Element-specific props */}
         {selectedElement.type === 'text' && (
           <>
@@ -428,17 +462,23 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
             {/* Slide count display */}
             <div style={{
               padding: 12,
-              backgroundColor: '#f3f4f6',
+              backgroundColor: colors.surface, 
+              border: `1px solid ${colors.border}`,
               borderRadius: 8,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'space-between',
             }}>
               <div>
-                <div style={{ fontSize: 13, fontWeight: 600, color: '#374151' }}>
-                  🖼️ {selectedElement.props?.slides?.length || 0} Slayt
+                <div style={{ fontSize: 13, fontWeight: 600, color: colors.text, display: 'flex', alignItems: 'center', gap: 6 }}>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2" />
+                    <circle cx="8.5" cy="8.5" r="1.5" />
+                    <polyline points="21 15 16 10 5 21" />
+                  </svg>
+                  {selectedElement.props?.slides?.length || 0} Slayt
                 </div>
-                <div style={{ fontSize: 11, color: '#6b7280', marginTop: 2 }}>
+                <div style={{ fontSize: 11, color: colors.textMuted, marginTop: 2 }}>
                   Düzenlemek için butona tıklayın
                 </div>
               </div>
@@ -450,7 +490,7 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
               style={{
                 width: '100%',
                 padding: '12px 16px',
-                backgroundColor: '#2563eb',
+                backgroundColor: colors.primary,
                 color: '#ffffff',
                 border: 'none',
                 borderRadius: 8,
@@ -461,23 +501,32 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
                 alignItems: 'center',
                 justifyContent: 'center',
                 gap: 8,
+                marginTop: 12,
               }}
             >
-              ✏️ Slaytları Düzenle
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7" />
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z" />
+              </svg>
+              Slaytları Düzenle
             </button>
 
             {/* Slider Settings */}
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 12 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>Auto-play</label>
+                <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>Auto-play</label>
                 <select
                   value={selectedElement.props?.autoPlay ? 'true' : 'false'}
                   onChange={(e) => handlePropsChange('autoPlay', e.target.value === 'true')}
                   style={{
                     padding: '6px 8px',
-                    border: '1px solid #e5e7eb',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: 4,
                     fontSize: 13,
+                    backgroundColor: colors.surface,
+                    color: colors.text,
+                    width: '100%',
+                    boxSizing: 'border-box',
                   }}
                 >
                   <option value="true">Açık</option>
@@ -493,17 +542,21 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
               />
             </div>
 
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8 }}>
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 8, marginTop: 8 }}>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>Ok Göster</label>
+                <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>Ok Göster</label>
                 <select
                   value={selectedElement.props?.showArrows ? 'true' : 'false'}
                   onChange={(e) => handlePropsChange('showArrows', e.target.value === 'true')}
                   style={{
                     padding: '6px 8px',
-                    border: '1px solid #e5e7eb',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: 4,
                     fontSize: 13,
+                    backgroundColor: colors.surface,
+                    color: colors.text,
+                    width: '100%',
+                    boxSizing: 'border-box',
                   }}
                 >
                   <option value="true">Evet</option>
@@ -511,15 +564,19 @@ export const PropertiesPanel = memo(function PropertiesPanel() {
                 </select>
               </div>
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
-                <label style={{ fontSize: 11, color: '#6b7280', fontWeight: 500 }}>Nokta Göster</label>
+                <label style={{ fontSize: 11, color: colors.textMuted, fontWeight: 500 }}>Nokta Göster</label>
                 <select
                   value={selectedElement.props?.showDots ? 'true' : 'false'}
                   onChange={(e) => handlePropsChange('showDots', e.target.value === 'true')}
                   style={{
                     padding: '6px 8px',
-                    border: '1px solid #e5e7eb',
+                    border: `1px solid ${colors.border}`,
                     borderRadius: 4,
                     fontSize: 13,
+                    backgroundColor: colors.surface,
+                    color: colors.text,
+                    width: '100%',
+                    boxSizing: 'border-box',
                   }}
                 >
                   <option value="true">Evet</option>

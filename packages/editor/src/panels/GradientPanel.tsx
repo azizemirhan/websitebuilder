@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 type GradientType = 'none' | 'linear' | 'radial';
 
@@ -29,6 +29,10 @@ export const GradientPanel = memo(function GradientPanel() {
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
   
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   const [gradientType, setGradientType] = useState<GradientType>('linear');
   const [angle, setAngle] = useState(135);
   const [stops, setStops] = useState<GradientStop[]>([
@@ -68,18 +72,20 @@ export const GradientPanel = memo(function GradientPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '6px 8px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 4,
     fontSize: 12,
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   const buttonStyle = (active: boolean): React.CSSProperties => ({
     flex: 1,
     padding: '8px',
     border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e5e7eb',
-    backgroundColor: active ? '#dbeafe' : '#fff',
-    color: active ? '#1d4ed8' : '#374151',
+    borderColor: active ? colors.primary : colors.border,
+    backgroundColor: active ? colors.primary + '20' : colors.surface,
+    color: active ? colors.primary : colors.text,
     borderRadius: 6,
     fontSize: 11,
     fontWeight: 500,
@@ -91,8 +97,8 @@ export const GradientPanel = memo(function GradientPanel() {
     : `radial-gradient(circle, ${stops.map((s) => `${s.color} ${s.position}%`).join(', ')})`;
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, marginBottom: 12, textTransform: 'uppercase' }}>
         Background / Gradient
       </div>
 
@@ -120,7 +126,7 @@ export const GradientPanel = memo(function GradientPanel() {
       {/* Angle (for linear) */}
       {gradientType === 'linear' && (
         <div style={{ marginBottom: 12 }}>
-          <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 4 }}>Angle: {angle}°</div>
+          <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 4 }}>Angle: {angle}°</div>
           <input
             type="range"
             min="0"
@@ -134,7 +140,7 @@ export const GradientPanel = memo(function GradientPanel() {
 
       {/* Color Stops */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 4 }}>Color Stops</div>
+        <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 4 }}>Color Stops</div>
         {stops.map((stop, i) => (
           <div key={i} style={{ display: 'flex', gap: 8, marginBottom: 4 }}>
             <input
@@ -145,7 +151,7 @@ export const GradientPanel = memo(function GradientPanel() {
                 newStops[i].color = e.target.value;
                 setStops(newStops);
               }}
-              style={{ width: 40, height: 32, padding: 2, border: '1px solid #e5e7eb', borderRadius: 4 }}
+              style={{ width: 40, height: 32, padding: 2, border: `1px solid ${colors.border}`, borderRadius: 4, backgroundColor: colors.surface }}
             />
             <input
               type="number"
@@ -159,11 +165,11 @@ export const GradientPanel = memo(function GradientPanel() {
               min={0}
               max={100}
             />
-            <span style={{ fontSize: 11, color: '#9ca3af', alignSelf: 'center' }}>%</span>
+            <span style={{ fontSize: 11, color: colors.textMuted, alignSelf: 'center' }}>%</span>
           </div>
         ))}
         <button
-          style={{ ...inputStyle, marginTop: 4, cursor: 'pointer', color: '#3b82f6' }}
+          style={{ ...inputStyle, marginTop: 4, cursor: 'pointer', color: colors.primary }}
           onClick={() => setStops([...stops, { color: '#ffffff', position: 50 }])}
         >
           + Add Stop
@@ -178,7 +184,7 @@ export const GradientPanel = memo(function GradientPanel() {
             padding: '10px',
             border: 'none',
             borderRadius: 6,
-            backgroundColor: '#3b82f6',
+            backgroundColor: colors.primary,
             color: '#fff',
             fontSize: 12,
             fontWeight: 500,
@@ -191,10 +197,10 @@ export const GradientPanel = memo(function GradientPanel() {
         <button
           style={{
             padding: '10px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 6,
-            backgroundColor: '#fff',
-            color: '#6b7280',
+            backgroundColor: colors.surface,
+            color: colors.textMuted,
             fontSize: 12,
             cursor: 'pointer',
           }}
@@ -206,14 +212,14 @@ export const GradientPanel = memo(function GradientPanel() {
 
       {/* Presets */}
       <div style={{ marginTop: 12 }}>
-        <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 4 }}>Presets</div>
+        <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 4 }}>Presets</div>
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 4 }}>
           {GRADIENT_PRESETS.map((preset) => (
             <button
               key={preset.name}
               style={{
                 padding: 8,
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${colors.border}`,
                 borderRadius: 6,
                 background: preset.value,
                 color: '#fff',

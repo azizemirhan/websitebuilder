@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 type ConstraintH = 'left' | 'right' | 'left-right' | 'center' | 'scale';
 type ConstraintV = 'top' | 'bottom' | 'top-bottom' | 'center' | 'scale';
@@ -20,6 +20,12 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
   const addToHistory = useHistoryStore((state) => state.addToHistory);
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
+
+
+
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const saveHistory = useCallback(() => {
     const state = useCanvasStore.getState();
@@ -53,7 +59,7 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
   };
 
   const lineStyle = (active: boolean): React.CSSProperties => ({
-    backgroundColor: active ? '#3b82f6' : '#d1d5db',
+    backgroundColor: active ? colors.primary : colors.border,
     transition: 'background-color 0.15s ease',
   });
 
@@ -61,21 +67,21 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
     width: 32,
     height: 24,
     border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e5e7eb',
-    backgroundColor: active ? '#dbeafe' : '#ffffff',
+    borderColor: active ? colors.primary : colors.border,
+    backgroundColor: active ? colors.primary + '20' : colors.surface,
     borderRadius: 4,
     cursor: 'pointer',
     fontSize: 10,
     fontWeight: 600,
-    color: active ? '#1d4ed8' : '#6b7280',
+    color: active ? colors.primary : colors.textMuted,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
   });
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, marginBottom: 12, textTransform: 'uppercase' }}>
         Constraints
       </div>
 
@@ -86,9 +92,9 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
             position: 'relative',
             width: 80,
             height: 80,
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 8,
-            backgroundColor: '#f9fafb',
+            backgroundColor: colors.surface,
           }}
         >
           {/* Center element */}
@@ -100,7 +106,7 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
               transform: 'translate(-50%, -50%)',
               width: 24,
               height: 24,
-              backgroundColor: '#3b82f6',
+              backgroundColor: colors.primary,
               borderRadius: 4,
             }}
           />
@@ -169,14 +175,16 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
         {/* Dropdowns */}
         <div style={{ flex: 1 }}>
           <div style={{ marginBottom: 12 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Horizontal</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 4 }}>Horizontal</div>
             <select
               style={{
                 width: '100%',
                 padding: '6px 8px',
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${colors.border}`,
                 borderRadius: 6,
                 fontSize: 12,
+                backgroundColor: colors.surface,
+                color: colors.text,
               }}
               value={constraints.horizontal}
               onChange={(e) => setConstraints({ horizontal: e.target.value as ConstraintH })}
@@ -190,14 +198,16 @@ export const ConstraintsPanel = memo(function ConstraintsPanel() {
           </div>
 
           <div>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Vertical</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 4 }}>Vertical</div>
             <select
               style={{
                 width: '100%',
                 padding: '6px 8px',
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${colors.border}`,
                 borderRadius: 6,
                 fontSize: 12,
+                backgroundColor: colors.surface,
+                color: colors.text,
               }}
               value={constraints.vertical}
               onChange={(e) => setConstraints({ vertical: e.target.value as ConstraintV })}

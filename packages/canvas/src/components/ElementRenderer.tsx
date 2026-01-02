@@ -12,14 +12,17 @@ import {
   InputRenderer,
   IconRenderer,
   SliderRenderer,
+  MenuRenderer,
 } from './renderers';
 
 interface ElementRendererProps {
   elementId: string;
+  isPreview?: boolean;
 }
 
 export const ElementRenderer = memo(function ElementRenderer({
-  elementId
+  elementId,
+  isPreview = false,
 }: ElementRendererProps) {
   const element = useCanvasStore((state) => state.elements[elementId]);
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
@@ -36,14 +39,16 @@ export const ElementRenderer = memo(function ElementRenderer({
   }, []);
 
   const handleMouseEnter = useCallback(() => {
+    if (isPreview) return; // Disable hover in preview
     if (!element?.locked) {
       setHoveredElement(elementId);
     }
-  }, [elementId, element?.locked, setHoveredElement]);
+  }, [elementId, element?.locked, setHoveredElement, isPreview]);
 
   const handleMouseLeave = useCallback(() => {
+    if (isPreview) return; // Disable hover in preview
     setHoveredElement(null);
-  }, [setHoveredElement]);
+  }, [setHoveredElement, isPreview]);
 
   if (!element || element.hidden) return null;
 
@@ -53,13 +58,14 @@ export const ElementRenderer = memo(function ElementRenderer({
     onMouseDown: handleMouseDown,
     onMouseEnter: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
+    isPreview,
   };
 
   // Render children for container elements
   const renderChildren = () => {
     if (element.children.length === 0) return null;
     return element.children.map((childId) => (
-      <ElementRenderer key={childId} elementId={childId} />
+      <ElementRenderer key={childId} elementId={childId} isPreview={isPreview} />
     ));
   };
 
@@ -82,6 +88,8 @@ export const ElementRenderer = memo(function ElementRenderer({
       return <IconRenderer element={element} {...commonProps} />;
     case 'slider':
       return <SliderRenderer element={element} {...commonProps} />;
+    case 'menu':
+      return <MenuRenderer element={element} {...commonProps} />;
     default:
       console.warn(`Unknown element type: ${(element as Element).type}`);
       return null;

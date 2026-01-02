@@ -3,13 +3,17 @@
  */
 
 import React, { memo, useCallback } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties, useThemeStore, themeColors } from '@builder/core';
 
 export const LayoutPanel = memo(function LayoutPanel() {
   const elements = useCanvasStore((state) => state.elements);
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
 
@@ -32,7 +36,7 @@ export const LayoutPanel = memo(function LayoutPanel() {
 
   if (!selectedElement) {
     return (
-      <div style={{ padding: 16, color: '#6b7280', fontSize: 13 }}>
+      <div style={{ padding: 16, color: colors.textMuted, fontSize: 13 }}>
         Select an element to edit its layout
       </div>
     );
@@ -44,13 +48,13 @@ export const LayoutPanel = memo(function LayoutPanel() {
 
   const sectionStyle: React.CSSProperties = {
     padding: 16,
-    borderBottom: '1px solid #e5e7eb',
+    borderBottom: `1px solid ${colors.border}`,
   };
 
   const labelStyle: React.CSSProperties = {
     fontSize: 11,
     fontWeight: 600,
-    color: '#6b7280',
+    color: colors.textMuted,
     marginBottom: 6,
     textTransform: 'uppercase',
   };
@@ -58,10 +62,11 @@ export const LayoutPanel = memo(function LayoutPanel() {
   const selectStyle: React.CSSProperties = {
     width: '100%',
     padding: '8px 10px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 6,
     fontSize: 13,
-    backgroundColor: '#fff',
+    backgroundColor: colors.surface,
+    color: colors.text,
     cursor: 'pointer',
   };
 
@@ -74,10 +79,10 @@ export const LayoutPanel = memo(function LayoutPanel() {
     flex: 1,
     padding: '8px',
     border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e5e7eb',
+    borderColor: active ? colors.primary : colors.border,
     borderRadius: 6,
-    backgroundColor: active ? '#dbeafe' : '#fff',
-    color: active ? '#1d4ed8' : '#374151',
+    backgroundColor: active ? colors.primary : colors.surface,
+    color: active ? '#ffffff' : colors.text,
     fontSize: 11,
     fontWeight: 500,
     cursor: 'pointer',
@@ -89,15 +94,17 @@ export const LayoutPanel = memo(function LayoutPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '8px 10px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 6,
     fontSize: 13,
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   return (
-    <div style={{ backgroundColor: '#fff', borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ padding: '12px 16px', borderBottom: '1px solid #e5e7eb' }}>
-        <h3 style={{ fontSize: 14, fontWeight: 600, color: '#111827', margin: 0 }}>Layout</h3>
+    <div style={{ backgroundColor: colors.surface, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ padding: '12px 16px', borderBottom: `1px solid ${colors.border}` }}>
+        <h3 style={{ fontSize: 14, fontWeight: 600, color: colors.text, margin: 0 }}>Layout</h3>
       </div>
 
       {/* Display Type */}

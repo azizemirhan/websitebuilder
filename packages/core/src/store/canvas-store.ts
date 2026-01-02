@@ -3,9 +3,10 @@
  * Zustand + Immer kullanarak immutable state updates
  */
 
+import { nanoid } from 'nanoid';
+import { produce } from 'immer';
 import { create } from 'zustand';
 import { immer } from 'zustand/middleware/immer';
-import { nanoid } from 'nanoid';
 import type { Element, CanvasState, StyleProperties, ElementType } from '../types';
 
 interface CanvasStore extends CanvasState {
@@ -33,6 +34,9 @@ interface CanvasStore extends CanvasState {
   getElementById: (id: string) => Element | undefined;
   getSelectedElements: () => Element[];
   clearCanvas: () => void;
+  
+  // Grid Operations
+  generateGridCells: (gridContainerId: string) => void;
 
   // Import
   importElements: (elements: Record<string, Element>, rootIds: string[]) => void;
@@ -57,7 +61,17 @@ const createDefaultElement = (
         borderRadius: 8,
         ...style,
       },
-      props: { tag: 'div' },
+      props: { 
+        tag: 'div',
+        containerType: 'flex',
+        direction: 'column', // Sıralı aşağı doğru
+        justifyContent: 'center', // Dikey ortalı
+        alignItems: 'center', // Yatay ortalı
+        gap: 16,
+        flexWrap: 'nowrap',
+        widthMode: 'full',
+        gridGap: 20, // Grid için default gap
+      },
     },
     text: {
       type: 'text',
@@ -178,6 +192,25 @@ const createDefaultElement = (
         showArrows: true,
       },
     },
+    menu: {
+      type: 'menu',
+      name: name || 'Menü',
+      style: {
+        position: 'relative',
+        width: '100%',
+        height: 'auto',
+        minHeight: 40,
+        padding: '8px 16px',
+        display: 'flex',
+        ...style,
+      },
+      props: {
+        menuId: null,
+        layout: 'horizontal',
+        showSubmenuIndicator: true,
+        dropdownOpenAs: 'hover',
+      },
+    },
   };
 
   return defaults[type] || defaults.container;
@@ -194,10 +227,39 @@ export const useCanvasStore = create<CanvasStore>()(
     // Add Element
     addElement: (elementData, parentId = null) => {
       const id = nanoid();
+      
+      // AUTO-LAYOUT LOGIC FOR ROOT CONTAINERS
+      let smartStyle: Partial<StyleProperties> = {};
+      
+      if (!parentId && elementData.type === 'container') {
+        const state = get();
+        // Find the lowest element on the canvas
+        let maxBottom = 0;
+        state.rootElementIds.forEach(rootId => {
+          const el = state.elements[rootId];
+          const top = parseInt(String(el.style.top || 0));
+          const height = parseInt(String(el.style.height || 200));
+          if (!isNaN(top) && !isNaN(height)) {
+            maxBottom = Math.max(maxBottom, top + height);
+          }
+        });
+
+        smartStyle = {
+          position: 'absolute',
+          left: 0,
+          top: maxBottom > 0 ? maxBottom : 0, // Stack below the last element
+          width: '100%',
+          height: 'auto', // Hug content
+          minHeight: '50px', // Drop target visibility
+          padding: '10px',
+          display: 'flex', // Ensure flex context for standard containers
+        };
+      }
+
       const defaultElement = createDefaultElement(
         elementData.type || 'container',
         elementData.name,
-        elementData.style
+        { ...elementData.style, ...smartStyle }
       );
 
       const element: Element = {
@@ -206,6 +268,7 @@ export const useCanvasStore = create<CanvasStore>()(
         parentId,
         ...defaultElement,
         ...elementData,
+        style: { ...defaultElement.style, ...elementData.style, ...smartStyle } // Ensure smartStyle wins
       } as Element;
 
       set((state) => {
@@ -213,6 +276,24 @@ export const useCanvasStore = create<CanvasStore>()(
 
         if (parentId && state.elements[parentId]) {
           state.elements[parentId].children.push(id);
+          
+          // Child Layout Logic:
+          // If parent is a Container (Grid Cell or Normal Container), enforce relative flow layout
+          const parent = state.elements[parentId];
+          if (parent.type === 'container') {
+             state.elements[id].style = {
+               ...state.elements[id].style,
+               position: 'relative',
+               width: '100%',
+               maxWidth: '100%',
+               boxSizing: 'border-box',
+               left: 'auto',
+               top: 'auto',
+               marginTop: 0,
+               marginBottom: 0
+             };
+          }
+
         } else {
           state.rootElementIds.push(id);
         }
@@ -460,6 +541,112 @@ export const useCanvasStore = create<CanvasStore>()(
         state.rootElementIds = [];
         state.selectedElementIds = [];
         state.hoveredElementId = null;
+      });
+    },
+    
+    // Generate Grid Cells - Her grid hücresi için child container oluştur
+    generateGridCells: (gridContainerId) => {
+      const gridContainer = get().elements[gridContainerId];
+      if (!gridContainer || gridContainer.type !== 'container') return;
+      if (gridContainer.props?.containerType !== 'grid') return;
+      
+      const cols = gridContainer.props?.gridTemplateColumns || 'repeat(3, 1fr)';
+      const rows = gridContainer.props?.gridTemplateRows || 'repeat(3, 1fr)'; // Default 3 satır
+      
+      const colMatch = cols.match(/repeat\((\d+),/);
+      const rowMatch = rows.match(/repeat\((\d+),/);
+      const columnCount = colMatch ? parseInt(colMatch[1]) : 3;
+      const rowCount = rowMatch ? parseInt(rowMatch[1]) : 3;
+      
+      // Mevcut grid cell'leri bul
+      const existingCells = Object.values(get().elements).filter(
+        el => el.parentId === gridContainerId && el.props?.isGridCell
+      );
+      
+      const totalCells = columnCount * rowCount;
+      
+      set((state) => {
+        // Yeni cell'ler oluştur
+        for (let row = 1; row <= rowCount; row++) {
+          for (let col = 1; col <= columnCount; col++) {
+            // Zaten varsa skip
+            const existing = existingCells.find(
+              c => c.props?.gridPosition?.row === row && 
+                   c.props?.gridPosition?.column === col
+            );
+            if (existing) continue;
+            
+            // Yeni cell container oluştur
+            const cellId = nanoid();
+            const newCell: any = {
+              id: cellId,
+              type: 'container',
+              name: `Cell ${row}-${col}`,
+              parentId: gridContainerId,
+              children: [],
+              props: {
+                tag: 'div',
+                isGridCell: true,
+                gridPosition: { row, column: col }
+              },
+              style: {
+                position: 'relative',
+                gridColumn: `${col}`, // String olarak (önemli)
+                gridRow: `${row}`,    // String olarak (önemli)
+                width: '100%',
+                height: '100%',
+                minHeight: '100%', // Row height kadar uzasın
+                minWidth: 0,       // Grid taşmasını önle
+                border: '1px solid rgba(59, 130, 246, 0.3)',
+                padding: 8,
+                backgroundColor: 'rgba(240, 245, 255, 0.5)',
+                display: 'flex',
+                flexDirection: 'column',
+                boxSizing: 'border-box',
+              },
+              locked: false,
+              hidden: false,
+            };
+            
+            state.elements[cellId] = newCell;
+            
+            // Parent'ın children'ına ekle
+            if (!state.elements[gridContainerId].children.includes(cellId)) {
+              state.elements[gridContainerId].children.push(cellId);
+            }
+          }
+        }
+        
+        // Fazla cell'leri sil
+        if (existingCells.length > totalCells) {
+          const cellsToRemove = existingCells.slice(totalCells);
+          cellsToRemove.forEach(cell => {
+            // Cell'i ve içindeki tüm elementleri sil
+            const deleteRecursive = (elementId: string) => {
+              const element = state.elements[elementId];
+              if (!element) return;
+              
+              // Children'ı önce sil
+              element.children.forEach(childId => deleteRecursive(childId));
+              
+              // Parent'tan kaldır
+              if (element.parentId) {
+                const parent = state.elements[element.parentId];
+                if (parent) {
+                  parent.children = parent.children.filter(id => id !== elementId);
+                }
+              }
+              
+              // Root'tan kaldır
+              state.rootElementIds = state.rootElementIds.filter(id => id !== elementId);
+              
+              // Element'i sil
+              delete state.elements[elementId];
+            };
+            
+            deleteRecursive(cell.id);
+          });
+        }
       });
     },
 

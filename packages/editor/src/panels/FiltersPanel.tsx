@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties, useThemeStore, themeColors } from '@builder/core';
 
 interface FilterValues {
   blur: number;
@@ -56,6 +56,10 @@ export const FiltersPanel = memo(function FiltersPanel() {
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
 
@@ -90,24 +94,24 @@ export const FiltersPanel = memo(function FiltersPanel() {
 
   const sliderStyle: React.CSSProperties = {
     width: '100%',
-    accentColor: '#3b82f6',
+    accentColor: colors.primary,
   };
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase' }}>
           Filters & Effects
         </span>
         <button
           style={{
             padding: '4px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
-            backgroundColor: '#fff',
+            backgroundColor: colors.surface,
             fontSize: 10,
             cursor: 'pointer',
-            color: '#6b7280',
+            color: colors.textMuted,
           }}
           onClick={resetFilters}
         >
@@ -181,7 +185,7 @@ export const FiltersPanel = memo(function FiltersPanel() {
 
       {/* Opacity */}
       <div style={{ marginBottom: 12 }}>
-        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: '#6b7280', marginBottom: 4 }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: 11, color: colors.textMuted, marginBottom: 4 }}>
           <span>Opacity</span>
           <span>{Math.round((style.opacity ?? 1) * 100)}%</span>
         </div>
@@ -200,15 +204,17 @@ export const FiltersPanel = memo(function FiltersPanel() {
 
       {/* Blend Mode */}
       <div>
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 4 }}>Blend Mode</div>
+        <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 4 }}>Blend Mode</div>
         <select
           style={{
             width: '100%',
             padding: '8px 10px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 6,
             fontSize: 12,
             cursor: 'pointer',
+            backgroundColor: colors.surface,
+            color: colors.text,
           }}
           value={style.mixBlendMode || 'normal'}
           onChange={(e) => {

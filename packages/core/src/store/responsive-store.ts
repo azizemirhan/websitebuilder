@@ -3,7 +3,7 @@
  */
 
 import { create } from 'zustand';
-import type { StyleProperties } from '../types';
+import type { StyleProperties, ResponsiveStyleOverrides } from '../types';
 
 export type BreakpointName = 'mobile' | 'tablet' | 'desktop';
 
@@ -19,12 +19,6 @@ export const BREAKPOINTS: Breakpoint[] = [
   { name: 'tablet', label: 'Tablet', width: 768, icon: '📲' },
   { name: 'desktop', label: 'Desktop', width: 1440, icon: '🖥️' },
 ];
-
-export interface ResponsiveStyleOverrides {
-  mobile?: Partial<StyleProperties>;
-  tablet?: Partial<StyleProperties>;
-  desktop?: Partial<StyleProperties>;
-}
 
 interface ResponsiveStore {
   activeBreakpoint: BreakpointName;

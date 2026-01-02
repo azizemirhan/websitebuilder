@@ -4,6 +4,7 @@
 
 import React, { memo } from "react";
 import type { IconElement } from "@builder/core";
+import { useResponsiveStore, getResponsiveStyles } from "@builder/core";
 
 interface IconRendererProps {
     element: IconElement;
@@ -103,6 +104,34 @@ const ICON_PATHS: Record<string, React.ReactNode> = {
             <line x1="15.41" y1="6.51" x2="8.59" y2="10.49" />
         </>
     ),
+    // Feature icons
+    truck: (
+        <>
+            <path d="M5 18H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h3.19M15 6h2.81M5 6l2-4h10l2 4" />
+            <path d="M21 16V8a2 2 0 0 0-2-2h-3" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+        </>
+    ),
+    "cloud-download": (
+        <>
+            <path d="M4 14.899A7 7 0 1 1 15.71 8h1.79a4.5 4.5 0 0 1 2.5 8.242" />
+            <path d="M12 12v9" />
+            <path d="m8 17 4 4 4-4" />
+        </>
+    ),
+    "shield-check": (
+        <>
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            <path d="m9 12 2 2 4-4" />
+        </>
+    ),
+    headphones: (
+        <>
+            <path d="M3 18v-6a9 9 0 0 1 18 0v6" />
+            <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z" />
+        </>
+    ),
 };
 
 export const IconRenderer = memo(function IconRenderer({
@@ -113,7 +142,18 @@ export const IconRenderer = memo(function IconRenderer({
     onMouseEnter,
     onMouseLeave,
 }: IconRendererProps) {
-    const { style, props } = element;
+    const { props } = element;
+    
+    // Get active breakpoint for responsive styling
+    const activeBreakpoint = useResponsiveStore((state) => state.activeBreakpoint);
+    
+    // Compute responsive styles based on active breakpoint
+    const style = getResponsiveStyles(
+        element.style,
+        element.responsiveStyles,
+        activeBreakpoint
+    );
+    
     const iconName = props?.iconName || "search";
     const strokeWidth = props?.strokeWidth || 2;
 
@@ -137,13 +177,7 @@ export const IconRenderer = memo(function IconRenderer({
         cursor: element.locked ? "not-allowed" : style.cursor || "default",
         visibility: element.hidden ? "hidden" : "visible",
 
-        // Selection indicator
-        outline: isSelected
-            ? "2px solid #2563eb"
-            : isHovered
-                ? "1px solid #60a5fa"
-                : "none",
-        outlineOffset: "-1px",
+        // Selection indicator removed - handled by ElementControls overlay
     };
 
     const iconPath = ICON_PATHS[iconName];

@@ -43,3 +43,6 @@ export { TemplateBrowserPanel } from './TemplateBrowserPanel';
 // Other Panels
 export { DesignTokensPanel } from './DesignTokensPanel';
 export { PropertiesPanel } from './PropertiesPanel';
+export { InteractionsPanel } from './InteractionsPanel';
+export { MenuPropertiesPanel } from './MenuPropertiesPanel';
+

@@ -1,0 +1,2064 @@
+wordpress elementorda bir container'ın düzenlenme ve tasarımdaki rolünüğ anlatırmsın ayrıca tüm elemenların bunun içerisine konulma şeklini ve tasarım oluşturma mantığını
+23:47
+
+Kullanıcı WordPress Elementor'da container'ın rolünü ve nasıl kullanıldığını soruyor. Bu, Elementor'un temel yapı taşlarından biri olan container sistemi hakkında bir açıklama istiyor. Bu konuda web araması yapmama gerek yok çünkü bu temel bir tasarım konsepti ve Elementor'un standart özelliği.
+
+Container sistemi Elementor 3.6+ ile gelen Flexbox Container özelliğidir. Bunu detaylı açıklayayım.
+Elementor'da Container Yapısı ve Tasarım Mantığı
+Container Nedir?
+
+Container, Elementor'da tüm tasarımın temel yapı taşıdır. Eski Section/Column sisteminin yerini alan Flexbox Container, içine koyduğun tüm elementleri organize eden bir "kutu" gibi düşünebilirsin.
+Container'ın Temel Rolleri
+1. Yerleşim Kontrolü
+
+Container, içindeki elementlerin nasıl sıralanacağını belirler:
+Yön	Açıklama
+Row (Yatay)	Elementler yan yana dizilir
+Column (Dikey)	Elementler alt alta dizilir
+2. Hizalama (Alignment)
+
+İçerideki elementleri yatay ve dikey eksende hizalarsın:
+
+    Justify Content: Yatay hizalama (sol, orta, sağ, aralarında boşluk)
+    Align Items: Dikey hizalama (üst, orta, alt, stretch)
+
+3. Boşluk Yönetimi
+
+    Gap: Elementler arası boşluk
+    Padding: Container'ın iç boşluğu
+    Margin: Container'ın dış boşluğu
+
+Tasarım Oluşturma Mantığı
+
+Elementor'da tasarım şu hiyerarşiyle çalışır:
+
+Sayfa
+└── Container (Ana)
+    ├── Container (İç içe - opsiyonel)
+    │   ├── Heading
+    │   ├── Text
+    │   └── Button
+    ├── Image
+    └── Container (Başka bir bölüm)
+        ├── Icon Box
+        └── Icon Box
+
+Pratik Örnek: Bir Hero Section
+
+Container (Tam genişlik, dikey yön)
+│
+├── Heading: "Hoş Geldiniz"
+├── Text: "Alt başlık metni"
+└── Container (Yatay yön, butonlar için)
+    ├── Button: "Hemen Başla"
+    └── Button: "Daha Fazla"
+
+Container Ayarları
+Layout Sekmesi
+
+    Content Width: Boxed (sabit genişlik) veya Full Width
+    Min Height: Minimum yükseklik
+    Direction: Row veya Column
+    Wrap: Elementler sığmazsa alt satıra geçsin mi?
+
+Style Sekmesi
+
+    Arka plan rengi/görsel
+    Border (kenarlık)
+    Box Shadow (gölge)
+    Border Radius (köşe yuvarlaklığı)
+
+İç İçe Container Kullanımı
+
+Karmaşık layoutlar için container'ları iç içe koyabilirsin:
+
+Örnek: 3 Sütunlu Kartlar
+
+Container (Ana - Yatay)
+├── Container (Kart 1 - Dikey)
+│   ├── Image
+│   ├── Heading
+│   └── Text
+├── Container (Kart 2 - Dikey)
+│   ├── Image
+│   ├── Heading
+│   └── Text
+└── Container (Kart 3 - Dikey)
+    ├── Image
+    ├── Heading
+    └── Text
+
+Önemli İpuçları
+
+    Mobil uyumluluk: Container'ın Direction ayarını mobilde "Column" yaparak elementlerin alt alta geçmesini sağla
+    Genişlik kontrolü: İç container'lara yüzde (%) veya sabit piksel genişlik vererek oranları ayarla
+    Gap kullanımı: Her elemente ayrı margin vermek yerine, container'ın Gap özelliğini kullan — daha temiz ve tutarlı sonuç verir
+    Reusable yapılar: Sık kullandığın container yapılarını "Template" olarak kaydet
+
+Belirli bir layout veya tasarım senaryosu hakkında daha detaylı yardım ister misin?
+
+o zaman elementorda heşey container veya grid mantığı ile ilerliyor
+23:48
+
+Kullanıcı, Elementor'da her şeyin container veya grid mantığıyla ilerlediğini doğrulamak istiyor. Bu doğru bir anlayış. Elementor'un yeni yapısında container (Flexbox) ve Grid temel yapı taşları. Bunu onaylayıp, Flexbox ve Grid arasındaki farkları ve kullanım alanlarını açıklayayım.
+
+Evet, kesinlikle doğru anlamışsın! Elementor'un modern yapısı tamamen Container (Flexbox) ve Grid sistemleri üzerine kurulu.
+İki Temel Yapı Sistemi
+1. Flexbox Container
+
+Tek boyutlu düzenleme — ya yatay ya dikey
+
+[Element] [Element] [Element]  ← Yatay (Row)
+
+veya
+
+[Element]
+[Element]   ← Dikey (Column)
+[Element]
+
+Ne zaman kullanılır:
+
+    Menüler, buton grupları
+    Kartların yan yana dizilmesi
+    Header/Footer yapıları
+    Genel sayfa iskeletleri
+
+2. Grid Container
+
+İki boyutlu düzenleme — hem yatay hem dikey kontrol
+
+[1] [2] [3]
+[4] [5] [6]
+[7] [8] [9]
+
+Ne zaman kullanılır:
+
+    Galeri düzenleri
+    Karmaşık magazin tipi layoutlar
+    Bir elementin birden fazla satır/sütun kaplaması gerektiğinde
+    Asimetrik tasarımlar
+
+Kıyaslama
+Özellik	Flexbox Container	Grid Container
+Boyut	Tek yönlü	İki yönlü
+Öğrenme kolaylığı	Daha kolay	Biraz daha karmaşık
+Esneklik	Yüksek	Çok yüksek
+Kullanım sıklığı	%80-90	%10-20
+Özet Mantık
+
+Sayfa tasarımı = Container'ların kombinasyonu
+
+Ana Container
+├── İç Container (Flexbox veya Grid)
+│   └── Elementler (Heading, Image, Button vs.)
+├── İç Container
+│   └── Elementler
+└── ...
+
+Yani Elementor'da artık şöyle düşünüyorsun:
+
+    "Bu bölümde elementler nasıl dizilecek? Yan yana mı, alt alta mı, yoksa ızgara şeklinde mi?"
+
+Cevaba göre Flexbox veya Grid seçip, içine elementleri yerleştiriyorsun. Eski Section → Column → Element mantığı yerini bu daha esnek yapıya bıraktı.
+
+Pratikte çoğu tasarımı sadece Flexbox Container ile halledebilirsin, Grid daha özel durumlar için devreye girer.
+
+tamamdır şimdi bunu kendi yaptığım builder'a anlatacağım bunu ona anlatırmısın
+23:49
+
+Kullanıcı kendi bir page builder yapıyor ve bana bu container/grid mantığını kendi builder'ına anlatmamı istiyor. Yani muhtemelen bir yapay zeka asistanı veya bir sistem promptu için bu bilgileri özetlememi istiyor.
+
+Bunu teknik ve öğretici bir şekilde, bir builder sisteminin anlayacağı formatta yazmalıyım.
+
+Tabii! İşte kendi builder'ına verebileceğin bir sistem bilgisi:
+Page Builder Temel Mimari Dokümantasyonu
+Genel Bakış
+
+Bu page builder, modern CSS layout sistemlerine dayanan iki temel yapı bloğu kullanır: Flexbox Container ve Grid Container. Tüm sayfa tasarımları bu container'ların iç içe kombinasyonlarından oluşur.
+1. Container Sistemi
+Flexbox Container
+
+Tek boyutlu layout sistemidir. Elementler ya yatay (row) ya da dikey (column) eksende sıralanır.
+
+Temel Özellikler:
+Özellik	Değerler	Açıklama
+direction	row, column	Ana eksen yönü
+justify-content	flex-start, center, flex-end, space-between, space-around, space-evenly	Ana eksende hizalama
+align-items	flex-start, center, flex-end, stretch, baseline	Çapraz eksende hizalama
+flex-wrap	nowrap, wrap	Taşma durumunda satır atlama
+gap	px, rem, %	Elementler arası boşluk
+
+Kullanım Senaryoları:
+
+    Navigasyon menüleri
+    Buton grupları
+    Kart listeleri
+    Header ve footer yapıları
+    Genel sayfa bölümleri
+
+Grid Container
+
+İki boyutlu layout sistemidir. Hem satır hem sütun kontrolü sağlar.
+
+Temel Özellikler:
+Özellik	Değerler	Açıklama
+columns	sayı veya fr birimi	Sütun sayısı ve oranları
+rows	sayı veya fr birimi	Satır sayısı ve oranları
+column-gap	px, rem, %	Sütunlar arası boşluk
+row-gap	px, rem, %	Satırlar arası boşluk
+justify-items	start, center, end, stretch	Hücre içi yatay hizalama
+align-items	start, center, end, stretch	Hücre içi dikey hizalama
+
+Kullanım Senaryoları:
+
+    Galeri düzenleri
+    Magazin tipi layoutlar
+    Asimetrik tasarımlar
+    Bir elementin birden fazla hücre kaplaması gereken durumlar
+
+2. Hiyerarşik Yapı
+
+Sayfa tasarımı şu mantıkla oluşturulur:
+
+Page
+└── Container (root level)
+    ├── Container (nested)
+    │   ├── Element (heading, text, image, button, vb.)
+    │   ├── Element
+    │   └── Element
+    ├── Container (nested)
+    │   └── Element
+    └── Element (doğrudan container içinde)
+
+Kurallar:
+
+    Her sayfa en az bir root container ile başlar
+    Container'lar sınırsız derinlikte iç içe yerleştirilebilir
+    Elementler yalnızca container içine yerleştirilebilir
+    Bir container hem element hem başka container barındırabilir
+
+3. Container Özellikleri
+
+Her container şu ayar kategorilerine sahiptir:
+Layout Ayarları
+
+- content_width: boxed | full_width
+- min_height: değer + birim
+- direction: row | column
+- justify_content: [flexbox değerleri]
+- align_items: [flexbox değerleri]
+- gap: değer + birim
+- wrap: true | false
+
+Boyut Ayarları
+
+- width: auto | değer + birim | yüzde
+- max_width: değer + birim
+- height: auto | değer + birim
+- min_height: değer + birim
+
+Boşluk Ayarları
+
+- padding: top, right, bottom, left
+- margin: top, right, bottom, left
+
+Stil Ayarları
+
+- background: color | gradient | image
+- border: width, style, color
+- border_radius: değer + birim
+- box_shadow: x, y, blur, spread, color
+
+4. Responsive Davranış
+
+Her container özelliği cihaz bazında override edilebilir:
+
+breakpoints:
+  - desktop: > 1024px
+  - tablet: 768px - 1024px  
+  - mobile: < 768px
+
+Örnek responsive ayar:
+{
+  direction: {
+    desktop: "row",
+    tablet: "row",
+    mobile: "column"
+  }
+}
+
+5. Tasarım Oluşturma Mantığı
+
+Kullanıcı bir bölüm tasarlarken şu akışı izler:
+
+    Container seç → Flexbox veya Grid
+    Yön belirle → Elementler nasıl dizilecek?
+    Hizalama ayarla → Elementler nerede konumlanacak?
+    Elementleri ekle → Heading, text, image, button vb.
+    Stil uygula → Arka plan, border, shadow vb.
+    Responsive ayarla → Farklı cihazlar için düzenleme
+
+6. Örnek Yapılar
+
+Hero Section:
+
+Container (direction: column, align: center)
+├── Heading
+├── Text  
+└── Container (direction: row, gap: 16px)
+    ├── Button (primary)
+    └── Button (secondary)
+
+3 Sütunlu Kart Bölümü:
+
+Container (direction: row, wrap: true, gap: 24px)
+├── Container (direction: column, width: 33%)
+│   ├── Image
+│   ├── Heading
+│   └── Text
+├── Container (direction: column, width: 33%)
+│   ├── Image
+│   ├── Heading
+│   └── Text
+└── Container (direction: column, width: 33%)
+    ├── Image
+    ├── Heading
+    └── Text
+
+Bu dokümantasyonu builder'ına mı entegre edeceksin yoksa farklı bir format veya ek detay ister misin?
+
+şimdi tasarımcıların bunu nasıl yapacağını detaylı bir şekilde anltırmısın yani kullanım deneyeimini örneğin bir topbar ve header için
+23:50
+
+Kullanıcı, page builder'ı için bir kullanıcı deneyimi (UX) dokümantasyonu istiyor. Özellikle tasarımcıların nasıl bir topbar ve header oluşturacağını adım adım göstermemi istiyor.
+
+Bu, bir UX akışı dokümantasyonu olacak. Detaylı, adım adım, görsel olarak anlaşılır bir şekilde yazmalıyım.
+Page Builder - Tasarımcı Kullanım Kılavuzu
+Topbar ve Header Oluşturma Deneyimi
+Bölüm 1: Topbar Tasarımı
+Hedef Tasarım
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│ 📧 info@sirket.com    📞 +90 555 123 4567          🔗 TR | EN | DE     │
+└─────────────────────────────────────────────────────────────────────────┘
+
+Adım Adım Oluşturma Akışı
+Adım 1: Container Ekleme
+
+Tasarımcı sol panelden Container elementini sürükleyip canvas'a bırakır.
+
+┌──────────────────────────────────────────────────────────────┐
+│  [+] Yeni Container                                          │
+│  ┌────────────────────────────────────────────────────────┐  │
+│  │                                                        │  │
+│  │              Container buraya bırakıldı                │  │
+│  │                                                        │  │
+│  └────────────────────────────────────────────────────────┘  │
+└──────────────────────────────────────────────────────────────┘
+
+Adım 2: Container Ayarları
+
+Tasarımcı container'a tıkladığında sağ panelde ayarlar açılır:
+
+┌─────────────────────────────────┐
+│ 📦 CONTAINER AYARLARI           │
+├─────────────────────────────────┤
+│                                 │
+│ Layout                          │
+│ ┌─────────────────────────────┐ │
+│ │ Genişlik                    │ │
+│ │ ○ Boxed    ● Full Width     │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ Yön (Direction)             │ │
+│ │ ● Row      ○ Column         │ │
+│ │                             │ │
+│ │ [→→→]      [↓]              │ │
+│ │ Yatay      Dikey            │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ Yatay Hizalama              │ │
+│ │                             │ │
+│ │ [|←] [←|→] [→|] [←→] [←·→]  │ │
+│ │ Start Center End Between    │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ ┌─────────────────────────────┐ │
+│ │ Dikey Hizalama              │ │
+│ │                             │ │
+│ │ [⬆] [⬌] [⬇] [↕]             │ │
+│ │ Top Center Bottom Stretch   │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+
+Tasarımcının seçimleri:
+
+    Genişlik: Full Width
+    Yön: Row
+    Yatay Hizalama: Space Between
+    Dikey Hizalama: Center
+
+Adım 3: İç Container'ları Ekleme
+
+Topbar'da sol ve sağ gruplar olacağı için 2 iç container eklenir:
+
+Ana Container (Row, Space-Between)
+┌─────────────────────────────────────────────────────────────────────────┐
+│ ┌─────────────────────────┐                   ┌─────────────────────┐   │
+│ │  Sol Container          │                   │  Sağ Container      │   │
+│ │  (iletişim bilgileri)   │     ← boşluk →    │  (dil seçenekleri)  │   │
+│ └─────────────────────────┘                   └─────────────────────┘   │
+└─────────────────────────────────────────────────────────────────────────┘
+
+Sol Container Ayarları:
+
+┌─────────────────────────────────┐
+│ Direction: Row                  │
+│ Gap: 24px                       │
+│ Align Items: Center             │
+└─────────────────────────────────┘
+
+Sağ Container Ayarları:
+
+┌─────────────────────────────────┐
+│ Direction: Row                  │
+│ Gap: 16px                       │
+│ Align Items: Center             │
+└─────────────────────────────────┘
+
+Adım 4: Elementleri Ekleme
+
+Tasarımcı sol panelden elementleri sürükler:
+
+┌─────────────────────────┐
+│ 📁 ELEMENTLER           │
+├─────────────────────────┤
+│ 📝 Heading              │
+│ 📄 Text                 │
+│ 🖼️ Image               │
+│ 🔘 Button               │
+│ 🔗 Link                 │
+│ 📍 Icon                 │
+│ 📦 Icon + Text          │
+│ ...                     │
+└─────────────────────────┘
+
+Sol Container'a eklenenler:
+
+Sol Container
+┌───────────────────────────────────────────────┐
+│ [📧 Icon+Text]     [📞 Icon+Text]             │
+│  info@sirket.com    +90 555 123 4567          │
+└───────────────────────────────────────────────┘
+
+Sağ Container'a eklenenler:
+
+Sağ Container
+┌─────────────────────────────────┐
+│ [Link] | [Link] | [Link]        │
+│   TR       EN       DE          │
+└─────────────────────────────────┘
+
+Adım 5: Stil Uygulama
+
+Tasarımcı ana container'ı seçip Stil sekmesine geçer:
+
+┌─────────────────────────────────┐
+│ 🎨 STİL AYARLARI                │
+├─────────────────────────────────┤
+│                                 │
+│ Arka Plan                       │
+│ ┌─────────────────────────────┐ │
+│ │ ● Renk  ○ Gradient  ○ Görsel│ │
+│ │                             │ │
+│ │ [███████] #1a1a2e           │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Padding                         │
+│ ┌─────────────────────────────┐ │
+│ │     [ 8 ]                   │ │
+│ │ [ 20 ]   [ 20 ]             │ │
+│ │     [ 8 ]                   │ │
+│ │                             │ │
+│ │ 🔗 Değerleri kilitle        │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Tipografi (içerik için)         │
+│ ┌─────────────────────────────┐ │
+│ │ Renk: [███] #ffffff         │ │
+│ │ Boyut: 13px                 │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+
+Adım 6: Responsive Kontrol
+
+Tasarımcı üst toolbar'dan cihaz seçer:
+
+┌───────────────────────────────────────────────────────┐
+│   [🖥️ Desktop]   [📱 Tablet]   [📱 Mobile]           │
+└───────────────────────────────────────────────────────┘
+
+Mobile görünümde yapılan değişiklikler:
+
+┌─────────────────────────────────┐
+│ 📱 MOBİL AYARLARI               │
+├─────────────────────────────────┤
+│                                 │
+│ Görünürlük                      │
+│ ┌─────────────────────────────┐ │
+│ │ ☑ Desktop'ta göster         │ │
+│ │ ☑ Tablet'te göster          │ │
+│ │ ☐ Mobil'de göster           │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ veya                            │
+│                                 │
+│ Direction: Column               │
+│ Align Items: Center             │
+│ Gap: 8px                        │
+│ Padding: 12px                   │
+│                                 │
+└─────────────────────────────────┘
+
+Bölüm 2: Header Tasarımı
+Hedef Tasarım
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                                                                         │
+│   [LOGO]        Ana Sayfa | Hizmetler | Hakkımızda | Blog | İletişim   [🔍] [Button] │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+Adım Adım Oluşturma Akışı
+Adım 1: Ana Container Yapısı
+
+┌─────────────────────────────────────────────────────────────────────────┐
+│                         ANA CONTAINER                                   │
+│                   (Row, Space-Between, Center)                          │
+│                                                                         │
+│  ┌──────────┐    ┌──────────────────────────┐    ┌──────────────────┐   │
+│  │   SOL    │    │          ORTA            │    │       SAĞ        │   │
+│  │  (Logo)  │    │         (Menü)           │    │  (Aksiyon)       │   │
+│  └──────────┘    └──────────────────────────┘    └──────────────────┘   │
+│                                                                         │
+└─────────────────────────────────────────────────────────────────────────┘
+
+Ana Container Ayarları:
+
+┌─────────────────────────────────┐
+│ Layout                          │
+│ ─────────────────────────────── │
+│ Genişlik: Boxed (1200px max)    │
+│ Direction: Row                  │
+│ Justify: Space-Between          │
+│ Align: Center                   │
+│ Min Height: 80px                │
+│                                 │
+│ Stil                            │
+│ ─────────────────────────────── │
+│ Background: #ffffff             │
+│ Box Shadow: 0 2px 10px rgba()   │
+│ Padding: 0 40px                 │
+└─────────────────────────────────┘
+
+Adım 2: Sol Bölüm - Logo
+
+Tasarımcı sol container'a Image elementi ekler:
+
+Sol Container
+┌─────────────────────┐
+│                     │
+│   [🖼️ LOGO]        │
+│    max-width: 150px │
+│                     │
+└─────────────────────┘
+
+Image Ayarları:
+
+┌─────────────────────────────────┐
+│ 🖼️ IMAGE AYARLARI              │
+├─────────────────────────────────┤
+│                                 │
+│ Kaynak                          │
+│ ┌─────────────────────────────┐ │
+│ │ [Görsel Seç]                │ │
+│ │                             │ │
+│ │ 📁 Medya Kütüphanesi        │ │
+│ │ 🔗 URL ile ekle             │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Boyut                           │
+│ ┌─────────────────────────────┐ │
+│ │ Genişlik: 150px             │ │
+│ │ Yükseklik: auto             │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Link                            │
+│ ┌─────────────────────────────┐ │
+│ │ URL: /                      │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+
+Adım 3: Orta Bölüm - Navigasyon Menüsü
+
+Orta Container Ayarları:
+
+┌─────────────────────────────────┐
+│ Direction: Row                  │
+│ Gap: 32px                       │
+│ Align: Center                   │
+└─────────────────────────────────┘
+
+Menü Linkleri Ekleme:
+
+Tasarımcı Link veya Nav Menu elementini kullanır:
+
+Orta Container
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│   [Link]     [Link]      [Link]     [Link]     [Link]       │
+│  Ana Sayfa  Hizmetler  Hakkımızda   Blog     İletişim       │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+Link Element Ayarları:
+
+┌─────────────────────────────────┐
+│ 🔗 LINK AYARLARI                │
+├─────────────────────────────────┤
+│                                 │
+│ İçerik                          │
+│ ┌─────────────────────────────┐ │
+│ │ Metin: Ana Sayfa            │ │
+│ │ URL: /                      │ │
+│ │ Target: ○ Same  ● New Tab   │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Tipografi                       │
+│ ┌─────────────────────────────┐ │
+│ │ Font: Inter                 │ │
+│ │ Size: 15px                  │ │
+│ │ Weight: 500                 │ │
+│ │ Color: #333333              │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Hover Durumu                    │
+│ ┌─────────────────────────────┐ │
+│ │ Color: #0066ff              │ │
+│ │ Transition: 0.3s            │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+
+Adım 4: Sağ Bölüm - Aksiyon Alanı
+
+Sağ Container Ayarları:
+
+┌─────────────────────────────────┐
+│ Direction: Row                  │
+│ Gap: 16px                       │
+│ Align: Center                   │
+└─────────────────────────────────┘
+
+Eklenen Elementler:
+
+Sağ Container
+┌─────────────────────────────────────┐
+│                                     │
+│   [🔍 Icon]     [Button]            │
+│    Arama       "Teklif Al"          │
+│                                     │
+└─────────────────────────────────────┘
+
+Button Ayarları:
+
+┌─────────────────────────────────┐
+│ 🔘 BUTTON AYARLARI              │
+├─────────────────────────────────┤
+│                                 │
+│ İçerik                          │
+│ ┌─────────────────────────────┐ │
+│ │ Metin: Teklif Al            │ │
+│ │ Icon: ○ Yok ● Sol ○ Sağ     │ │
+│ │ URL: /teklif                │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Stil                            │
+│ ┌─────────────────────────────┐ │
+│ │ Tip: ● Filled ○ Outline     │ │
+│ │                             │ │
+│ │ Background: #0066ff         │ │
+│ │ Text Color: #ffffff         │ │
+│ │ Padding: 12px 24px          │ │
+│ │ Border Radius: 6px          │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Hover                           │
+│ ┌─────────────────────────────┐ │
+│ │ Background: #0052cc         │ │
+│ │ Transform: translateY(-2px) │ │
+│ │ Box Shadow: 0 4px 12px      │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+
+Adım 5: Mobil Hamburger Menü
+
+Tasarımcı mobile görünüme geçtiğinde:
+
+┌─────────────────────────────────┐
+│ 📱 MOBİL HEADER AYARLARI        │
+├─────────────────────────────────┤
+│                                 │
+│ Orta Container (Menü)           │
+│ ┌─────────────────────────────┐ │
+│ │ ☑ Desktop'ta göster         │ │
+│ │ ☐ Mobil'de göster           │ │
+│ └─────────────────────────────┘ │
+│                                 │
+│ Mobil Menü Toggle               │
+│ ┌─────────────────────────────┐ │
+│ │ ☐ Desktop'ta göster         │ │
+│ │ ☑ Mobil'de göster           │ │
+│ │                             │ │
+│ │ Icon: ☰ (hamburger)         │ │
+│ │ Size: 24px                  │ │
+│ └─────────────────────────────┘ │
+│                                 │
+└─────────────────────────────────┘
+
+Mobil Görünüm:
+
+┌─────────────────────┐
+│                     │
+│  [LOGO]       [☰]   │
+│                     │
+└─────────────────────┘
+
+Menü açıldığında:
+
+┌─────────────────────┐
+│  [LOGO]       [✕]   │
+├─────────────────────┤
+│                     │
+│     Ana Sayfa       │
+│     ─────────       │
+│     Hizmetler       │
+│     ─────────       │
+│     Hakkımızda      │
+│     ─────────       │
+│     Blog            │
+│     ─────────       │
+│     İletişim        │
+│                     │
+│   [  Teklif Al  ]   │
+│                     │
+└─────────────────────┘
+
+Bölüm 3: Tam Yapı Özeti
+Nihai Hiyerarşi
+
+PAGE
+│
+├── TOPBAR CONTAINER (Full Width, Row, Space-Between)
+│   │
+│   ├── Sol Container (Row, Gap: 24px)
+│   │   ├── Icon+Text (Email)
+│   │   └── Icon+Text (Phone)
+│   │
+│   └── Sağ Container (Row, Gap: 16px)
+│       ├── Link (TR)
+│       ├── Link (EN)
+│       └── Link (DE)
+│
+└── HEADER CONTAINER (Boxed 1200px, Row, Space-Between)
+    │
+    ├── Sol Container
+    │   └── Image (Logo)
+    │
+    ├── Orta Container (Row, Gap: 32px) [Desktop Only]
+    │   ├── Link (Ana Sayfa)
+    │   ├── Link (Hizmetler)
+    │   ├── Link (Hakkımızda)
+    │   ├── Link (Blog)
+    │   └── Link (İletişim)
+    │
+    ├── Sağ Container (Row, Gap: 16px)
+    │   ├── Icon (Search)
+    │   └── Button (Teklif Al)
+    │
+    └── Mobile Menu Toggle [Mobile Only]
+        └── Icon (Hamburger)
+
+Bölüm 4: Kullanıcı Etkileşim Kalıpları
+Sürükle-Bırak Davranışı
+
+┌─────────────────────────────────────────────────────────────┐
+│                                                             │
+│  Element sürüklenirken:                                     │
+│                                                             │
+│  ┌─────────────────────────────────────────────────────┐   │
+│  │                    CONTAINER                         │   │
+│  │  ┌─────────┐  ┌─ ─ ─ ─ ─ ┐  ┌─────────┐             │   │
+│  │  │ Element │  │  DROP    │  │ Element │             │   │
+│  │  │    1    │  │  HERE    │  │    2    │             │   │
+│  │  └─────────┘  └─ ─ ─ ─ ─ ┘  └─────────┘             │   │
+│  │                 ↑                                    │   │
+│  │          Mavi çizgi/alan                             │   │
+│  │          bırakma noktasını                           │   │
+│  │          gösterir                                    │   │
+│  └─────────────────────────────────────────────────────┘   │
+│                                                             │
+└─────────────────────────────────────────────────────────────┘
+
+Seçim ve Breadcrumb
+
+Element seçildiğinde üstte breadcrumb gösterilir:
+
+┌─────────────────────────────────────────────────────────────┐
+│ Page > Header Container > Orta Container > Link (Hizmetler) │
+└─────────────────────────────────────────────────────────────┘
+
+Tasarımcı breadcrumb'a tıklayarak üst container'a hızlıca geçebilir.
+Sağ Tık Menüsü
+
+┌─────────────────────┐
+│ 📋 Kopyala          │
+│ 📄 Yapıştır         │
+│ ✂️ Kes              │
+│ 🗑️ Sil              │
+│ ─────────────────── │
+│ 📑 Duplicate        │
+│ 📁 Template Kaydet  │
+│ ─────────────────── │
+│ ⬆️ Yukarı Taşı      │
+│ ⬇️ Aşağı Taşı       │
+└─────────────────────┘
+
+Bu kullanım deneyimi dokümantasyonu yeterli mi, yoksa belirli etkileşimler veya başka bölümler için daha fazla detay ister misin?
+
+burada elemenların ve containerların html ve css olarak bağımlıklarınıda açıklarmısın
+23:52
+
+Kullanıcı, page builder'daki elementlerin ve container'ların HTML ve CSS yapısını, birbirleriyle olan bağımlılıklarını detaylı olarak açıklamamı istiyor. Bu, teknik bir dokümantasyon olacak ve şunları içermeli:
+
+    Container'ların HTML yapısı
+    Container'ların CSS özellikleri
+    Elementlerin HTML yapısı
+    Elementlerin CSS özellikleri
+    İç içe yapılarda (nested) CSS inheritance
+    Responsive davranışlar
+    CSS değişkenleri ve tema sistemi
+    Specificity ve cascade mantığı
+
+Bunu detaylı ve anlaşılır bir şekilde açıklayacağım.
+Page Builder - HTML & CSS Bağımlılık Dokümantasyonu
+Bölüm 1: Temel HTML Yapısı
+Container HTML Çıktısı
+html
+
+<!-- Ana Container -->
+<div class="pb-container" data-id="abc123" data-type="flex">
+  
+  <!-- İç Container -->
+  <div class="pb-container" data-id="def456" data-type="flex">
+    
+    <!-- Element -->
+    <div class="pb-element" data-id="ghi789" data-type="heading">
+      <h2 class="pb-heading">Başlık Metni</h2>
+    </div>
+    
+  </div>
+  
+</div>
+```
+
+### Yapısal Hiyerarşi
+```
+.pb-container (Root)
+│
+├── .pb-container (Nested)
+│   ├── .pb-element
+│   ├── .pb-element
+│   └── .pb-container (Daha derin nested)
+│       └── .pb-element
+│
+└── .pb-element (Doğrudan child)
+
+Bölüm 2: Container CSS Anatomisi
+Temel Container Sınıfları
+css
+
+/* ═══════════════════════════════════════════════════════════
+   BASE CONTAINER
+   Tüm container'ların miras aldığı temel stiller
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container {
+  /* Reset */
+  box-sizing: border-box;
+  
+  /* Varsayılan display */
+  display: flex;
+  
+  /* Varsayılan yön */
+  flex-direction: row;
+  
+  /* Position context (iç elementler için) */
+  position: relative;
+  
+  /* Varsayılan genişlik */
+  width: 100%;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   CONTAINER TÜRLER
+   ═══════════════════════════════════════════════════════════ */
+
+/* Flexbox Container */
+.pb-container[data-type="flex"] {
+  display: flex;
+}
+
+/* Grid Container */
+.pb-container[data-type="grid"] {
+  display: grid;
+}
+
+Container Layout Özellikleri
+css
+
+/* ═══════════════════════════════════════════════════════════
+   DIRECTION (Yön)
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container[data-direction="row"] {
+  flex-direction: row;
+}
+
+.pb-container[data-direction="column"] {
+  flex-direction: column;
+}
+
+.pb-container[data-direction="row-reverse"] {
+  flex-direction: row-reverse;
+}
+
+.pb-container[data-direction="column-reverse"] {
+  flex-direction: column-reverse;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   JUSTIFY CONTENT (Ana eksen hizalama)
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container[data-justify="start"] {
+  justify-content: flex-start;
+}
+
+.pb-container[data-justify="center"] {
+  justify-content: center;
+}
+
+.pb-container[data-justify="end"] {
+  justify-content: flex-end;
+}
+
+.pb-container[data-justify="between"] {
+  justify-content: space-between;
+}
+
+.pb-container[data-justify="around"] {
+  justify-content: space-around;
+}
+
+.pb-container[data-justify="evenly"] {
+  justify-content: space-evenly;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   ALIGN ITEMS (Çapraz eksen hizalama)
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container[data-align="start"] {
+  align-items: flex-start;
+}
+
+.pb-container[data-align="center"] {
+  align-items: center;
+}
+
+.pb-container[data-align="end"] {
+  align-items: flex-end;
+}
+
+.pb-container[data-align="stretch"] {
+  align-items: stretch;
+}
+
+.pb-container[data-align="baseline"] {
+  align-items: baseline;
+}
+
+
+/* ═══════════════════════════════════════════════════════════
+   WRAP (Sarmalama)
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container[data-wrap="nowrap"] {
+  flex-wrap: nowrap;
+}
+
+.pb-container[data-wrap="wrap"] {
+  flex-wrap: wrap;
+}
+
+.pb-container[data-wrap="wrap-reverse"] {
+  flex-wrap: wrap-reverse;
+}
+
+Container Genişlik Sistemi
+css
+
+/* ═══════════════════════════════════════════════════════════
+   WIDTH TYPES
+   ═══════════════════════════════════════════════════════════ */
+
+/* Full Width - Tam genişlik */
+.pb-container[data-width="full"] {
+  width: 100%;
+  max-width: none;
+}
+
+/* Boxed - Sabit maksimum genişlik */
+.pb-container[data-width="boxed"] {
+  width: 100%;
+  max-width: var(--pb-container-max-width, 1200px);
+  margin-left: auto;
+  margin-right: auto;
+}
+
+/* Custom Width - Özel genişlik */
+.pb-container[data-width="custom"] {
+  width: var(--pb-custom-width);
+  /* Inline style ile set edilir */
+}
+
+Bölüm 3: CSS Değişkenleri (Custom Properties)
+Global Değişkenler
+css
+
+/* ═══════════════════════════════════════════════════════════
+   ROOT DEĞİŞKENLER
+   Tüm sayfa genelinde kullanılan değerler
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  /* Container */
+  --pb-container-max-width: 1200px;
+  --pb-container-padding: 20px;
+  
+  /* Spacing Scale */
+  --pb-spacing-xs: 4px;
+  --pb-spacing-sm: 8px;
+  --pb-spacing-md: 16px;
+  --pb-spacing-lg: 24px;
+  --pb-spacing-xl: 32px;
+  --pb-spacing-2xl: 48px;
+  --pb-spacing-3xl: 64px;
+  
+  /* Colors */
+  --pb-color-primary: #0066ff;
+  --pb-color-secondary: #6c757d;
+  --pb-color-text: #333333;
+  --pb-color-text-light: #666666;
+  --pb-color-background: #ffffff;
+  --pb-color-border: #e0e0e0;
+  
+  /* Typography */
+  --pb-font-family: 'Inter', system-ui, sans-serif;
+  --pb-font-size-base: 16px;
+  --pb-line-height-base: 1.6;
+  
+  /* Transitions */
+  --pb-transition-fast: 0.15s ease;
+  --pb-transition-normal: 0.3s ease;
+  --pb-transition-slow: 0.5s ease;
+  
+  /* Shadows */
+  --pb-shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+  --pb-shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+  --pb-shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+  --pb-shadow-xl: 0 20px 25px rgba(0,0,0,0.15);
+  
+  /* Border Radius */
+  --pb-radius-sm: 4px;
+  --pb-radius-md: 8px;
+  --pb-radius-lg: 12px;
+  --pb-radius-xl: 16px;
+  --pb-radius-full: 9999px;
+}
+
+Element-Specific Değişkenler (Inline Styles)
+css
+
+/* ═══════════════════════════════════════════════════════════
+   INLINE STYLE DEĞİŞKENLER
+   Her element kendi değerlerini taşır
+   ═══════════════════════════════════════════════════════════ */
+
+/* Container örneği */
+.pb-container {
+  /* Gap */
+  gap: var(--pb-gap, 0);
+  
+  /* Padding */
+  padding-top: var(--pb-padding-top, 0);
+  padding-right: var(--pb-padding-right, 0);
+  padding-bottom: var(--pb-padding-bottom, 0);
+  padding-left: var(--pb-padding-left, 0);
+  
+  /* Margin */
+  margin-top: var(--pb-margin-top, 0);
+  margin-right: var(--pb-margin-right, 0);
+  margin-bottom: var(--pb-margin-bottom, 0);
+  margin-left: var(--pb-margin-left, 0);
+  
+  /* Background */
+  background-color: var(--pb-bg-color, transparent);
+  background-image: var(--pb-bg-image, none);
+  
+  /* Border */
+  border-width: var(--pb-border-width, 0);
+  border-style: var(--pb-border-style, solid);
+  border-color: var(--pb-border-color, transparent);
+  border-radius: var(--pb-border-radius, 0);
+  
+  /* Shadow */
+  box-shadow: var(--pb-box-shadow, none);
+  
+  /* Size */
+  min-height: var(--pb-min-height, auto);
+  max-width: var(--pb-max-width, none);
+}
+
+HTML'de Inline Style Kullanımı
+html
+
+<!-- Container with inline CSS variables -->
+<div 
+  class="pb-container" 
+  data-id="abc123"
+  data-type="flex"
+  data-direction="row"
+  data-justify="between"
+  data-align="center"
+  style="
+    --pb-gap: 24px;
+    --pb-padding-top: 20px;
+    --pb-padding-right: 40px;
+    --pb-padding-bottom: 20px;
+    --pb-padding-left: 40px;
+    --pb-bg-color: #1a1a2e;
+    --pb-min-height: 60px;
+  "
+>
+  <!-- Children -->
+</div>
+
+Bölüm 4: Element CSS Anatomisi
+Base Element Stilleri
+css
+
+/* ═══════════════════════════════════════════════════════════
+   BASE ELEMENT
+   Tüm elementlerin miras aldığı temel stiller
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element {
+  /* Reset */
+  box-sizing: border-box;
+  
+  /* Position */
+  position: relative;
+  
+  /* Flex item davranışı */
+  flex-shrink: 0;
+  
+  /* Varsayılan width */
+  width: var(--pb-element-width, auto);
+  
+  /* Spacing */
+  margin: var(--pb-element-margin, 0);
+  padding: var(--pb-element-padding, 0);
+}
+
+/* Element width modları */
+.pb-element[data-width="auto"] {
+  width: auto;
+}
+
+.pb-element[data-width="full"] {
+  width: 100%;
+}
+
+.pb-element[data-width="custom"] {
+  width: var(--pb-element-width);
+}
+
+Heading Element
+css
+
+/* ═══════════════════════════════════════════════════════════
+   HEADING ELEMENT
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element[data-type="heading"] {
+  width: 100%;
+}
+
+.pb-heading {
+  /* Reset */
+  margin: 0;
+  padding: 0;
+  
+  /* Typography - CSS Variables */
+  font-family: var(--pb-heading-font, var(--pb-font-family));
+  font-size: var(--pb-heading-size, 32px);
+  font-weight: var(--pb-heading-weight, 700);
+  line-height: var(--pb-heading-line-height, 1.3);
+  letter-spacing: var(--pb-heading-letter-spacing, normal);
+  
+  /* Color */
+  color: var(--pb-heading-color, var(--pb-color-text));
+  
+  /* Alignment */
+  text-align: var(--pb-heading-align, left);
+  
+  /* Decoration */
+  text-decoration: var(--pb-heading-decoration, none);
+  text-transform: var(--pb-heading-transform, none);
+}
+
+/* Heading seviyeleri */
+h1.pb-heading { --pb-heading-size: 48px; }
+h2.pb-heading { --pb-heading-size: 36px; }
+h3.pb-heading { --pb-heading-size: 28px; }
+h4.pb-heading { --pb-heading-size: 24px; }
+h5.pb-heading { --pb-heading-size: 20px; }
+h6.pb-heading { --pb-heading-size: 18px; }
+
+Text Element
+css
+
+/* ═══════════════════════════════════════════════════════════
+   TEXT ELEMENT
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element[data-type="text"] {
+  width: 100%;
+}
+
+.pb-text {
+  /* Reset */
+  margin: 0;
+  
+  /* Typography */
+  font-family: var(--pb-text-font, var(--pb-font-family));
+  font-size: var(--pb-text-size, var(--pb-font-size-base));
+  font-weight: var(--pb-text-weight, 400);
+  line-height: var(--pb-text-line-height, var(--pb-line-height-base));
+  
+  /* Color */
+  color: var(--pb-text-color, var(--pb-color-text));
+  
+  /* Alignment */
+  text-align: var(--pb-text-align, left);
+}
+
+/* Paragraf spacing */
+.pb-text p {
+  margin: 0 0 1em 0;
+}
+
+.pb-text p:last-child {
+  margin-bottom: 0;
+}
+
+Button Element
+css
+
+/* ═══════════════════════════════════════════════════════════
+   BUTTON ELEMENT
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element[data-type="button"] {
+  width: auto; /* Button varsayılan olarak içeriğe göre */
+}
+
+.pb-button {
+  /* Reset */
+  appearance: none;
+  border: none;
+  cursor: pointer;
+  text-decoration: none;
+  
+  /* Display */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--pb-button-gap, 8px);
+  
+  /* Typography */
+  font-family: var(--pb-button-font, var(--pb-font-family));
+  font-size: var(--pb-button-size, 15px);
+  font-weight: var(--pb-button-weight, 500);
+  line-height: 1;
+  
+  /* Spacing */
+  padding: var(--pb-button-padding-y, 12px) var(--pb-button-padding-x, 24px);
+  
+  /* Colors */
+  color: var(--pb-button-color, #ffffff);
+  background-color: var(--pb-button-bg, var(--pb-color-primary));
+  
+  /* Border */
+  border: var(--pb-button-border-width, 0) solid var(--pb-button-border-color, transparent);
+  border-radius: var(--pb-button-radius, var(--pb-radius-md));
+  
+  /* Effects */
+  box-shadow: var(--pb-button-shadow, none);
+  transition: all var(--pb-transition-normal);
+}
+
+/* Hover State */
+.pb-button:hover {
+  color: var(--pb-button-hover-color, var(--pb-button-color));
+  background-color: var(--pb-button-hover-bg, #0052cc);
+  border-color: var(--pb-button-hover-border-color, var(--pb-button-border-color));
+  box-shadow: var(--pb-button-hover-shadow, var(--pb-shadow-md));
+  transform: var(--pb-button-hover-transform, translateY(-2px));
+}
+
+/* Focus State */
+.pb-button:focus {
+  outline: 2px solid var(--pb-color-primary);
+  outline-offset: 2px;
+}
+
+/* Active State */
+.pb-button:active {
+  transform: translateY(0);
+}
+
+/* Button Variants */
+.pb-button[data-variant="outline"] {
+  background-color: transparent;
+  color: var(--pb-button-bg, var(--pb-color-primary));
+  border-width: 2px;
+  border-color: var(--pb-button-bg, var(--pb-color-primary));
+}
+
+.pb-button[data-variant="outline"]:hover {
+  background-color: var(--pb-button-bg, var(--pb-color-primary));
+  color: #ffffff;
+}
+
+.pb-button[data-variant="ghost"] {
+  background-color: transparent;
+  color: var(--pb-button-bg, var(--pb-color-primary));
+}
+
+.pb-button[data-variant="ghost"]:hover {
+  background-color: rgba(0, 102, 255, 0.1);
+}
+
+Image Element
+css
+
+/* ═══════════════════════════════════════════════════════════
+   IMAGE ELEMENT
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element[data-type="image"] {
+  width: var(--pb-image-width, auto);
+  max-width: 100%;
+}
+
+.pb-image {
+  display: block;
+  width: 100%;
+  height: var(--pb-image-height, auto);
+  
+  /* Object fit */
+  object-fit: var(--pb-image-fit, cover);
+  object-position: var(--pb-image-position, center);
+  
+  /* Border */
+  border-radius: var(--pb-image-radius, 0);
+  
+  /* Effects */
+  opacity: var(--pb-image-opacity, 1);
+  filter: var(--pb-image-filter, none);
+  transition: all var(--pb-transition-normal);
+}
+
+/* Hover Effects */
+.pb-element[data-type="image"][data-hover="zoom"] .pb-image:hover {
+  transform: scale(1.05);
+}
+
+.pb-element[data-type="image"][data-hover="brightness"] .pb-image:hover {
+  filter: brightness(1.1);
+}
+
+Icon Element
+css
+
+/* ═══════════════════════════════════════════════════════════
+   ICON ELEMENT
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element[data-type="icon"] {
+  width: auto;
+  display: inline-flex;
+}
+
+.pb-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  
+  /* Size */
+  width: var(--pb-icon-size, 24px);
+  height: var(--pb-icon-size, 24px);
+  
+  /* Color */
+  color: var(--pb-icon-color, currentColor);
+  
+  /* Transition */
+  transition: all var(--pb-transition-normal);
+}
+
+.pb-icon svg {
+  width: 100%;
+  height: 100%;
+  fill: currentColor;
+}
+
+/* Hover */
+.pb-icon:hover {
+  color: var(--pb-icon-hover-color, var(--pb-icon-color));
+  transform: var(--pb-icon-hover-transform, none);
+}
+
+Link Element
+css
+
+/* ═══════════════════════════════════════════════════════════
+   LINK ELEMENT
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-element[data-type="link"] {
+  width: auto;
+}
+
+.pb-link {
+  /* Reset */
+  text-decoration: none;
+  
+  /* Typography */
+  font-family: var(--pb-link-font, var(--pb-font-family));
+  font-size: var(--pb-link-size, inherit);
+  font-weight: var(--pb-link-weight, 500);
+  
+  /* Color */
+  color: var(--pb-link-color, var(--pb-color-text));
+  
+  /* Transition */
+  transition: color var(--pb-transition-fast);
+  
+  /* Underline control */
+  text-decoration: var(--pb-link-decoration, none);
+}
+
+.pb-link:hover {
+  color: var(--pb-link-hover-color, var(--pb-color-primary));
+  text-decoration: var(--pb-link-hover-decoration, none);
+}
+
+Bölüm 5: CSS Inheritance (Miras) Bağımlılıkları
+Miras Alınan Özellikler
+css
+
+/* ═══════════════════════════════════════════════════════════
+   INHERITED PROPERTIES
+   Container'dan elementlere miras geçen özellikler
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container {
+  /* Bu özellikler child elementlere miras geçer */
+  font-family: var(--pb-font-family);
+  font-size: var(--pb-font-size-base);
+  line-height: var(--pb-line-height-base);
+  color: var(--pb-color-text);
+  text-align: left;
+  
+  /* letter-spacing, word-spacing de miras geçer */
+}
+```
+
+### Miras Şeması
+```
+Container (Parent)
+│
+│   font-family: 'Inter' ─────────────────┐
+│   color: #333333 ───────────────────────┤
+│   font-size: 16px ──────────────────────┤ (Miras)
+│   line-height: 1.6 ─────────────────────┤
+│   text-align: center ───────────────────┘
+│
+├── Heading Element
+│   │
+│   │   color: inherit (veya override)
+│   │   font-family: inherit (veya override)
+│   │   text-align: inherit (veya override)
+│
+├── Text Element
+│   │
+│   │   color: inherit ──────── #333333 alır
+│   │   font-family: inherit ── 'Inter' alır
+│   │   font-size: inherit ──── 16px alır
+│
+└── Button Element
+    │
+    │   color: #ffffff ──────── Override (miras almaz)
+    │   font-family: inherit ── 'Inter' alır
+
+Miras Override Örneği
+html
+
+<!-- Parent Container -->
+<div 
+  class="pb-container" 
+  style="
+    --pb-text-color: #333333;
+    --pb-heading-color: #1a1a2e;
+    color: #333333;
+  "
+>
+  
+  <!-- Bu text parent'tan renk miras alır -->
+  <div class="pb-element" data-type="text">
+    <p class="pb-text">Bu metin #333333 renkte</p>
+  </div>
+  
+  <!-- Bu text kendi rengini override eder -->
+  <div 
+    class="pb-element" 
+    data-type="text"
+    style="--pb-text-color: #ff0000;"
+  >
+    <p class="pb-text">Bu metin #ff0000 renkte</p>
+  </div>
+  
+</div>
+
+Bölüm 6: Responsive CSS Sistemi
+Breakpoint Tanımları
+css
+
+/* ═══════════════════════════════════════════════════════════
+   BREAKPOINTS
+   ═══════════════════════════════════════════════════════════ */
+
+:root {
+  --pb-breakpoint-sm: 576px;
+  --pb-breakpoint-md: 768px;
+  --pb-breakpoint-lg: 1024px;
+  --pb-breakpoint-xl: 1280px;
+  --pb-breakpoint-2xl: 1536px;
+}
+
+/* Mobile First Approach */
+
+/* Base styles (Mobile) */
+.pb-container {
+  flex-direction: column;
+  padding: 16px;
+}
+
+/* Tablet ve üzeri */
+@media (min-width: 768px) {
+  .pb-container[data-direction-md="row"] {
+    flex-direction: row;
+  }
+  
+  .pb-container[data-direction-md="column"] {
+    flex-direction: column;
+  }
+}
+
+/* Desktop ve üzeri */
+@media (min-width: 1024px) {
+  .pb-container[data-direction-lg="row"] {
+    flex-direction: row;
+  }
+  
+  .pb-container[data-direction-lg="column"] {
+    flex-direction: column;
+  }
+}
+
+Responsive Data Attributes
+html
+
+<!-- Responsive Container -->
+<div 
+  class="pb-container" 
+  data-id="header-container"
+  data-type="flex"
+  
+  data-direction="column"
+  data-direction-md="row"
+  data-direction-lg="row"
+  
+  data-justify="center"
+  data-justify-md="between"
+  data-justify-lg="between"
+  
+  data-align="center"
+  data-align-md="center"
+  data-align-lg="center"
+  
+  style="
+    --pb-gap: 16px;
+    --pb-gap-md: 24px;
+    --pb-gap-lg: 32px;
+    
+    --pb-padding-top: 16px;
+    --pb-padding-top-md: 20px;
+    --pb-padding-top-lg: 24px;
+  "
+>
+  <!-- Children -->
+</div>
+
+Responsive CSS Variables
+css
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE CSS VARIABLES
+   ═══════════════════════════════════════════════════════════ */
+
+.pb-container {
+  /* Mobile (default) */
+  gap: var(--pb-gap, 0);
+  padding: var(--pb-padding-top, 0) var(--pb-padding-right, 0) 
+           var(--pb-padding-bottom, 0) var(--pb-padding-left, 0);
+}
+
+@media (min-width: 768px) {
+  .pb-container {
+    gap: var(--pb-gap-md, var(--pb-gap, 0));
+    padding: var(--pb-padding-top-md, var(--pb-padding-top, 0))
+             var(--pb-padding-right-md, var(--pb-padding-right, 0))
+             var(--pb-padding-bottom-md, var(--pb-padding-bottom, 0))
+             var(--pb-padding-left-md, var(--pb-padding-left, 0));
+  }
+}
+
+@media (min-width: 1024px) {
+  .pb-container {
+    gap: var(--pb-gap-lg, var(--pb-gap-md, var(--pb-gap, 0)));
+    padding: var(--pb-padding-top-lg, var(--pb-padding-top-md, var(--pb-padding-top, 0)))
+             var(--pb-padding-right-lg, var(--pb-padding-right-md, var(--pb-padding-right, 0)))
+             var(--pb-padding-bottom-lg, var(--pb-padding-bottom-md, var(--pb-padding-bottom, 0)))
+             var(--pb-padding-left-lg, var(--pb-padding-left-md, var(--pb-padding-left, 0)));
+  }
+}
+
+Visibility Control
+css
+
+/* ═══════════════════════════════════════════════════════════
+   RESPONSIVE VISIBILITY
+   ═══════════════════════════════════════════════════════════ */
+
+/* Hide on specific breakpoints */
+.pb-hide-mobile {
+  display: none !important;
+}
+
+@media (min-width: 768px) {
+  .pb-hide-mobile {
+    display: flex !important;
+  }
+  
+  .pb-hide-tablet {
+    display: none !important;
+  }
+}
+
+@media (min-width: 1024px) {
+  .pb-hide-tablet {
+    display: flex !important;
+  }
+  
+  .pb-hide-desktop {
+    display: none !important;
+  }
+}
+
+/* Show only on specific breakpoints */
+.pb-show-mobile-only {
+  display: flex !important;
+}
+
+@media (min-width: 768px) {
+  .pb-show-mobile-only {
+    display: none !important;
+  }
+}
+
+Bölüm 7: Tam HTML Çıktı Örneği (Topbar + Header)
+html
+
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link rel="stylesheet" href="page-builder.css">
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════════════════════════
+     TOPBAR
+     ═══════════════════════════════════════════════════════════ -->
+<div 
+  class="pb-container pb-hide-mobile" 
+  data-id="topbar"
+  data-type="flex"
+  data-direction="row"
+  data-justify="between"
+  data-align="center"
+  data-width="full"
+  style="
+    --pb-padding-top: 8px;
+    --pb-padding-right: 40px;
+    --pb-padding-bottom: 8px;
+    --pb-padding-left: 40px;
+    --pb-bg-color: #1a1a2e;
+  "
+>
+
+  <!-- Sol: İletişim Bilgileri -->
+  <div 
+    class="pb-container" 
+    data-id="topbar-left"
+    data-type="flex"
+    data-direction="row"
+    data-align="center"
+    style="--pb-gap: 24px;"
+  >
+  
+    <!-- Email -->
+    <div class="pb-element" data-id="email" data-type="icon-text">
+      <div class="pb-icon-text" style="--pb-icon-size: 14px; --pb-text-size: 13px; --pb-text-color: #ffffff;">
+        <span class="pb-icon">
+          <svg><!-- mail icon --></svg>
+        </span>
+        <span class="pb-text">info@sirket.com</span>
+      </div>
+    </div>
+    
+    <!-- Phone -->
+    <div class="pb-element" data-id="phone" data-type="icon-text">
+      <div class="pb-icon-text" style="--pb-icon-size: 14px; --pb-text-size: 13px; --pb-text-color: #ffffff;">
+        <span class="pb-icon">
+          <svg><!-- phone icon --></svg>
+        </span>
+        <span class="pb-text">+90 555 123 4567</span>
+      </div>
+    </div>
+    
+  </div>
+
+  <!-- Sağ: Dil Seçenekleri -->
+  <div 
+    class="pb-container" 
+    data-id="topbar-right"
+    data-type="flex"
+    data-direction="row"
+    data-align="center"
+    style="--pb-gap: 16px;"
+  >
+  
+    <div class="pb-element" data-id="lang-tr" data-type="link">
+      <a class="pb-link" href="/tr" style="--pb-link-color: #ffffff; --pb-link-hover-color: #aaaaaa;">
+        TR
+      </a>
+    </div>
+    
+    <div class="pb-element" data-id="lang-en" data-type="link">
+      <a class="pb-link" href="/en" style="--pb-link-color: #ffffff; --pb-link-hover-color: #aaaaaa;">
+        EN
+      </a>
+    </div>
+    
+    <div class="pb-element" data-id="lang-de" data-type="link">
+      <a class="pb-link" href="/de" style="--pb-link-color: #ffffff; --pb-link-hover-color: #aaaaaa;">
+        DE
+      </a>
+    </div>
+    
+  </div>
+
+</div>
+
+
+<!-- ═══════════════════════════════════════════════════════════
+     HEADER
+     ═══════════════════════════════════════════════════════════ -->
+<header 
+  class="pb-container" 
+  data-id="header"
+  data-type="flex"
+  data-direction="row"
+  data-justify="between"
+  data-align="center"
+  data-width="boxed"
+  style="
+    --pb-container-max-width: 1200px;
+    --pb-min-height: 80px;
+    --pb-padding-top: 0;
+    --pb-padding-right: 40px;
+    --pb-padding-right-md: 24px;
+    --pb-padding-bottom: 0;
+    --pb-padding-left: 40px;
+    --pb-padding-left-md: 24px;
+    --pb-bg-color: #ffffff;
+    --pb-box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+  "
+>
+
+  <!-- Logo -->
+  <div 
+    class="pb-container" 
+    data-id="header-logo"
+    data-type="flex"
+    data-align="center"
+  >
+    <div class="pb-element" data-id="logo" data-type="image">
+      <a href="/">
+        <img 
+          class="pb-image" 
+          src="/logo.svg" 
+          alt="Logo"
+          style="--pb-image-width: 150px; --pb-image-height: auto;"
+        >
+      </a>
+    </div>
+  </div>
+
+  <!-- Navigation (Desktop) -->
+  <nav 
+    class="pb-container pb-hide-mobile" 
+    data-id="header-nav"
+    data-type="flex"
+    data-direction="row"
+    data-align="center"
+    style="--pb-gap: 32px;"
+  >
+  
+    <div class="pb-element" data-id="nav-home" data-type="link">
+      <a 
+        class="pb-link" 
+        href="/"
+        style="
+          --pb-link-size: 15px;
+          --pb-link-weight: 500;
+          --pb-link-color: #333333;
+          --pb-link-hover-color: #0066ff;
+        "
+      >
+        Ana Sayfa
+      </a>
+    </div>
+    
+    <div class="pb-element" data-id="nav-services" data-type="link">
+      <a 
+        class="pb-link" 
+        href="/hizmetler"
+        style="
+          --pb-link-size: 15px;
+          --pb-link-weight: 500;
+          --pb-link-color: #333333;
+          --pb-link-hover-color: #0066ff;
+        "
+      >
+        Hizmetler
+      </a>
+    </div>
+    
+    <div class="pb-element" data-id="nav-about" data-type="link">
+      <a 
+        class="pb-link" 
+        href="/hakkimizda"
+        style="
+          --pb-link-size: 15px;
+          --pb-link-weight: 500;
+          --pb-link-color: #333333;
+          --pb-link-hover-color: #0066ff;
+        "
+      >
+        Hakkımızda
+      </a>
+    </div>
+    
+    <div class="pb-element" data-id="nav-blog" data-type="link">
+      <a 
+        class="pb-link" 
+        href="/blog"
+        style="
+          --pb-link-size: 15px;
+          --pb-link-weight: 500;
+          --pb-link-color: #333333;
+          --pb-link-hover-color: #0066ff;
+        "
+      >
+        Blog
+      </a>
+    </div>
+    
+    <div class="pb-element" data-id="nav-contact" data-type="link">
+      <a 
+        class="pb-link" 
+        href="/iletisim"
+        style="
+          --pb-link-size: 15px;
+          --pb-link-weight: 500;
+          --pb-link-color: #333333;
+          --pb-link-hover-color: #0066ff;
+        "
+      >
+        İletişim
+      </a>
+    </div>
+    
+  </nav>
+
+  <!-- Actions -->
+  <div 
+    class="pb-container" 
+    data-id="header-actions"
+    data-type="flex"
+    data-direction="row"
+    data-align="center"
+    style="--pb-gap: 16px;"
+  >
+  
+    <!-- Search Icon -->
+    <div class="pb-element pb-hide-mobile" data-id="search-icon" data-type="icon">
+      <button 
+        class="pb-icon" 
+        aria-label="Ara"
+        style="
+          --pb-icon-size: 20px;
+          --pb-icon-color: #333333;
+          --pb-icon-hover-color: #0066ff;
+        "
+      >
+        <svg><!-- search icon --></svg>
+      </button>
+    </div>
+    
+    <!-- CTA Button -->
+    <div class="pb-element pb-hide-mobile" data-id="cta-button" data-type="button">
+      <a 
+        class="pb-button" 
+        href="/teklif"
+        style="
+          --pb-button-bg: #0066ff;
+          --pb-button-color: #ffffff;
+          --pb-button-padding-y: 12px;
+          --pb-button-padding-x: 24px;
+          --pb-button-radius: 6px;
+          --pb-button-hover-bg: #0052cc;
+          --pb-button-hover-shadow: 0 4px 12px rgba(0,102,255,0.3);
+          --pb-button-hover-transform: translateY(-2px);
+        "
+      >
+        Teklif Al
+      </a>
+    </div>
+    
+    <!-- Mobile Menu Toggle -->
+    <div class="pb-element pb-show-mobile-only" data-id="mobile-toggle" data-type="icon">
+      <button 
+        class="pb-icon" 
+        aria-label="Menü"
+        data-toggle="mobile-menu"
+        style="
+          --pb-icon-size: 24px;
+          --pb-icon-color: #333333;
+        "
+      >
+        <svg><!-- hamburger icon --></svg>
+      </button>
+    </div>
+    
+  </div>
+
+</header>
+
+</body>
+</html>
+```
+
+---
+
+## Bölüm 8: CSS Specificity Hiyerarşisi
+```
+Öncelik Sırası (Düşükten Yükseğe):
+═══════════════════════════════════════════════════════════
+
+1. Base Styles (En düşük)
+   .pb-container { ... }
+   .pb-element { ... }
+
+2. Type Selectors
+   .pb-container[data-type="flex"] { ... }
+   .pb-element[data-type="button"] { ... }
+
+3. Attribute Selectors
+   .pb-container[data-direction="row"] { ... }
+   .pb-button[data-variant="outline"] { ... }
+
+4. State Selectors
+   .pb-button:hover { ... }
+   .pb-link:focus { ... }
+
+5. Responsive Overrides
+   @media (...) { .pb-container { ... } }
+
+6. Inline CSS Variables (En yüksek - !important hariç)
+   style="--pb-gap: 24px;"
+
+═══════════════════════════════════════════════════════════
+
+Bu dokümantasyon builder'ın CSS/HTML bağımlılık yapısını kapsamlı şekilde açıklıyor. Başka bir bölüm veya daha fazla detay ister misin?
+
+
+Claude is AI and can make mistakes. Please double-check responses.
+
+Claude

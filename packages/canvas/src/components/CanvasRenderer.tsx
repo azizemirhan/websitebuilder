@@ -2,8 +2,8 @@
  * Canvas Renderer - Main canvas viewport component
  */
 
-import React, { memo, useCallback, useRef, useState } from 'react';
-import { useCanvasStore, useHistoryStore, useSettingsStore, CanvasState, snapToGridValue } from '@builder/core';
+import React, { memo, useCallback, useRef, useState, useEffect } from 'react';
+import { useCanvasStore, useHistoryStore, useSettingsStore, CanvasState, snapToGridValue, useBehaviorStore } from '@builder/core';
 import { ElementRenderer } from './ElementRenderer';
 import { ResizeHandles, ResizeDirection } from './ResizeHandles';
 import { GridOverlay } from './GridOverlay';
@@ -11,6 +11,7 @@ import { SmartGuides } from './SmartGuides';
 import { ContextMenu } from './ContextMenu';
 import { MarqueeSelection } from './MarqueeSelection';
 import { Rulers } from './Rulers';
+import { ElementControls } from './ElementControls';
 
 // Helper to safely get numeric value from string | number | undefined
 const getNumericStyleValue = (value: number | string | undefined, fallback = 0): number => {
@@ -23,6 +24,7 @@ const getNumericStyleValue = (value: number | string | undefined, fallback = 0):
 interface CanvasRendererProps {
   width?: number;
   height?: number;
+  isPreview?: boolean;
 }
 
 interface DragState {
@@ -63,10 +65,17 @@ interface ContextMenuState {
 export const CanvasRenderer = memo(function CanvasRenderer({
   width = 1440,
   height = 900,
+  isPreview = false,
 }: CanvasRendererProps) {
+  // Sync viewport width with behavior store for visibility conditions
+  useEffect(() => {
+    useBehaviorStore.getState().updateViewportWidth(width);
+  }, [width]);
+
   const rootElementIds = useCanvasStore((state) => state.rootElementIds);
   const elements = useCanvasStore((state) => state.elements);
   const selectedElementIds = useCanvasStore((state) => state.selectedElementIds);
+  const hoveredElementId = useCanvasStore((state) => state.hoveredElementId);
   const clearSelection = useCanvasStore((state) => state.clearSelection);
   const selectElement = useCanvasStore((state) => state.selectElement);
   const selectMultiple = useCanvasStore((state) => state.selectMultiple);
@@ -74,9 +83,15 @@ export const CanvasRenderer = memo(function CanvasRenderer({
   const addToHistory = useHistoryStore((state) => state.addToHistory);
   
   // Settings
-  const zoom = useSettingsStore((state) => state.zoom);
-  const panX = useSettingsStore((state) => state.panX);
-  const panY = useSettingsStore((state) => state.panY);
+  // Settings
+  const storeZoom = useSettingsStore((state) => state.zoom);
+  const storePanX = useSettingsStore((state) => state.panX);
+  const storePanY = useSettingsStore((state) => state.panY);
+  
+  // Use overrides if in preview mode
+  const zoom = isPreview ? 1 : storeZoom;
+  const panX = isPreview ? 0 : storePanX;
+  const panY = isPreview ? 0 : storePanY;
   const setZoom = useSettingsStore((state) => state.setZoom);
   const setPan = useSettingsStore((state) => state.setPan);
   const snapToGrid = useSettingsStore((state) => state.snapToGrid);
@@ -166,6 +181,8 @@ export const CanvasRenderer = memo(function CanvasRenderer({
 
   // Handle canvas mouse down
   const handleCanvasMouseDown = useCallback((e: React.MouseEvent) => {
+    console.log('[Drag] Mouse Down on Canvas', e.clientX, e.clientY);
+    
     // Close context menu if open
     if (contextMenu.isOpen) {
       closeContextMenu();
@@ -200,19 +217,26 @@ export const CanvasRenderer = memo(function CanvasRenderer({
     
     // Find clicked element
     const elementEl = target.closest('[data-element-id]');
-    if (!elementEl) return;
+    if (!elementEl) {
+        console.log('[Drag] No element found via closest');
+        return;
+    }
     
     const elementId = elementEl.getAttribute('data-element-id');
     if (!elementId) return;
     
     const element = elements[elementId];
-    if (!element || element.locked) return;
+    if (!element || element.locked) {
+        console.log('[Drag] Element locked or not found', elementId);
+        return;
+    }
     
     // Select the element
     selectElement(elementId, e.shiftKey);
     
     // Start drag immediately
     saveHistory();
+    console.log('[Drag] Starting drag for:', elementId);
     setDragState({
       isDragging: true,
       elementId,
@@ -273,6 +297,170 @@ export const CanvasRenderer = memo(function CanvasRenderer({
     
     // Handle drag
     if (dragState.isDragging && dragState.elementId) {
+      console.log('[Drag] Mouse Move - Dragging:', dragState.elementId);
+      const element = elements[dragState.elementId];
+      
+      if (!element) {
+        console.log('[Drag] Element not found!');
+        return;
+      }
+      
+      console.log('[Drag] Element:', element.name, 'Position:', element.style.position, 'Parent:', element.parentId);
+      
+      // Check if parent exists and has flex/grid layout
+      const parent = element?.parentId ? elements[element.parentId] : null;
+      console.log('[Drag] Parent:', parent ? parent.name : 'NO PARENT (root level)');
+
+      // Simple heuristic for flow layout: parent is flex/grid
+      // Ideally we would check computed styles, but checking style props + default is a good start
+      // We can also assume non-absolute elements are flow
+      const isAbsolute = element.style.position === 'absolute' || element.style.position === 'fixed';
+      
+      // ===== DROP ZONE DETECTION =====
+      // Fare altındaki container'ı bul
+      const mouseX = e.clientX;
+      const mouseY = e.clientY;
+      const elementsAtPoint = document.elementsFromPoint(mouseX, mouseY);
+      
+      // Sürüklenen elementin kendisi hariç, container bul
+      let dropTargetContainer: any = null;
+      for (const el of elementsAtPoint) {
+        const targetId = el.getAttribute('data-element-id');
+        if (targetId && targetId !== dragState.elementId) {
+          const targetElement = elements[targetId];
+          if (targetElement && targetElement.type === 'container') {
+            dropTargetContainer = targetElement;
+            console.log('[Drag] Drop target container:', targetElement.name);
+            break;
+          }
+        }
+      }
+      
+      // Tüm container'lardan highlight'ı kaldır
+      document.querySelectorAll('[data-element-id]').forEach(el => {
+        const htmlEl = el as HTMLElement;
+        if (htmlEl.style.outline.includes('4px dashed')) {
+          htmlEl.style.outline = '';
+        }
+      });
+      
+      // Drop target varsa highlight et
+      if (dropTargetContainer) {
+        const dropEl = document.querySelector(`[data-element-id="${dropTargetContainer.id}"]`) as HTMLElement;
+        if (dropEl) {
+          dropEl.style.outline = '4px dashed #3b82f6';
+          dropEl.style.outlineOffset = '4px';
+        }
+      }
+      
+      // If we are in a Flow layout (not absolute), we use Reordering logic
+      // We need to find the "effective" element to reorder.
+      // If the dragged element is the ONLY child of its parent, we try to reorder the Parent instead.
+      // This handles cases where components are wrapped in divs.
+      
+      let effectiveElementId = dragState.elementId;
+      let effectiveParent = parent;
+      let siblings: Element[] = [];
+      let parentEl: HTMLElement | null = null;
+      let isAbsoluteEffective = isAbsolute;
+
+      // Traversal Loop
+      while (effectiveParent && !isAbsoluteEffective) {
+          parentEl = document.querySelector(`[data-element-id="${effectiveParent.id}"]`) as HTMLElement;
+          if (!parentEl) break;
+
+          siblings = Array.from(parentEl.children).filter(child => 
+              child.getAttribute('data-element-id') !== effectiveElementId
+          ) as Element[];
+
+
+          // If we have siblings (meaning we can reorder here), stop traversing
+          if (siblings.length > 0) {
+              // console.log(`[Drag] Found reorderable level: ${effectiveElementId} in ${effectiveParent.id} with ${siblings.length} siblings`);
+              break;
+          }
+
+          // If no siblings, and we have a grandparent, traverse up
+          if (effectiveParent.parentId) {
+               // console.log(`[Drag] Element ${effectiveElementId} is unique child. Traversing up to ${effectiveParent.id}`);
+               const grandParent = useCanvasStore.getState().elements[effectiveParent.parentId];
+               if (grandParent) {
+                   effectiveElementId = effectiveParent.id;
+                   effectiveParent = grandParent;
+                   
+                   // Check if new element is absolute
+                   const effectiveElStyle = useCanvasStore.getState().elements[effectiveElementId].style;
+                   const pos = effectiveElStyle?.position;
+                   isAbsoluteEffective = pos === 'absolute' || pos === 'fixed';
+                   continue;
+               }
+          }
+          break;
+      }
+
+      if (effectiveParent && !isAbsoluteEffective && parentEl && siblings.length > 0) {
+             
+             // DEBUG LOGS
+             // console.log('[Drag] Flow Reorder Check. Siblings:', siblings.length);
+
+             // Find insertion index based on mouse position
+             let insertIndex = siblings.length; // Default to end
+             
+             const parentStyle = window.getComputedStyle(parentEl);
+             const isRow = parentStyle.flexDirection.includes('row') || parentStyle.display === 'grid';
+             
+             // Find the first sibling that is "after" the cursor
+             for (let i = 0; i < siblings.length; i++) {
+                 const box = siblings[i].getBoundingClientRect();
+                 
+                 // Skip invisible elements (width/height 0) to prevent logic errors
+                 if (box.width === 0 || box.height === 0 || window.getComputedStyle(siblings[i]).display === 'none') {
+                     continue;
+                 }
+
+                 const centerX = box.left + box.width / 2;
+                 const centerY = box.top + box.height / 2;
+
+                 // DEBUG
+                 // console.log(`[Drag] Sib ${i} Center: ${centerX},${centerY} vs Mouse: ${e.clientX},${e.clientY}`);
+                 
+                 // If cursor is before this sibling 'center', we insert here
+                 if (isRow) {
+                     if (e.clientX < centerX) {
+                         insertIndex = i;
+                         break;
+                     }
+                 } else {
+                     if (e.clientY < centerY) {
+                         insertIndex = i;
+                         break;
+                     }
+                 }
+             }
+             
+             // Current Real Index in Store
+             const currentRealIndex = effectiveParent.children.indexOf(effectiveElementId);
+
+             // DEBUG
+             console.log(`[Drag] Flow Layout - Insert ${insertIndex}, Current ${currentRealIndex}, isRow ${isRow}`);
+             
+             if (insertIndex !== currentRealIndex) {
+                 console.log(`[Drag] Reordering: ${currentRealIndex} -> ${insertIndex}`);
+                 useCanvasStore.getState().reorderElement(effectiveElementId, insertIndex);
+             }
+             
+             // Görsel feedback için opacity değiştir
+             if (dragState.elementId) {
+               const draggedEl = document.querySelector(`[data-element-id="${dragState.elementId}"]`) as HTMLElement;
+               if (draggedEl) {
+                   draggedEl.style.opacity = '0.5';
+               }
+             }
+             return; // Flow layout işlendi, absolute drag'e gitme
+          }
+          // Flow layout değilse, absolute drag'e devam et (aşağıya düş)
+
+      // Fallback to Absolute Dragging (default behavior)
       const deltaX = (e.clientX - dragState.startX) / zoom;
       const deltaY = (e.clientY - dragState.startY) / zoom;
       
@@ -328,6 +516,151 @@ export const CanvasRenderer = memo(function CanvasRenderer({
 
   // Handle mouse up
   const handleMouseUp = useCallback(() => {
+    // ===== DROP ZONE PARENT-CHILD İLİŞKİSİ =====
+    if (dragState.isDragging && dragState.elementId) {
+      // Fare altındaki container'ı bul
+      const mouseX = window.event ? (window.event as MouseEvent).clientX : 0;
+      const mouseY = window.event ? (window.event as MouseEvent).clientY : 0;
+      const elementsAtPoint = document.elementsFromPoint(mouseX, mouseY);
+      
+      let dropTargetContainer: any = null;
+      for (const el of elementsAtPoint) {
+        const targetId = el.getAttribute('data-element-id');
+        if (targetId && targetId !== dragState.elementId) {
+          const targetElement = elements[targetId];
+          if (targetElement && targetElement.type === 'container') {
+            dropTargetContainer = targetElement;
+            break;
+          }
+        }
+      }
+      
+      const draggedElement = elements[dragState.elementId];
+      const currentParentId = draggedElement?.parentId;
+      
+      // Eğer bir container üzerine bırakıldıysa
+      if (dropTargetContainer) {
+        // Farklı bir parent'a bırakıldıysa, parent değiştir
+        if (currentParentId !== dropTargetContainer.id) {
+          console.log('[Drop] Changing parent from', currentParentId, 'to', dropTargetContainer.name);
+          const moveElement = useCanvasStore.getState().moveElement;
+          moveElement(dragState.elementId, dropTargetContainer.id);
+          
+          // ===== GRID HÜCRE TESPİTİ VE YERLEŞTİRME =====
+          if (dropTargetContainer.props?.containerType === 'grid') {
+            const containerEl = document.querySelector(`[data-element-id="${dropTargetContainer.id}"]`) as HTMLElement;
+            if (containerEl) {
+              const rect = containerEl.getBoundingClientRect();
+              
+              // Grid bilgilerini al
+              const cols = dropTargetContainer.props?.gridTemplateColumns || 'repeat(3, 1fr)';
+              const rows = dropTargetContainer.props?.gridTemplateRows || 'auto';
+              const colMatch = cols.match(/repeat\((\d+),/);
+              const rowMatch = rows.match(/repeat\((\d+),/);
+              const columnCount = colMatch ? parseInt(colMatch[1]) : 3;
+              const rowCount = rowMatch ? parseInt(rowMatch[1]) : 3;
+              
+              // Mouse pozisyonunu container'a göre hesapla
+              const relativeX = mouseX - rect.left;
+              const relativeY = mouseY - rect.top;
+              
+              // Hangi sütun ve satıra bırakıldığını hesapla
+              const columnWidth = rect.width / columnCount;
+              const rowHeight = rect.height / rowCount;
+              
+              const targetColumn = Math.floor(relativeX / columnWidth) + 1; // 1-indexed
+              const targetRow = Math.floor(relativeY / rowHeight) + 1; // 1-indexed
+              
+              console.log('[Grid Drop] Column:', targetColumn, 'Row:', targetRow);
+              
+              // Element'in style'ına grid-column ve grid-row ekle
+              const updateElementStyle = useCanvasStore.getState().updateElementStyle;
+              updateElementStyle(dragState.elementId, {
+                gridColumn: `${targetColumn}`,
+                gridRow: `${targetRow}`,
+                position: 'relative', // Grid item için relative
+              });
+            }
+          } else {
+            // Flexbox container'a (veya Grid Cell'e) taşındıysa
+            const updateElementStyle = useCanvasStore.getState().updateElementStyle;
+            
+            // Eğer Grid Cell ise, varsayılan olarak Flow davranışı uygula
+            if (dropTargetContainer.props?.isGridCell) {
+              console.log('[Grid Cell Drop] Enforcing Flow Layout');
+              updateElementStyle(dragState.elementId, {
+                gridColumn: undefined,
+                gridRow: undefined,
+                position: 'relative',
+                width: '100%',
+                maxWidth: '100%', // Tașmayı engellemek için kesin sınır
+                boxSizing: 'border-box', // Padding'i genişliğe dahil et
+                height: 'auto',
+                left: 'auto',
+                top: 'auto',
+                minWidth: 0, // Flex/Grid içinde minimum width sorunu için
+                marginTop: 0,
+                marginBottom: 8 // default spacing
+              });
+            } else {
+              // Normal container (Absolute veya Flex)
+              // KULLANICI İSTEĞİ: Default olarak Relative ve Full Width gelsin
+              updateElementStyle(dragState.elementId, {
+                gridColumn: undefined,
+                gridRow: undefined,
+                position: 'relative',
+                width: '100%', 
+                maxWidth: '100%',
+                boxSizing: 'border-box',
+                height: 'auto', // User "uzunluk" dedi ama text için auto iyidir, container için manuel ayarlanır
+                left: 'auto',
+                top: 'auto',
+                minWidth: 0,
+                marginTop: 0,
+                marginBottom: 0
+              });
+            }
+          }
+          
+          saveHistory();
+        }
+      } else {
+        // Container üzerine bırakılmadıysa (canvas'a bırakıldı)
+        // Eğer element şu anda bir parent'a sahipse, root'a taşı
+        if (currentParentId) {
+          console.log('[Drop] Moving to root (removing parent)');
+          const moveElement = useCanvasStore.getState().moveElement;
+          moveElement(dragState.elementId, null); // null = root
+          
+          // Grid properties'i temizle
+          const updateElementStyle = useCanvasStore.getState().updateElementStyle;
+          updateElementStyle(dragState.elementId, {
+            gridColumn: undefined,
+            gridRow: undefined,
+            position: 'absolute', // Root'ta absolute
+          });
+          
+          saveHistory();
+        }
+      }
+    }
+    
+    // Tüm highlight'ları temizle
+    document.querySelectorAll('[data-element-id]').forEach(el => {
+      const htmlEl = el as HTMLElement;
+      if (htmlEl.style.outline.includes('4px dashed')) {
+        htmlEl.style.outline = '';
+      }
+    });
+    
+    // Opacity'yi reset et
+    if (dragState.elementId) {
+      const draggedEl = document.querySelector(`[data-element-id="${dragState.elementId}"]`) as HTMLElement;
+      if (draggedEl) {
+        draggedEl.style.opacity = '';
+      }
+    }
+    
     // Finalize marquee selection
     if (marqueeState.isSelecting) {
       const left = Math.min(marqueeState.startX, marqueeState.currentX);
@@ -384,7 +717,85 @@ export const CanvasRenderer = memo(function CanvasRenderer({
       initialW: 0,
       initialH: 0,
     });
-  }, [marqueeState, elements, selectMultiple]);
+  }, [marqueeState, elements, selectMultiple, dragState.elementId, dragState.isDragging, saveHistory]);
+
+  // ===== EXTERNAL DRAG & DROP SUPPORT =====
+  const [dropIndicator, setDropIndicator] = useState<{top: number, left: number, width: number} | null>(null);
+  const addElement = useCanvasStore((state) => state.addElement);
+
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    // Calculate Drop Position (Pink Line)
+    const mouseX = e.clientX;
+    const mouseY = e.clientY;
+    
+    // Find target container
+    const elementsAtPoint = document.elementsFromPoint(mouseX, mouseY);
+    let targetContainer: any = null;
+    for (const el of elementsAtPoint) {
+      const id = el.getAttribute('data-element-id');
+      if (id && elements[id]?.type === 'container') {
+        targetContainer = elements[id];
+        break;
+      }
+    }
+
+    if (targetContainer && canvasRef.current) {
+       const containerEl = document.querySelector(`[data-element-id="${targetContainer.id}"]`) as HTMLElement;
+       if (containerEl) {
+         const rect = containerEl.getBoundingClientRect();
+         const canvasRect = canvasRef.current.getBoundingClientRect();
+         
+         const relativeX = (rect.left - canvasRect.left) / zoom - panX/zoom;
+         const relativeY = (rect.bottom - canvasRect.top) / zoom - panY/zoom - 10;
+         
+         setDropIndicator({
+           left: relativeX,
+           top: relativeY,
+           width: rect.width / zoom
+         });
+         return;
+       }
+    }
+    setDropIndicator(null);
+  }, [elements, zoom, panX, panY]);
+
+  const handleDrop = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    setDropIndicator(null);
+    
+    const data = e.dataTransfer.getData('application/json');
+    if (!data) return;
+
+    try {
+      const payload = JSON.parse(data);
+      if (payload.type === 'new_element') {
+        const mouseX = e.clientX;
+        const mouseY = e.clientY;
+        const elementsAtPoint = document.elementsFromPoint(mouseX, mouseY);
+        let targetContainerId: string | null = null;
+        
+        for (const el of elementsAtPoint) {
+           const id = el.getAttribute('data-element-id');
+           if (id && elements[id]?.type === 'container') {
+             targetContainerId = id;
+             break;
+           }
+        }
+        
+        addElement({
+          type: payload.elementType,
+          name: payload.name,
+        }, targetContainerId);
+        
+        saveHistory();
+      }
+    } catch (err) {
+      // Ignore
+    }
+  }, [addElement, elements, saveHistory]);
 
   // Handle wheel for zoom
   const handleWheel = useCallback((e: React.WheelEvent) => {
@@ -398,14 +809,15 @@ export const CanvasRenderer = memo(function CanvasRenderer({
   const canvasStyle: React.CSSProperties = {
     position: 'relative',
     width,
-    height,
+    minHeight: height,
+    height: 'auto', // Allow content to expand
     backgroundColor: '#ffffff',
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
     borderRadius: 4,
-    overflow: 'hidden',
+    overflow: 'visible', // Allow content to be visible for parent scroll
     cursor: isPanning ? 'grabbing' : dragState.isDragging ? 'move' : 'default',
     transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
-    transformOrigin: 'center center',
+    transformOrigin: 'top center',
   };
 
   const selectedElement = selectedElementIds.length === 1 
@@ -414,26 +826,60 @@ export const CanvasRenderer = memo(function CanvasRenderer({
 
   return (
     <>
-      {/* Rulers */}
-      <Rulers width={width} height={height} />
+      {/* Rulers - Hide in preview */}
+      {!isPreview && <Rulers width={width} height={height} />}
       
       <div
         ref={canvasRef}
+        className="editor-canvas-root"
         style={canvasStyle}
-        onMouseDown={handleCanvasMouseDown}
-        onMouseMove={handleMouseMove}
-        onMouseUp={handleMouseUp}
-        onMouseLeave={handleMouseUp}
+        onMouseDown={!isPreview ? handleCanvasMouseDown : undefined}
+        onMouseMove={!isPreview ? handleMouseMove : undefined}
+        onMouseUp={!isPreview ? handleMouseUp : undefined}
+        onMouseLeave={!isPreview ? handleMouseUp : undefined}
         onWheel={handleWheel}
-        onContextMenu={handleContextMenu}
+        onContextMenu={!isPreview ? handleContextMenu : undefined}
+        // External Drag Events
+        onDragOver={!isPreview ? handleDragOver : undefined}
+        onDrop={!isPreview ? handleDrop : undefined}
       >
-        {/* Grid Overlay */}
-        <GridOverlay width={width} height={height} />
+        {/* Drop Indicator (Pink Line) */}
+        {dropIndicator && (
+          <div style={{
+            position: 'absolute',
+            top: dropIndicator.top,
+            left: dropIndicator.left,
+            width: dropIndicator.width,
+            height: 4,
+            backgroundColor: '#FF00CC', // Pink
+            boxShadow: '0 0 8px rgba(255, 0, 204, 0.5)',
+            zIndex: 1000,
+            pointerEvents: 'none',
+            borderRadius: 2,
+          }} />
+        )}
+
+        {/* Grid Overlay - Hide in preview */}
+        {!isPreview && <GridOverlay width={width} height={height} />}
         
         {/* Render all root elements */}
-        {rootElementIds.map((id) => (
-          <ElementRenderer key={id} elementId={id} />
-        ))}
+        {rootElementIds
+          .filter((id) => {
+            // Hide containers that are used as mega menus
+            const megaMenuContainerIds = new Set<string>();
+            Object.values(elements).forEach((el) => {
+              // Only hide if showMegaMenuContainers is NOT true OR if we are in PREVIEW mode
+              if (el.type === 'menu' && el.props?.megaMenuBindings && (isPreview || !el.props.showMegaMenuContainers)) {
+                Object.values(el.props.megaMenuBindings as Record<number, string>).forEach((containerId) => {
+                  megaMenuContainerIds.add(containerId);
+                });
+              }
+            });
+            return !megaMenuContainerIds.has(id);
+          })
+          .map((id) => (
+            <ElementRenderer key={id} elementId={id} isPreview={isPreview} />
+          ))}
         
         {/* Smart Guides */}
         <SmartGuides />
@@ -448,12 +894,25 @@ export const CanvasRenderer = memo(function CanvasRenderer({
           />
         )}
         
-        {/* Render resize handles for selected element */}
-        {selectedElement && !dragState.isDragging && (
+        {/* Render resize handles for selected element - Hide in preview */}
+        {!isPreview && selectedElement && !dragState.isDragging && !selectedElement.props?.isGridCell && (
           <ResizeHandles
             element={selectedElement}
             onResizeStart={handleResizeStart}
           />
+        )}
+
+        {/* Elementor-style Controls - Hide in preview */}
+        {!isPreview && !dragState.isDragging && !resizeState.isResizing && !marqueeState.isSelecting && (
+           <>
+              {selectedElementIds.length === 1 && (
+                  <ElementControls elementId={selectedElementIds[0]} />
+              )}
+              {hoveredElementId && 
+               !selectedElementIds.includes(hoveredElementId) && (
+                  <ElementControls elementId={hoveredElementId} />
+              )}
+           </>
         )}
       </div>
       

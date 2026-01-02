@@ -4,24 +4,10 @@
 
 import type { TemplateKit } from '../template-kit';
 
-// Import JSON templates
-import announcementBarJson from './nextcommerce-announcement-bar.json';
-import headerJson from './nextcommerce-header.json';
-import heroJson from './nextcommerce-hero.json';
-
-// Type assertion for JSON imports
-export const nextcommerceAnnouncementBar = announcementBarJson as unknown as TemplateKit;
-export const nextcommerceHeader = headerJson as unknown as TemplateKit;
-export const nextcommerceHero = heroJson as unknown as TemplateKit;
-
 /**
- * All pre-built templates
+ * All pre-built templates (empty - templates were removed)
  */
-export const prebuiltTemplates: TemplateKit[] = [
-    nextcommerceAnnouncementBar,
-    nextcommerceHeader,
-    nextcommerceHero,
-];
+export const prebuiltTemplates: TemplateKit[] = [];
 
 /**
  * Get a pre-built template by ID

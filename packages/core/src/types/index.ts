@@ -4,3 +4,5 @@
 
 export * from './element';
 export * from './history';
+export * from './behavior';
+

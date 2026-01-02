@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties, useThemeStore, themeColors } from '@builder/core';
 import { AlignmentGrid } from '../components/AlignmentGrid';
 
 type SizingMode = 'fixed' | 'hug' | 'fill';
@@ -14,6 +14,10 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const updateElement = useCanvasStore((state) => state.updateElement);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
 
@@ -83,9 +87,9 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
     flex: 1,
     padding: '8px 4px',
     border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e5e7eb',
-    backgroundColor: active ? '#dbeafe' : '#ffffff',
-    color: active ? '#1d4ed8' : '#374151',
+    borderColor: active ? colors.primary : colors.border,
+    backgroundColor: active ? colors.primary : colors.surface,
+    color: active ? '#ffffff' : colors.text,
     borderRadius: 6,
     fontSize: 10,
     fontWeight: 500,
@@ -99,15 +103,17 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '8px 10px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 6,
     fontSize: 13,
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase' }}>
           Auto Layout
         </span>
         <button
@@ -132,7 +138,7 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
         <>
           {/* Direction & Alignment */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Direction & Alignment</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 6 }}>Direction & Alignment</div>
             <div style={{ display: 'flex', gap: 12 }}>
               {/* Direction buttons */}
               <div style={{ display: 'flex', flexDirection: 'column', gap: 4 }}>
@@ -176,7 +182,7 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
 
           {/* Gap / Spacing */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Spacing Between Items</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 6 }}>Spacing Between Items</div>
             <input
               type="number"
               style={inputStyle}
@@ -188,7 +194,7 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
 
           {/* Sizing Mode */}
           <div style={{ marginBottom: 16 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Width Sizing</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 6 }}>Width Sizing</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {(['fixed', 'hug', 'fill'] as const).map((mode) => (
                 <button
@@ -196,7 +202,11 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
                   style={buttonStyle(autoLayoutProps?.widthMode === mode)}
                   onClick={() => setSizingMode('width', mode)}
                 >
-                  <span>{mode === 'fixed' ? '📐' : mode === 'hug' ? '🤏' : '↔️'}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    {mode === 'fixed' && <><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="3" y1="12" x2="21" y2="12" /></>}
+                    {mode === 'hug' && <><path d="M8 3v5a4 4 0 008 0V3M8 21v-5a4 4 0 018 0v5" /></>}
+                    {mode === 'fill' && <><line x1="4" y1="12" x2="20" y2="12" /><polyline points="8 8 4 12 8 16" /><polyline points="16 8 20 12 16 16" /></>}
+                  </svg>
                   <span>{mode === 'fixed' ? 'Fixed' : mode === 'hug' ? 'Hug' : 'Fill'}</span>
                 </button>
               ))}
@@ -204,7 +214,7 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
           </div>
 
           <div>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Height Sizing</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 6 }}>Height Sizing</div>
             <div style={{ display: 'flex', gap: 4 }}>
               {(['fixed', 'hug', 'fill'] as const).map((mode) => (
                 <button
@@ -212,7 +222,11 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
                   style={buttonStyle(autoLayoutProps?.heightMode === mode)}
                   onClick={() => setSizingMode('height', mode)}
                 >
-                  <span>{mode === 'fixed' ? '📐' : mode === 'hug' ? '🤏' : '↕️'}</span>
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                    {mode === 'fixed' && <><rect x="3" y="3" width="18" height="18" rx="2" /><line x1="12" y1="3" x2="12" y2="21" /></>}
+                    {mode === 'hug' && <><path d="M3 8h5a4 4 0 010 8H3M21 8h-5a4 4 0 000 8h5" /></>}
+                    {mode === 'fill' && <><line x1="12" y1="4" x2="12" y2="20" /><polyline points="8 8 12 4 16 8" /><polyline points="8 16 12 20 16 16" /></>}
+                  </svg>
                   <span>{mode === 'fixed' ? 'Fixed' : mode === 'hug' ? 'Hug' : 'Fill'}</span>
                 </button>
               ))}
@@ -221,7 +235,7 @@ export const AutoLayoutPanel = memo(function AutoLayoutPanel() {
 
           {/* Padding */}
           <div style={{ marginTop: 16 }}>
-            <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Padding</div>
+            <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 6 }}>Padding</div>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 4 }}>
               <input
                 type="number"

@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, StyleProperties, useThemeStore, themeColors } from '@builder/core';
 
 const SPACING_PRESETS = [0, 4, 8, 12, 16, 20, 24, 32, 40, 48, 64];
 
@@ -12,6 +12,10 @@ export const SpacingPanel = memo(function SpacingPanel() {
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
   
   const [linkPadding, setLinkPadding] = useState(true);
   const [linkMargin, setLinkMargin] = useState(true);
@@ -45,15 +49,17 @@ export const SpacingPanel = memo(function SpacingPanel() {
     width: 36,
     height: 24,
     textAlign: 'center',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 4,
     fontSize: 11,
     padding: 0,
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   const labelStyle: React.CSSProperties = {
     fontSize: 10,
-    color: '#9ca3af',
+    color: colors.textMuted,
     textTransform: 'uppercase',
   };
 
@@ -62,8 +68,8 @@ export const SpacingPanel = memo(function SpacingPanel() {
     height: 20,
     border: 'none',
     borderRadius: 4,
-    backgroundColor: active ? '#dbeafe' : 'transparent',
-    color: active ? '#3b82f6' : '#9ca3af',
+    backgroundColor: active ? colors.primary : 'transparent',
+    color: active ? '#ffffff' : colors.textMuted,
     cursor: 'pointer',
     fontSize: 12,
     display: 'flex',
@@ -98,8 +104,8 @@ export const SpacingPanel = memo(function SpacingPanel() {
   };
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
-      <div style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', marginBottom: 12, textTransform: 'uppercase' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
+      <div style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, marginBottom: 12, textTransform: 'uppercase' }}>
         Spacing
       </div>
 
@@ -108,7 +114,7 @@ export const SpacingPanel = memo(function SpacingPanel() {
         style={{
           position: 'relative',
           padding: 16,
-          backgroundColor: '#fef3c7',
+          backgroundColor: resolvedTheme === 'dark' ? '#4a3f2b' : '#fef3c7',
           borderRadius: 8,
           marginBottom: 12,
         }}
@@ -136,7 +142,7 @@ export const SpacingPanel = memo(function SpacingPanel() {
           <div
             style={{
               flex: 1,
-              backgroundColor: '#bbf7d0',
+              backgroundColor: resolvedTheme === 'dark' ? '#234c3a' : '#bbf7d0',
               borderRadius: 6,
               padding: 12,
               position: 'relative',
@@ -166,13 +172,13 @@ export const SpacingPanel = memo(function SpacingPanel() {
                 style={{
                   flex: 1,
                   height: 32,
-                  backgroundColor: '#93c5fd',
+                  backgroundColor: resolvedTheme === 'dark' ? '#1e3a5f' : '#93c5fd',
                   borderRadius: 4,
                   display: 'flex',
                   alignItems: 'center',
                   justifyContent: 'center',
                   fontSize: 10,
-                  color: '#1e40af',
+                  color: resolvedTheme === 'dark' ? '#93c5fd' : '#1e40af',
                   fontWeight: 600,
                 }}
               >
@@ -220,29 +226,36 @@ export const SpacingPanel = memo(function SpacingPanel() {
           onClick={() => setLinkPadding(!linkPadding)}
           title={linkPadding ? 'Unlink padding sides' : 'Link padding sides'}
         >
-          🔗
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+          </svg>
         </button>
         <button
           style={linkButtonStyle(linkMargin)}
           onClick={() => setLinkMargin(!linkMargin)}
           title={linkMargin ? 'Unlink margin sides' : 'Link margin sides'}
         >
-          🔗
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M10 13a5 5 0 007.54.54l3-3a5 5 0 00-7.07-7.07l-1.72 1.71" />
+            <path d="M14 11a5 5 0 00-7.54-.54l-3 3a5 5 0 007.07 7.07l1.71-1.71" />
+          </svg>
         </button>
       </div>
 
       {/* Quick Presets */}
       <div style={{ marginTop: 12 }}>
-        <div style={{ fontSize: 11, color: '#6b7280', marginBottom: 6 }}>Quick Padding</div>
+        <div style={{ fontSize: 11, color: colors.textMuted, marginBottom: 6 }}>Quick Padding</div>
         <div style={{ display: 'flex', gap: 4, flexWrap: 'wrap' }}>
           {SPACING_PRESETS.slice(0, 6).map((val) => (
             <button
               key={val}
               style={{
                 padding: '4px 8px',
-                border: '1px solid #e5e7eb',
+                border: `1px solid ${colors.border}`,
                 borderRadius: 4,
-                backgroundColor: '#fff',
+                backgroundColor: colors.surface,
+                color: colors.text,
                 fontSize: 11,
                 cursor: 'pointer',
               }}

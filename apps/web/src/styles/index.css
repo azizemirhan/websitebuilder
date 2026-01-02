@@ -7,8 +7,8 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
-    'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Roboto", "Oxygen",
+    "Ubuntu", "Cantarell", "Fira Sans", "Droid Sans", "Helvetica Neue",
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -18,4 +18,80 @@ body {
   width: 100%;
   height: 100vh;
   overflow: hidden;
+}
+
+/* Custom Scrollbar Styles - Dark Mode Compatible */
+:root {
+  --scrollbar-track: #f1f1f1;
+  --scrollbar-thumb: #c1c1c1;
+  --scrollbar-thumb-hover: #a1a1a1;
+  --scrollbar-size: 8px;
+}
+
+/* Dark mode scrollbar colors */
+[data-theme="dark"],
+.dark,
+html[style*="dark"] {
+  --scrollbar-track: #1e1e2e;
+  --scrollbar-thumb: #4a4a5a;
+  --scrollbar-thumb-hover: #6a6a7a;
+}
+
+/* Webkit Browsers (Chrome, Safari, Edge) */
+*::-webkit-scrollbar {
+  width: var(--scrollbar-size);
+  height: var(--scrollbar-size);
+}
+
+*::-webkit-scrollbar-track {
+  background: var(--scrollbar-track);
+  border-radius: 4px;
+}
+
+*::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 4px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background 0.2s ease;
+}
+
+*::-webkit-scrollbar-thumb:hover {
+  background: var(--scrollbar-thumb-hover);
+  background-clip: padding-box;
+}
+
+*::-webkit-scrollbar-corner {
+  background: var(--scrollbar-track);
+}
+
+/* Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: var(--scrollbar-thumb) var(--scrollbar-track);
+}
+
+/* Thin scrollbar for panels */
+.panel-scroll::-webkit-scrollbar {
+  width: 6px;
+}
+
+/* Hidden scrollbar that appears on hover (for component panels) */
+.hover-scroll {
+  overflow-y: auto;
+  scrollbar-width: none;
+}
+
+.hover-scroll::-webkit-scrollbar {
+  width: 0;
+  background: transparent;
+}
+
+.hover-scroll:hover::-webkit-scrollbar {
+  width: 6px;
+}
+
+.hover-scroll:hover::-webkit-scrollbar-thumb {
+  background: var(--scrollbar-thumb);
+  border-radius: 3px;
 }

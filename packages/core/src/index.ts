@@ -8,3 +8,4 @@ export * from './store';
 export * from './utils';
 export * from './html-import';
 export * from './templates';
+export * from './api/cms-service';

@@ -3,14 +3,22 @@
  */
 
 import React, { memo, useState, useRef } from 'react';
-import { useTemplateStore, useCanvasStore, importTemplateKitJSON, useToastStore, regenerateElementTree, type TemplateSection } from '@builder/core';
+import { useTemplateStore, useCanvasStore, importTemplateKitJSON, useToastStore, regenerateElementTree, useThemeStore, themeColors, type TemplateSection } from '@builder/core';
 
 export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
-  const templates = useTemplateStore((state) => state.getAllTemplates());
+  // Access the store function directly, not inside selector
+  const getAllTemplates = useTemplateStore((state) => state.getAllTemplates);
   const addTemplate = useTemplateStore((state) => state.addTemplate);
   const removeTemplate = useTemplateStore((state) => state.removeTemplate);
+  
+  // Get templates by calling the function
+  const templates = getAllTemplates();
 
   const importElements = useCanvasStore((state) => state.importElements);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const [activeTab, setActiveTab] = useState<'all' | 'sections'>('all');
   const [searchQuery, setSearchQuery] = useState('');
@@ -61,12 +69,15 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
   );
 
   return (
-    <div style={{ display: 'flex', flexDirection: 'column', height: '100%' }}>
+    <div style={{ display: 'flex', flexDirection: 'column', height: '100%', backgroundColor: colors.surface }}>
       {/* Header */}
-      <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+      <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
-          <div style={{ fontSize: 14, fontWeight: 600, color: '#111827' }}>
-            📁 Şablonlar
+          <div style={{ fontSize: 14, fontWeight: 600, color: colors.text, display: 'flex', alignItems: 'center', gap: 8 }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2z" />
+            </svg>
+            Şablonlar
           </div>
           <button
             onClick={() => fileInputRef.current?.click()}
@@ -104,10 +115,12 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
           style={{
             width: '100%',
             padding: '8px 12px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 8,
             fontSize: 13,
             outline: 'none',
+            backgroundColor: colors.surface,
+            color: colors.text,
           }}
         />
       </div>
@@ -118,12 +131,16 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
           <div style={{
             padding: 32,
             textAlign: 'center',
-            color: '#9ca3af',
+            color: colors.textMuted,
             fontSize: 13,
           }}>
             {templates.length === 0 ? (
               <>
-                <div style={{ fontSize: 32, marginBottom: 12 }}>📂</div>
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.5" style={{ margin: '0 auto 12px', display: 'block' }}>
+                  <path d="M22 19a2 2 0 01-2 2H4a2 2 0 01-2-2V5a2 2 0 012-2h5l2 3h9a2 2 0 012 2v11z" />
+                  <line x1="12" y1="11" x2="12" y2="17" />
+                  <line x1="9" y1="14" x2="15" y2="14" />
+                </svg>
                 <div>Henüz şablon yok</div>
                 <div style={{ fontSize: 11, marginTop: 4 }}>
                   JSON dosyası yükleyerek başlayın
@@ -139,10 +156,10 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
               <div
                 key={template.id}
                 style={{
-                  border: '1px solid #e5e7eb',
+                  border: `1px solid ${colors.border}`,
                   borderRadius: 12,
                   overflow: 'hidden',
-                  backgroundColor: '#fff',
+                  backgroundColor: colors.surface,
                 }}
               >
                 {/* Template Header */}
@@ -156,7 +173,7 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
                     alignItems: 'center',
                     justifyContent: 'space-between',
                     cursor: 'pointer',
-                    backgroundColor: expandedTemplateId === template.id ? '#f9fafb' : '#fff',
+                    backgroundColor: expandedTemplateId === template.id ? colors.surfaceHover : colors.surface,
                   }}
                 >
                   <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
@@ -211,15 +228,15 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
 
                 {/* Sections List */}
                 {expandedTemplateId === template.id && (
-                  <div style={{ borderTop: '1px solid #e5e7eb', backgroundColor: '#f9fafb', padding: 8 }}>
+                  <div style={{ borderTop: `1px solid ${colors.border}`, backgroundColor: colors.surfaceHover, padding: 8 }}>
                     <div style={{ display: 'grid', gap: 8 }}>
                       {template.sections.map((section) => (
                         <div
                           key={section.id}
                           style={{
                             padding: 12,
-                            backgroundColor: '#fff',
-                            border: '1px solid #e5e7eb',
+                            backgroundColor: colors.surface,
+                            border: `1px solid ${colors.border}`,
                             borderRadius: 8,
                             display: 'flex',
                             alignItems: 'center',
@@ -227,10 +244,10 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
                           }}
                         >
                           <div>
-                            <div style={{ fontSize: 13, fontWeight: 500, color: '#374151' }}>
+                            <div style={{ fontSize: 13, fontWeight: 500, color: colors.text }}>
                               {section.name}
                             </div>
-                            <div style={{ fontSize: 10, color: '#6b7280', marginTop: 2 }}>
+                            <div style={{ fontSize: 10, color: colors.textMuted, marginTop: 2 }}>
                               {section.sectionType.toUpperCase()}
                             </div>
                           </div>
@@ -238,12 +255,12 @@ export const TemplateBrowserPanel = memo(function TemplateBrowserPanel() {
                             onClick={() => handleAddSection(section)}
                             style={{
                               padding: '6px 10px',
-                              backgroundColor: '#fff',
-                              border: '1px solid #d1d5db',
+                              backgroundColor: colors.surface,
+                              border: `1px solid ${colors.border}`,
                               borderRadius: 6,
                               fontSize: 12,
                               fontWeight: 500,
-                              color: '#374151',
+                              color: colors.text,
                               cursor: 'pointer',
                               display: 'flex',
                               alignItems: 'center',

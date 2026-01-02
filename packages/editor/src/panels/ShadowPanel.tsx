@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 interface Shadow {
   x: number;
@@ -50,6 +50,10 @@ export const ShadowPanel = memo(function ShadowPanel() {
   const selectedIds = useCanvasStore((state) => state.selectedElementIds);
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
+  
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
 
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
   const [showEditor, setShowEditor] = useState(false);
@@ -81,35 +85,39 @@ export const ShadowPanel = memo(function ShadowPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '6px 8px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 4,
     fontSize: 12,
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   const presetStyle = (active: boolean): React.CSSProperties => ({
     padding: '6px 10px',
     border: '1px solid',
-    borderColor: active ? '#3b82f6' : '#e5e7eb',
+    borderColor: active ? colors.primary : colors.border,
     borderRadius: 6,
-    backgroundColor: active ? '#dbeafe' : '#ffffff',
+    backgroundColor: active ? colors.primary : colors.surface,
     fontSize: 11,
     cursor: 'pointer',
+    color: active ? '#ffffff' : colors.text,
   });
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase' }}>
           Shadow
         </span>
         <button
           style={{
             padding: '4px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
-            backgroundColor: showEditor ? '#f3f4f6' : '#fff',
+            backgroundColor: showEditor ? colors.surface : colors.surface,
             fontSize: 10,
             cursor: 'pointer',
+            color: colors.text,
           }}
           onClick={() => setShowEditor(!showEditor)}
         >
@@ -122,7 +130,7 @@ export const ShadowPanel = memo(function ShadowPanel() {
         style={{
           width: '100%',
           height: 60,
-          backgroundColor: '#ffffff',
+          backgroundColor: colors.surface,
           borderRadius: 8,
           boxShadow: style.boxShadow || 'none',
           marginBottom: 12,
@@ -130,7 +138,8 @@ export const ShadowPanel = memo(function ShadowPanel() {
           alignItems: 'center',
           justifyContent: 'center',
           fontSize: 11,
-          color: '#9ca3af',
+          color: colors.textMuted,
+          border: `1px solid ${colors.border}`,
         }}
       >
         Preview
@@ -141,7 +150,7 @@ export const ShadowPanel = memo(function ShadowPanel() {
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 8, marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 2 }}>X</div>
+              <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 2 }}>X</div>
               <input
                 type="number"
                 style={inputStyle}
@@ -180,7 +189,7 @@ export const ShadowPanel = memo(function ShadowPanel() {
 
           <div style={{ display: 'flex', gap: 8 }}>
             <div style={{ flex: 1 }}>
-              <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 2 }}>Color</div>
+              <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 2 }}>Color</div>
               <input
                 type="text"
                 style={inputStyle}
@@ -190,12 +199,12 @@ export const ShadowPanel = memo(function ShadowPanel() {
               />
             </div>
             <div>
-              <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 2 }}>Inset</div>
+              <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 2 }}>Inset</div>
               <button
                 style={{
                   ...inputStyle,
-                  backgroundColor: currentShadow.inset ? '#dbeafe' : '#fff',
-                  color: currentShadow.inset ? '#3b82f6' : '#6b7280',
+                  backgroundColor: currentShadow.inset ? colors.primary + '20' : colors.surface,
+                  color: currentShadow.inset ? colors.primary : colors.textMuted,
                   cursor: 'pointer',
                 }}
                 onClick={() => updateShadow({ inset: !currentShadow.inset })}

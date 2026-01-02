@@ -2,8 +2,10 @@
  * Container Renderer - Box/div element renderer with full CSS support
  */
 
-import React, { memo } from "react";
+import React, { memo, useCallback } from "react";
 import type { ContainerElement } from "@builder/core";
+import { useResponsiveStore, getResponsiveStyles } from "@builder/core";
+import { useBehavior } from "../../hooks/useBehavior";
 
 interface ContainerRendererProps {
   element: ContainerElement;
@@ -24,141 +26,259 @@ export const ContainerRenderer = memo(function ContainerRenderer({
   onMouseEnter,
   onMouseLeave,
 }: ContainerRendererProps) {
-  const { style } = element;
+  // Get active breakpoint for responsive styling
+  const activeBreakpoint = useResponsiveStore((state) => state.activeBreakpoint);
+  
+  // Compute responsive styles based on active breakpoint
+  // Compute responsive styles based on active breakpoint
+  const baseStyle = getResponsiveStyles(
+    element.style,
+    element.responsiveStyles,
+    activeBreakpoint
+  );
+
+  // Force specific styles for Grid Cells (Children of Grid)
+  const isGridCell = element.props?.isGridCell;
+  const style = {
+    ...baseStyle,
+    ...(isGridCell ? {
+      width: '100%',
+      height: '100%',
+      minWidth: 0, // Critical for grid overflow
+      position: 'relative',
+      // Ensure grid placement is preserved even if stripped elsewhere
+      gridColumn: element.style.gridColumn || baseStyle.gridColumn,
+      gridRow: element.style.gridRow || baseStyle.gridRow,
+    } : {})
+  };
+
+  // Get behavior handlers and visibility
+  const { handlers, isVisible, behaviorClasses } = useBehavior(element);
+
+  // Helper to conditionally include style properties (only if defined)
+  const pick = <T extends Record<string, any>>(obj: T): Partial<T> => {
+    const result: Partial<T> = {};
+    for (const key in obj) {
+      if (obj[key] !== undefined && obj[key] !== null) {
+        result[key] = obj[key];
+      }
+    }
+    return result;
+  };
 
   // Default to relative for imported elements (flow layout)
-  // Use absolute for manually created elements (canvas positioning)
   const position = style.position || "relative";
+  const isAbsoluteOrFixed = position === 'absolute' || position === 'fixed';
+  const isGridContainer = element.props?.containerType === 'grid';
+
+  // Fallback for Grid Rows - Avoid 'auto' collapsing
+  const getGridTemplateRows = () => {
+    const propsRows = element.props?.gridTemplateRows;
+    const styleRows = style.gridTemplateRows;
+    const finalRows = propsRows || styleRows;
+    
+    // Safety: If grid and rows is 'auto' (empty), default to repeat(3, 1fr)
+    if (isGridContainer && (!finalRows || finalRows === 'auto')) {
+      return 'repeat(3, 1fr)';
+    }
+    return finalRows;
+  };
 
   const containerStyle: React.CSSProperties = {
     // Layout Mode
     position,
     boxSizing: "border-box",
 
-    // Dimensions - support both number (px) and string (%, auto, calc)
-    width: style.width,
-    height: style.height,
-    minWidth: style.minWidth,
-    maxWidth: style.maxWidth,
-    minHeight: style.minHeight,
-    maxHeight: style.maxHeight,
+    // Spread only defined properties
+    ...pick({
+      // Dimensions
+      width: style.width,
+      height: style.height,
+      minWidth: style.minWidth,
+      maxWidth: style.maxWidth,
+      minHeight: style.minHeight,
+      maxHeight: style.maxHeight,
 
-    // Position - only apply for absolute/fixed positioned elements
-    ...(position === 'absolute' || position === 'fixed' ? {
-      top: style.top,
-      left: style.left,
-      right: style.right,
-      bottom: style.bottom,
+      // Position (only for absolute/fixed)
+      ...(isAbsoluteOrFixed ? {
+        top: style.top,
+        left: style.left,
+        right: style.right,
+        bottom: style.bottom,
+      } : {}),
+
+      // Display & Flex Container - PROPS OVERRIDE
+      display: isGridContainer ? 'grid' : (style.display || 'flex'),
+      flexDirection: element.props?.direction || style.flexDirection,
+      flexWrap: element.props?.flexWrap || style.flexWrap,
+      justifyContent: element.props?.justifyContent || style.justifyContent,
+      alignItems: element.props?.alignItems || style.alignItems,
+      alignContent: style.alignContent,
+      gap: isGridContainer 
+        ? (element.props?.gridGap || 0) 
+        : (element.props?.gap || style.gap),
+      rowGap: style.rowGap,
+      columnGap: style.columnGap,
+
+      // Flex Item
+      flexGrow: style.flexGrow,
+      flexShrink: style.flexShrink,
+      flexBasis: style.flexBasis,
+      alignSelf: style.alignSelf,
+      order: style.order,
+
+      // Grid Container - PROPS OVERRIDE
+      gridTemplateColumns: element.props?.gridTemplateColumns || style.gridTemplateColumns,
+      gridTemplateRows: getGridTemplateRows(),
+      gridAutoColumns: style.gridAutoColumns,
+      gridAutoRows: style.gridAutoRows,
+      gridAutoFlow: style.gridAutoFlow,
+
+      // Grid Item
+      gridColumn: style.gridColumn,
+      gridRow: style.gridRow,
+      
+      // Force grid area if column/row set
+      ...(style.gridColumn && style.gridRow ? {
+        gridArea: `${style.gridRow} / ${style.gridColumn} / auto / auto`
+      } : {}),
+
+      // Padding
+      padding: style.padding,
+      paddingTop: style.paddingTop,
+      paddingRight: style.paddingRight,
+      paddingBottom: style.paddingBottom,
+      paddingLeft: style.paddingLeft,
+
+      // Margin
+      margin: style.margin,
+      marginTop: style.marginTop,
+      marginRight: style.marginRight,
+      marginBottom: style.marginBottom,
+      marginLeft: style.marginLeft,
+
+      // Background
+      background: style.background,
+      backgroundColor: style.backgroundColor,
+      backgroundImage: style.backgroundImage,
+      backgroundSize: style.backgroundSize,
+      backgroundPosition: style.backgroundPosition,
+      backgroundRepeat: style.backgroundRepeat,
+
+      // Border
+      border: style.border,
+      borderWidth: style.borderWidth,
+      borderTopWidth: style.borderTopWidth,
+      borderRightWidth: style.borderRightWidth,
+      borderBottomWidth: style.borderBottomWidth,
+      borderLeftWidth: style.borderLeftWidth,
+      borderColor: style.borderColor,
+      borderTopColor: style.borderTopColor,
+      borderRightColor: style.borderRightColor,
+      borderBottomColor: style.borderBottomColor,
+      borderLeftColor: style.borderLeftColor,
+      borderStyle: style.borderStyle,
+      borderTop: style.borderTop,
+      borderRight: style.borderRight,
+      borderBottom: style.borderBottom,
+      borderLeft: style.borderLeft,
+      borderRadius: style.borderRadius,
+      borderTopLeftRadius: style.borderTopLeftRadius,
+      borderTopRightRadius: style.borderTopRightRadius,
+      borderBottomRightRadius: style.borderBottomRightRadius,
+      borderBottomLeftRadius: style.borderBottomLeftRadius,
+
+      // Effects
+      boxShadow: style.boxShadow,
+      filter: style.filter,
+      backdropFilter: style.backdropFilter,
+      opacity: style.opacity,
+      mixBlendMode: style.mixBlendMode,
+
+      // Transform
+      transform: style.transform,
+      transformOrigin: style.transformOrigin,
+      transition: style.transition,
+
+      // Other
+      overflow: style.overflow,
+      overflowX: style.overflowX,
+      overflowY: style.overflowY,
+      zIndex: style.zIndex,
+      color: style.color,
+    }),
+
+    // WIDTH MODE OVERRIDE (YENİ)
+    ...(element.props?.widthMode === 'full' ? {
+      width: '100%',
+      maxWidth: 'none',
+    } : element.props?.widthMode === 'boxed' ? {
+      width: '100%',
+      maxWidth: element.props?.maxWidth || 1200,
+      marginLeft: 'auto',
+      marginRight: 'auto',
     } : {}),
 
-    // Display & Flex Container - conditionally apply to avoid undefined
-    ...(style.display ? { display: style.display } : {}),
-    ...(style.flexDirection ? { flexDirection: style.flexDirection } : {}),
-    ...(style.flexWrap ? { flexWrap: style.flexWrap } : {}),
-    ...(style.justifyContent ? { justifyContent: style.justifyContent } : {}),
-    ...(style.alignItems ? { alignItems: style.alignItems } : {}),
-    ...(style.alignContent ? { alignContent: style.alignContent } : {}),
-    ...(style.gap !== undefined ? { gap: style.gap } : {}),
-    ...(style.rowGap !== undefined ? { rowGap: style.rowGap } : {}),
-    ...(style.columnGap !== undefined ? { columnGap: style.columnGap } : {}),
-
-    // Flex Item
-    flexGrow: style.flexGrow,
-    flexShrink: style.flexShrink,
-    flexBasis: style.flexBasis,
-    alignSelf: style.alignSelf,
-    order: style.order,
-
-    // Grid Container
-    gridTemplateColumns: style.gridTemplateColumns,
-    gridTemplateRows: style.gridTemplateRows,
-    gridAutoColumns: style.gridAutoColumns,
-    gridAutoRows: style.gridAutoRows,
-    gridAutoFlow: style.gridAutoFlow,
-
-    // Grid Item
-    gridColumn: style.gridColumn,
-    gridRow: style.gridRow,
-
-    // Padding
-    padding: style.padding,
-    paddingTop: style.paddingTop,
-    paddingRight: style.paddingRight,
-    paddingBottom: style.paddingBottom,
-    paddingLeft: style.paddingLeft,
-
-    // Margin (essential for document flow)
-    margin: style.margin,
-    marginTop: style.marginTop,
-    marginRight: style.marginRight,
-    marginBottom: style.marginBottom,
-    marginLeft: style.marginLeft,
-
-    // Background - conditionally apply to avoid undefined overriding shorthand
-    // When 'background' shorthand is used, don't include undefined backgroundColor
-    ...(style.background ? { background: style.background } : {}),
-    ...(style.backgroundColor && !style.background ? { backgroundColor: style.backgroundColor } : {}),
-    ...(style.backgroundImage ? { backgroundImage: style.backgroundImage } : {}),
-    ...(style.backgroundSize ? { backgroundSize: style.backgroundSize } : {}),
-    ...(style.backgroundPosition ? { backgroundPosition: style.backgroundPosition } : {}),
-    ...(style.backgroundRepeat ? { backgroundRepeat: style.backgroundRepeat } : {}),
-
-    // Border
-    border: style.border,
-    borderWidth: style.borderWidth,
-    borderTopWidth: style.borderTopWidth,
-    borderRightWidth: style.borderRightWidth,
-    borderBottomWidth: style.borderBottomWidth,
-    borderLeftWidth: style.borderLeftWidth,
-    borderColor: style.borderColor,
-    borderTopColor: style.borderTopColor,
-    borderRightColor: style.borderRightColor,
-    borderBottomColor: style.borderBottomColor,
-    borderLeftColor: style.borderLeftColor,
-    borderStyle: style.borderStyle,
-    borderRadius: style.borderRadius,
-    borderTopLeftRadius: style.borderTopLeftRadius,
-    borderTopRightRadius: style.borderTopRightRadius,
-    borderBottomRightRadius: style.borderBottomRightRadius,
-    borderBottomLeftRadius: style.borderBottomLeftRadius,
-
-    // Effects
-    boxShadow: style.boxShadow,
-    filter: style.filter,
-    backdropFilter: style.backdropFilter,
-    opacity: style.opacity,
-    mixBlendMode: style.mixBlendMode,
-
-    // Transform
-    transform: style.transform,
-    transformOrigin: style.transformOrigin,
-    transition: style.transition,
-
-    // Other
-    overflow: style.overflow,
-    zIndex: style.zIndex,
+    // Cursor and visibility (always applied)
     cursor: element.locked ? "not-allowed" : style.cursor || "default",
     visibility: element.hidden ? "hidden" : "visible",
-    color: style.color,
 
-    // Selection indicator
-    outline: isSelected
-      ? "2px solid #2563eb"
-      : isHovered
-        ? "1px solid #60a5fa"
-        : "none",
-    outlineOffset: "-1px",
+    // Selection indicator removed - now handled by ElementControls overlay
+    // This prevents z-index conflicts with control buttons
   };
+
+  // DEBUG LOG
+  if (isGridContainer) {
+    console.log(`[Grid Container] ${element.name}`, {
+      display: containerStyle.display,
+      cols: containerStyle.gridTemplateColumns,
+      rows: containerStyle.gridTemplateRows,
+      gap: containerStyle.gap
+    });
+  }
+  if (isGridCell) {
+    console.log(`[Grid Cell] ${element.name}`, {
+      gridColumn: containerStyle.gridColumn,
+      gridRow: containerStyle.gridRow,
+      width: containerStyle.width,
+      height: containerStyle.height,
+      minWidth: containerStyle.minWidth
+    });
+  }
+
+  // Handle combined mouse down (selection + behavior)
+  const handleMouseDown = useCallback((e: React.MouseEvent) => {
+    onMouseDown(e);
+    if (handlers.onClick) {
+      handlers.onClick(e);
+    }
+  }, [onMouseDown, handlers.onClick]);
+
+  // Hide element if not visible
+  if (!isVisible) {
+    return null;
+  }
 
   return (
     <div
       data-element-id={element.id}
-      style={containerStyle}
-      onMouseDown={onMouseDown}
-      onMouseEnter={onMouseEnter}
-      onMouseLeave={onMouseLeave}
+      style={{
+        ...containerStyle,
+      }}
+      className={behaviorClasses.join(' ') || undefined}
+      onMouseDown={handleMouseDown}
+      onMouseEnter={(e) => {
+        onMouseEnter();
+        if (handlers.onMouseEnter) handlers.onMouseEnter(e);
+      }}
+      onMouseLeave={(e) => {
+        onMouseLeave();
+        if (handlers.onMouseLeave) handlers.onMouseLeave(e);
+      }}
     >
+      {/* Children - Doğrudan render */}
       {children}
     </div>
   );
 });
+

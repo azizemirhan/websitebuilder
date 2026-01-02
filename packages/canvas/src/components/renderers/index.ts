@@ -9,3 +9,5 @@ export { ImageRenderer } from './ImageRenderer';
 export { InputRenderer } from './InputRenderer';
 export { IconRenderer } from './IconRenderer';
 export { SliderRenderer } from './SliderRenderer';
+export { MenuRenderer } from './MenuRenderer';
+

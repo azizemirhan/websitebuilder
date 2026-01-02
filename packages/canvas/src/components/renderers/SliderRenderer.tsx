@@ -84,12 +84,7 @@ export const SliderRenderer = memo(function SliderRenderer({
         height: style.height || 600,
         overflow: "hidden",
         boxSizing: "border-box",
-        outline: isSelected
-            ? "2px solid #2563eb"
-            : isHovered
-                ? "1px solid #60a5fa"
-                : "none",
-        outlineOffset: "-1px",
+        // Selection indicator removed - handled by ElementControls overlay
     };
 
     // Slide style

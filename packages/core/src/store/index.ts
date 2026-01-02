@@ -12,3 +12,5 @@ export * from './responsive-store';
 export * from './template-store';
 export * from './design-tokens-store';
 export * from './component-store';
+export * from './behavior-store';
+

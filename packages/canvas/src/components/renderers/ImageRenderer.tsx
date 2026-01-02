@@ -4,6 +4,7 @@
 
 import React, { memo } from 'react';
 import type { ImageElement } from '@builder/core';
+import { useResponsiveStore, getResponsiveStyles } from '@builder/core';
 
 interface ImageRendererProps {
   element: ImageElement;
@@ -22,40 +23,60 @@ export const ImageRenderer = memo(function ImageRenderer({
   onMouseEnter,
   onMouseLeave,
 }: ImageRendererProps) {
-  const { style, props } = element;
+  const { props } = element;
+  
+  // Get active breakpoint for responsive styling
+  const activeBreakpoint = useResponsiveStore((state) => state.activeBreakpoint);
+  
+  // Compute responsive styles based on active breakpoint
+  const style = getResponsiveStyles(
+    element.style,
+    element.responsiveStyles,
+    activeBreakpoint
+  );
+
+  const position = style.position || 'relative';
 
   const containerStyle: React.CSSProperties = {
-    // Default to relative for imported elements (flow layout)
-    position: style.position || 'relative',
-    top: style.top,
-    left: style.left,
+    // Position
+    position,
+    // Only apply positioning for absolute/fixed
+    ...(position === 'absolute' || position === 'fixed' ? {
+      top: style.top,
+      left: style.left,
+      right: style.right,
+      bottom: style.bottom,
+    } : {}),
+    // Dimensions
     width: style.width,
     height: style.height,
     minWidth: style.minWidth,
     maxWidth: style.maxWidth,
+    minHeight: style.minHeight,
+    maxHeight: style.maxHeight,
+    // Spacing
     margin: style.margin,
     marginTop: style.marginTop,
     marginRight: style.marginRight,
     marginBottom: style.marginBottom,
     marginLeft: style.marginLeft,
-    backgroundColor: style.backgroundColor || '#e5e7eb',
+    padding: style.padding,
+    // Visual
+    backgroundColor: style.backgroundColor,
     borderRadius: style.borderRadius,
     border: style.border,
     opacity: style.opacity,
-    overflow: 'hidden',
+    zIndex: style.zIndex,
+    overflow: style.overflow || 'hidden',
     cursor: element.locked ? 'not-allowed' : style.cursor || 'default',
     visibility: element.hidden ? 'hidden' : 'visible',
     boxSizing: 'border-box',
-    display: style.display || 'flex',
-    alignItems: style.alignItems || 'center',
-    justifyContent: style.justifyContent || 'center',
+    // Layout
+    display: style.display,
+    alignItems: style.alignItems,
+    justifyContent: style.justifyContent,
     objectFit: style.objectFit,
-    outline: isSelected
-      ? '2px solid #2563eb'
-      : isHovered
-        ? '1px solid #60a5fa'
-        : 'none',
-    outlineOffset: '-1px',
+    // Selection indicator removed - handled by ElementControls overlay
   };
 
   const imageStyle: React.CSSProperties = {

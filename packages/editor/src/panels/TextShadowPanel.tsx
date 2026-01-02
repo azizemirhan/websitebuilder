@@ -3,7 +3,7 @@
  */
 
 import React, { memo, useCallback, useState } from 'react';
-import { useCanvasStore, useHistoryStore, CanvasState } from '@builder/core';
+import { useCanvasStore, useHistoryStore, CanvasState, useThemeStore, themeColors } from '@builder/core';
 
 interface TextShadowValues {
   x: number;
@@ -45,6 +45,10 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
   const updateElementStyle = useCanvasStore((state) => state.updateElementStyle);
   const addToHistory = useHistoryStore((state) => state.addToHistory);
 
+  // Theme
+  const resolvedTheme = useThemeStore((state) => state.resolvedTheme);
+  const colors = themeColors[resolvedTheme];
+
   const selectedElement = selectedIds.length === 1 ? elements[selectedIds[0]] : null;
   const [showCustom, setShowCustom] = useState(false);
 
@@ -76,26 +80,29 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
   const inputStyle: React.CSSProperties = {
     width: '100%',
     padding: '6px 8px',
-    border: '1px solid #e5e7eb',
+    border: `1px solid ${colors.border}`,
     borderRadius: 4,
     fontSize: 12,
     textAlign: 'center',
+    backgroundColor: colors.surface,
+    color: colors.text,
   };
 
   return (
-    <div style={{ padding: 16, borderBottom: '1px solid #e5e7eb' }}>
+    <div style={{ padding: 16, borderBottom: `1px solid ${colors.border}` }}>
       <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
-        <span style={{ fontSize: 11, fontWeight: 600, color: '#6b7280', textTransform: 'uppercase' }}>
+        <span style={{ fontSize: 11, fontWeight: 600, color: colors.textMuted, textTransform: 'uppercase' }}>
           Text Shadow
         </span>
         <button
           style={{
             padding: '4px 8px',
-            border: '1px solid #e5e7eb',
+            border: `1px solid ${colors.border}`,
             borderRadius: 4,
-            backgroundColor: showCustom ? '#f3f4f6' : '#fff',
+            backgroundColor: showCustom ? colors.primary + '20' : colors.surface,
             fontSize: 10,
             cursor: 'pointer',
+            color: showCustom ? colors.primary : colors.textMuted,
           }}
           onClick={() => setShowCustom(!showCustom)}
         >
@@ -107,7 +114,8 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
       <div
         style={{
           padding: 16,
-          backgroundColor: '#f3f4f6',
+          backgroundColor: colors.surface,
+          border: `1px solid ${colors.border}`,
           borderRadius: 8,
           marginBottom: 12,
           textAlign: 'center',
@@ -117,7 +125,7 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
           style={{
             fontSize: 24,
             fontWeight: 600,
-            color: style.color || '#111827',
+            color: style.color || colors.text,
             textShadow: style.textShadow || 'none',
           }}
         >
@@ -130,7 +138,7 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
         <div>
           <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: 8, marginBottom: 12 }}>
             <div>
-              <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 2 }}>X</div>
+              <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 2 }}>X</div>
               <input
                 type="number"
                 style={inputStyle}
@@ -158,7 +166,7 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
             </div>
           </div>
           <div>
-            <div style={{ fontSize: 10, color: '#9ca3af', marginBottom: 2 }}>Color</div>
+            <div style={{ fontSize: 10, color: colors.textMuted, marginBottom: 2 }}>Color</div>
             <input
               type="text"
               style={inputStyle}
@@ -177,9 +185,9 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
               style={{
                 padding: 10,
                 border: '1px solid',
-                borderColor: style.textShadow === preset.value ? '#3b82f6' : '#e5e7eb',
+                borderColor: style.textShadow === preset.value ? colors.primary : colors.border,
                 borderRadius: 8,
-                backgroundColor: style.textShadow === preset.value ? '#eff6ff' : '#fff',
+                backgroundColor: style.textShadow === preset.value ? colors.primary + '20' : colors.surface,
                 cursor: 'pointer',
                 transition: 'all 0.15s ease',
               }}
@@ -193,12 +201,12 @@ export const TextShadowPanel = memo(function TextShadowPanel() {
                   fontSize: 14,
                   fontWeight: 600,
                   textShadow: preset.value,
-                  color: '#374151',
+                  color: colors.text,
                 }}
               >
                 Aa
               </span>
-              <div style={{ fontSize: 9, color: '#6b7280', marginTop: 4 }}>{preset.name}</div>
+              <div style={{ fontSize: 9, color: colors.textMuted, marginTop: 4 }}>{preset.name}</div>
             </button>
           ))}
         </div>

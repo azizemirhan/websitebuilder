@@ -70,12 +70,7 @@ export const ButtonRenderer = memo(function ButtonRenderer({
     gap: style.gap,
     transform: style.transform,
     transition: style.transition,
-    outline: isSelected 
-      ? '2px solid #2563eb' 
-      : isHovered 
-        ? '1px solid #60a5fa' 
-        : 'none',
-    outlineOffset: '-1px',
+    // Selection indicator removed - handled by ElementControls overlay
   };
 
   return (
