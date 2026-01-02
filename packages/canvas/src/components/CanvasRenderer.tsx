@@ -29,12 +29,16 @@ interface CanvasRendererProps {
 
 interface DragState {
   isDragging: boolean;
+  isPreparing: boolean; // Waiting for threshold to start actual drag
   elementId: string | null;
   startX: number;
   startY: number;
   initialLeft: number;
   initialTop: number;
 }
+
+// Drag threshold in pixels - must move this much to start dragging
+const DRAG_THRESHOLD = 5;
 
 interface ResizeState {
   isResizing: boolean;
@@ -104,6 +108,7 @@ export const CanvasRenderer = memo(function CanvasRenderer({
   
   const [dragState, setDragState] = useState<DragState>({
     isDragging: false,
+    isPreparing: false,
     elementId: null,
     startX: 0,
     startY: 0,
@@ -229,17 +234,18 @@ export const CanvasRenderer = memo(function CanvasRenderer({
     // Select the element
     selectElement(elementId, e.shiftKey);
 
-    // Start drag immediately
-    saveHistory();
+    // Prepare for potential drag (but don't start dragging yet)
+    // We'll wait for mouse to move beyond threshold
     setDragState({
-      isDragging: true,
+      isDragging: false,
+      isPreparing: true,
       elementId,
       startX: e.clientX,
       startY: e.clientY,
       initialLeft: getNumericStyleValue(element.style.left),
       initialTop: getNumericStyleValue(element.style.top),
     });
-    
+
     e.preventDefault();
   }, [elements, clearSelection, selectElement, saveHistory, panX, panY, contextMenu.isOpen, closeContextMenu, getCanvasPosition]);
 
@@ -288,7 +294,25 @@ export const CanvasRenderer = memo(function CanvasRenderer({
       }));
       return;
     }
-    
+
+    // Check if we should start dragging (threshold check)
+    if (dragState.isPreparing && !dragState.isDragging && dragState.elementId) {
+      const deltaX = Math.abs(e.clientX - dragState.startX);
+      const deltaY = Math.abs(e.clientY - dragState.startY);
+      const distance = Math.sqrt(deltaX * deltaX + deltaY * deltaY);
+
+      if (distance > DRAG_THRESHOLD) {
+        // Threshold exceeded, start actual dragging
+        saveHistory();
+        setDragState((prev) => ({
+          ...prev,
+          isDragging: true,
+          isPreparing: false,
+        }));
+      }
+      return;
+    }
+
     // Handle drag
     if (dragState.isDragging && dragState.elementId) {
       const element = elements[dragState.elementId];
@@ -473,7 +497,7 @@ export const CanvasRenderer = memo(function CanvasRenderer({
         height: newH,
       });
     }
-  }, [dragState, resizeState, isPanning, panStart, zoom, applySnap, updateElementStyle, setPan, marqueeState.isSelecting, getCanvasPosition]);
+  }, [dragState, resizeState, isPanning, panStart, zoom, applySnap, updateElementStyle, setPan, marqueeState.isSelecting, getCanvasPosition, saveHistory, elements]);
 
   // Handle mouse up
   const handleMouseUp = useCallback(() => {
@@ -653,6 +677,7 @@ export const CanvasRenderer = memo(function CanvasRenderer({
     setIsPanning(false);
     setDragState({
       isDragging: false,
+      isPreparing: false,
       elementId: null,
       startX: 0,
       startY: 0,
@@ -760,6 +785,15 @@ export const CanvasRenderer = memo(function CanvasRenderer({
     }
   }, [zoom, setZoom]);
 
+  // Dynamic cursor based on state
+  const getCursor = () => {
+    if (isPanning) return 'grabbing';
+    if (dragState.isDragging) return 'grabbing';
+    if (dragState.isPreparing) return 'grab';
+    if (resizeState.isResizing) return resizeState.direction ? `${resizeState.direction}-resize` : 'default';
+    return 'default';
+  };
+
   const canvasStyle: React.CSSProperties = {
     position: 'relative',
     width,
@@ -769,7 +803,7 @@ export const CanvasRenderer = memo(function CanvasRenderer({
     boxShadow: '0 4px 20px rgba(0, 0, 0, 0.1)',
     borderRadius: 4,
     overflow: 'visible', // Allow content to be visible for parent scroll
-    cursor: isPanning ? 'grabbing' : dragState.isDragging ? 'move' : 'default',
+    cursor: getCursor(),
     transform: `scale(${zoom}) translate(${panX / zoom}px, ${panY / zoom}px)`,
     transformOrigin: 'top center',
   };

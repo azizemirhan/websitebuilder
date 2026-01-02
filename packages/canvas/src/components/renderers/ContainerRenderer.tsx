@@ -13,6 +13,7 @@ interface ContainerRendererProps {
   isSelected: boolean;
   isHovered: boolean;
   onMouseDown: (e: React.MouseEvent) => void;
+  onDoubleClick?: (e: React.MouseEvent) => void;
   onMouseEnter: () => void;
   onMouseLeave: () => void;
   isHighlighted?: boolean; // Drop target highlight
@@ -25,6 +26,7 @@ export const ContainerRenderer = memo(function ContainerRenderer({
   isSelected,
   isHovered,
   onMouseDown,
+  onDoubleClick,
   onMouseEnter,
   onMouseLeave,
   isHighlighted = false,
@@ -224,7 +226,7 @@ export const ContainerRenderer = memo(function ContainerRenderer({
     } : {}),
 
     // Cursor and visibility (always applied)
-    cursor: element.locked ? "not-allowed" : style.cursor || "default",
+    cursor: element.locked ? "not-allowed" : (isSelected || isHovered ? "grab" : style.cursor || "default"),
     visibility: element.hidden ? "hidden" : "visible",
 
     // Drop target highlight (replaces direct DOM manipulation)
@@ -235,7 +237,14 @@ export const ContainerRenderer = memo(function ContainerRenderer({
 
     // Drag state opacity (replaces direct DOM manipulation)
     ...(isDragging ? {
-      opacity: 0.5,
+      opacity: 0.6,
+      transform: `${style.transform || ''} scale(0.98)`, // Slight scale down for better feedback
+      transition: 'opacity 0.15s ease, transform 0.15s ease',
+    } : {}),
+
+    // Smooth transitions for better UX
+    ...(!isDragging && !isHighlighted ? {
+      transition: 'box-shadow 0.2s ease, transform 0.2s ease',
     } : {}),
 
     // Selection indicator removed - now handled by ElementControls overlay
@@ -263,6 +272,7 @@ export const ContainerRenderer = memo(function ContainerRenderer({
       }}
       className={behaviorClasses.join(' ') || undefined}
       onMouseDown={handleMouseDown}
+      onDoubleClick={onDoubleClick}
       onMouseEnter={(e) => {
         onMouseEnter();
         if (handlers.onMouseEnter) handlers.onMouseEnter(e);

@@ -15,6 +15,7 @@ export const ElementControls = memo(function ElementControls({
   const elementIdState = useCanvasStore((state) => state.elements[elementId]?.id);
 
   const [domRect, setDomRect] = useState<DOMRect | null>(null);
+  const [hoveredButton, setHoveredButton] = useState<string | null>(null);
   const zoom = useSettingsStore((state) => state.zoom);
   const panX = useSettingsStore((state) => state.panX);
   const panY = useSettingsStore((state) => state.panY);
@@ -119,24 +120,32 @@ export const ElementControls = memo(function ElementControls({
     height: domRect.height,
     pointerEvents: 'none', // Allow clicking through to the element itself
     zIndex: 50, // Above elements
-    border: '1px solid #3b82f6', // Active blue border
+    border: '2px solid #3b82f6', // Active blue border (thicker for better visibility)
+    borderRadius: 4, // Rounded corners for modern look
+    transition: 'all 0.15s ease', // Smooth transitions
   };
 
-  // Common button style
-  const btnStyle: React.CSSProperties = {
+  // Common button style generator
+  const getButtonStyle = (btnId: string, bgColor = '#3b82f6'): React.CSSProperties => ({
     pointerEvents: 'auto',
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    width: 24,
-    height: 24,
-    backgroundColor: '#3b82f6',
+    width: 26,
+    height: 26,
+    backgroundColor: hoveredButton === btnId ? '#2563eb' : bgColor,
     color: '#fff',
     border: 'none',
     cursor: 'pointer',
     fontSize: 14,
-    boxShadow: '0 2px 4px rgba(0,0,0,0.1)',
-  };
+    fontWeight: 600,
+    boxShadow: hoveredButton === btnId
+      ? '0 4px 8px rgba(59, 130, 246, 0.5)'
+      : '0 2px 6px rgba(59, 130, 246, 0.3)',
+    transition: 'all 0.2s ease',
+    borderRadius: 4,
+    transform: hoveredButton === btnId ? 'translateY(-1px)' : 'translateY(0)',
+  });
 
   return (
     <div style={overlayStyle}>
@@ -169,13 +178,15 @@ export const ElementControls = memo(function ElementControls({
       {!isContainer && (
         <button
           style={{
-            ...btnStyle,
+            ...getButtonStyle('edit'),
             position: 'absolute',
             top: 0,
             right: 0,
             borderRadius: '0 0 0 4px', // Inner corner radius
           }}
           onClick={handleSelect}
+          onMouseEnter={() => setHoveredButton('edit')}
+          onMouseLeave={() => setHoveredButton(null)}
           title="Edit"
         >
           ✎
@@ -198,17 +209,35 @@ export const ElementControls = memo(function ElementControls({
         }}
       >
         {/* Add Button */}
-        <button style={btnStyle} onClick={handleAdd} title="Add New">
+        <button
+          style={getButtonStyle('add')}
+          onClick={handleAdd}
+          onMouseEnter={() => setHoveredButton('add')}
+          onMouseLeave={() => setHoveredButton(null)}
+          title="Add New"
+        >
           +
         </button>
-        
+
         {/* Drag/Select Button (Six Dots) */}
-        <button style={{...btnStyle, cursor: 'grab'}} onClick={handleSelect} title="Drag / Select">
+        <button
+          style={{...getButtonStyle('drag'), cursor: 'grab'}}
+          onClick={handleSelect}
+          onMouseEnter={() => setHoveredButton('drag')}
+          onMouseLeave={() => setHoveredButton(null)}
+          title="Drag / Select"
+        >
           ⠿
         </button>
 
         {/* Delete Button */}
-        <button style={{...btnStyle, backgroundColor: '#ef4444'}} onClick={handleDelete} title="Delete">
+        <button
+          style={getButtonStyle('delete', hoveredButton === 'delete' ? '#dc2626' : '#ef4444')}
+          onClick={handleDelete}
+          onMouseEnter={() => setHoveredButton('delete')}
+          onMouseLeave={() => setHoveredButton(null)}
+          title="Delete"
+        >
           ×
         </button>
       </div>

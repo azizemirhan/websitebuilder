@@ -42,6 +42,18 @@ export const ElementRenderer = memo(function ElementRenderer({
     // Don't stop propagation - let CanvasRenderer handle selection and drag
   }, []);
 
+  // Double click handler for quick actions (e.g., edit text)
+  const handleDoubleClick = useCallback((e: React.MouseEvent) => {
+    if (isPreview) return;
+    e.stopPropagation();
+
+    // TODO: Implement type-specific double-click actions
+    // For text: open inline editor
+    // For images: open image picker
+    // For buttons: open text editor
+    console.log(`[Double-click] ${element?.type} element:`, elementId);
+  }, [element?.type, elementId, isPreview]);
+
   const handleMouseEnter = useCallback(() => {
     if (isPreview) return; // Disable hover in preview
     if (!element?.locked) {
@@ -60,6 +72,7 @@ export const ElementRenderer = memo(function ElementRenderer({
     isSelected,
     isHovered,
     onMouseDown: handleMouseDown,
+    onDoubleClick: handleDoubleClick,
     onMouseEnter: handleMouseEnter,
     onMouseLeave: handleMouseLeave,
     isPreview,
