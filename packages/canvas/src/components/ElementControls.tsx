@@ -16,6 +16,8 @@ export const ElementControls = memo(function ElementControls({
 
   const [domRect, setDomRect] = useState<DOMRect | null>(null);
   const zoom = useSettingsStore((state) => state.zoom);
+  const panX = useSettingsStore((state) => state.panX);
+  const panY = useSettingsStore((state) => state.panY);
   const retryCountRef = useRef(0);
   const maxRetries = 10;
 
@@ -49,15 +51,16 @@ export const ElementControls = memo(function ElementControls({
       
       // Calculate position relative to canvas root
       // Divide by zoom since getBoundingClientRect returns scaled values
+      // Subtract pan offset to account for canvas panning
       const calculatedRect = {
-        top: (elRect.top - canvasRect.top) / zoom,
-        left: (elRect.left - canvasRect.left) / zoom,
+        top: (elRect.top - canvasRect.top) / zoom - panY / zoom,
+        left: (elRect.left - canvasRect.left) / zoom - panX / zoom,
         width: elRect.width / zoom,
         height: elRect.height / zoom,
-        bottom: (elRect.bottom - canvasRect.top) / zoom,
-        right: (elRect.right - canvasRect.left) / zoom,
-        x: (elRect.left - canvasRect.left) / zoom,
-        y: (elRect.top - canvasRect.top) / zoom,
+        bottom: (elRect.bottom - canvasRect.top) / zoom - panY / zoom,
+        right: (elRect.right - canvasRect.left) / zoom - panX / zoom,
+        x: (elRect.left - canvasRect.left) / zoom - panX / zoom,
+        y: (elRect.top - canvasRect.top) / zoom - panY / zoom,
         toJSON: () => {}
       };
       
@@ -86,7 +89,7 @@ export const ElementControls = memo(function ElementControls({
         mutationObserver.disconnect();
       };
     }
-  }, [elementId, element?.style, zoom]);
+  }, [elementId, element?.style, zoom, panX, panY]);
 
   if (!element || !domRect) return null;
 
@@ -105,7 +108,6 @@ export const ElementControls = memo(function ElementControls({
   const handleAdd = (e: React.MouseEvent) => {
      e.stopPropagation();
      // TODO: Implement Add Logic (Open modal/drawer)
-     console.log('Add clicked for', elementId);
   };
 
   // Styles for the overlays
